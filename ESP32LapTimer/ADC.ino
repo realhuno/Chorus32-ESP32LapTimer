@@ -45,14 +45,8 @@ byte currentADCpin = 0;
 
 void ConfigureADC() {
 
-  adc1_config_width(ADC_WIDTH_BIT_12);
-
-  adc1_config_channel_atten(ADC1, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC2, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC3, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC4, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC5, ADC_ATTEN_6db);
-  adc1_config_channel_atten(ADC6, ADC_ATTEN_6db);
+  analogSetWidth(12);
+  analogSetAttenuation(ADC_6db);
 
   ina219.begin();
   ReadVBAT_INA219();
@@ -72,50 +66,12 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
     ADCstartMicros = now;
     LastADCcall = now;
 
-    adcAttachPin(ADC1_GPIO);
-    adcStart(ADC1_GPIO);
-    while (adcBusy(ADC1_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[0] = 2 * adcEnd(ADC1_GPIO); //don't know why 2x is needed here!
-
-    adcAttachPin(ADC2_GPIO);
-    adcStart(ADC2_GPIO);
-    while (adcBusy(ADC2_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[1] = 2 * adcEnd(ADC2_GPIO); //don't know why 2x is needed here!
-
-    adcAttachPin(ADC3_GPIO);
-    adcStart(ADC3_GPIO);
-    while (adcBusy(ADC3_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[2] = 2 * adcEnd(ADC3_GPIO); //don't know why 2x is needed here!
-
-
-    adcAttachPin(ADC4_GPIO);
-    adcStart(ADC4_GPIO);
-    while (adcBusy(ADC4_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[3] = 2 * adcEnd(ADC4_GPIO); //don't know why 2x is needed here!
-
-
-    adcAttachPin(ADC5_GPIO);
-    adcStart(ADC5_GPIO);
-    while (adcBusy(ADC5_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[4] = 2 * adcEnd(ADC5_GPIO); //don't know why 2x is needed here!
-
-
-    adcAttachPin(ADC6_GPIO);
-    adcStart(ADC6_GPIO);
-    while (adcBusy(ADC6_GPIO)) {
-      NOP();
-    }
-    ADCReadingsRAW[5] = 2 * adcEnd(ADC6_GPIO); //don't know why 2x is needed here!
+    ADCReadingsRAW[0] = analogRead(ADC1_GPIO);
+    ADCReadingsRAW[1] = analogRead(ADC2_GPIO);
+    ADCReadingsRAW[2] = analogRead(ADC3_GPIO);
+    ADCReadingsRAW[3] = analogRead(ADC4_GPIO);
+    ADCReadingsRAW[4] = analogRead(ADC5_GPIO);
+    ADCReadingsRAW[5] = analogRead(ADC6_GPIO);
 
     // Applying calibration
     if (!isCurrentlyCalibrating) {
