@@ -3,10 +3,11 @@
 #include <driver/timer.h>
 #include <esp_adc_cal.h>
 
-#include "HardwareConfig.h"
-#include "Comms.h"
 #include <Wire.h>
 #include <Adafruit_INA219.h>
+
+#include "HardwareConfig.h"
+#include "Comms.h"
 #include "settings_eeprom.h"
 #include "ADC.h"
 #include "Timer.h"
@@ -18,9 +19,6 @@ extern RXADCfilter_ RXADCfilter;
 extern ADCVBATmode_ ADCVBATmode;
 extern byte NumRecievers;
 
-
-static FilterBeLp2Slow FilterVBAT; //slow filter for VBAT readings
-
 extern RXADCfilter_ RXADCfilter; //variable to hold which filter we use.
 
 static Adafruit_INA219 ina219; // A0+A1=GND
@@ -31,19 +29,10 @@ static uint16_t ADCcaptime;
 
 static uint32_t LastADCcall;
 
-
-static bool HTTPupdating;
-
-uint32_t cp0_regs[18];
-
 hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
 SemaphoreHandle_t xBinarySemaphore;
-
-static bool BeginADCReading = false;
-static bool ADCreadingBusy = false;
-static byte currentADCpin = 0;
 
 static esp_adc_cal_characteristics_t adc_chars;
 
