@@ -1,4 +1,7 @@
-#pragma once
+#ifndef __HARDWARECONFIG_H_
+#define __HARDWARECONFIG_H_
+#include <stdint.h>
+
 void InitHardwarePins();
 
 ///Define Pin configuration here, these are the defaults as given on github
@@ -12,7 +15,7 @@ void InitHardwarePins();
 #define EEPROM_VERSION_NUMBER 6 // Increment when eeprom struct modified
 
 #define MaxNumRecievers 6
-byte NumRecievers;
+extern uint8_t NumRecievers;
 
 #define MIN_TUNE_TIME 30000 // value in micro seconds
 
@@ -84,3 +87,5 @@ byte NumRecievers;
   #define ADC5_GPIO 32
   #define ADC6_GPIO 33
 #endif
+
+#endif // __HARDWARECONFIG_H_
