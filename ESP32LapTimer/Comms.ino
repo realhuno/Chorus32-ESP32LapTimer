@@ -4,7 +4,7 @@
 #include "UDP.h"
 #include "settings_eeprom.h"
 #include "Laptime.h"
-#include "CircularHack.h"
+#include "ADC.h"
 
 ///////This is mostly from the original Chorus Laptimer, need to cleanup unused functions and variables
 

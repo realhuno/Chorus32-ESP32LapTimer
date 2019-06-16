@@ -22,4 +22,7 @@ void setADCLoopCount(uint16_t count);
 void setVbatCal(float calibration);
 float getMaFloat();
 
+float getVbatFloat();
+void setVbatFloat(float val);
+
 #endif

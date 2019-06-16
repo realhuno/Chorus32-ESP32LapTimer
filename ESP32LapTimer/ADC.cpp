@@ -14,7 +14,6 @@
 #include "UDP.h"
 #include "Calibration.h"
 #include "Laptime.h"
-#include "CircularHack.h"
 
 static Timer ina219Timer = Timer(1000);
 
@@ -56,6 +55,7 @@ static FilterBeLp2_100HZ Filter_100HZ[6] = {FilterBeLp2_100HZ(), FilterBeLp2_100
 
 float VBATcalibration;
 float mAReadingFloat;
+static float VbatReadingFloat;
 
 void ConfigureADC() {
 
@@ -255,4 +255,12 @@ void setVbatCal(float calibration) {
 
 float getMaFloat() {
 	return mAReadingFloat;
+}
+
+float getVbatFloat(){
+	return VbatReadingFloat;
+}
+
+void setVbatFloat(float val){
+	VbatReadingFloat = val;
 }
