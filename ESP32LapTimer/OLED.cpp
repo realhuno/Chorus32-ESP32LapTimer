@@ -11,18 +11,18 @@
 #include "Calibration.h"
 #include "WebServer.h"
 
-uint8_t oledRefreshTime = 50;
+static uint8_t oledRefreshTime = 50;
 
-Timer oledTimer = Timer(oledRefreshTime);
+static Timer oledTimer = Timer(oledRefreshTime);
 
-SSD1306  display(0x3c, 21, 22);  // 21 and 22 are default pins
+static SSD1306  display(0x3c, 21, 22);  // 21 and 22 are default pins
 
-const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
+static const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 
-uint16_t displayScreenNumber = 0;
-uint8_t  numberOfBaseScreens = 4; // Increment if a new screen is added to cycle through.
+static uint16_t displayScreenNumber = 0;
+static uint8_t  numberOfBaseScreens = 4; // Increment if a new screen is added to cycle through.
 // The actual number of screens will be calculated on Button 1 press in buttons.ino.
-uint8_t numberOfOledScreens = numberOfBaseScreens;
+static uint8_t numberOfOledScreens = numberOfBaseScreens;
 
 void oledSetup(void) {
   display.init();

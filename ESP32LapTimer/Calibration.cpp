@@ -7,9 +7,9 @@
 #include "OLED.h"
 #include "Timer.h"
 
-int calibrationFreqIndex = 0;
-bool isCurrentlyCalibrating = false;
-Timer calibrationTimer = Timer(50);
+static int calibrationFreqIndex = 0;
+static bool isCurrentlyCalibrating = false;
+static Timer calibrationTimer = Timer(50);
 
 extern uint8_t NumRecievers;
 

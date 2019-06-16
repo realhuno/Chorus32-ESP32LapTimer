@@ -31,8 +31,6 @@ static uint16_t ADCcaptime;
 
 static uint32_t LastADCcall;
 
-extern uint8_t raceMode;
-
 hw_timer_t * timer = NULL;
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -54,7 +52,7 @@ static FilterBeLp2_50HZ Filter_50HZ[6] = {FilterBeLp2_50HZ(), FilterBeLp2_50HZ()
 static FilterBeLp2_100HZ Filter_100HZ[6] = {FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ()};
 
 float VBATcalibration;
-float mAReadingFloat;
+static float mAReadingFloat;
 static float VbatReadingFloat;
 
 void ConfigureADC() {
@@ -144,7 +142,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
         break;
     }
 
-    if (raceMode > 0) {
+    if (isInRaceMode() > 0) {
       CheckRSSIthresholdExceeded();
     }
 

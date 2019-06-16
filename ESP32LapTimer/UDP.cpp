@@ -5,15 +5,15 @@
 
 #include "Comms.h"
 
-char packetBuffer[1500];
-char UDPin[1500];
+static char packetBuffer[1500];
+static char UDPin[1500];
 
-uint8_t UDPoutQue[1500];
-int UDPoutQuePtr = 0; //Keep track of where we are in the Que
+static uint8_t UDPoutQue[1500];
+static int UDPoutQuePtr = 0; //Keep track of where we are in the Que
 
-bool MirrorToSerial = true;
+static bool MirrorToSerial = true;
 
-WiFiUDP UDPserver;
+static WiFiUDP UDPserver;
 
 void IRAM_ATTR SendUDPpacket() {
 

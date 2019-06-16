@@ -2,15 +2,15 @@
 
 #ifdef BluetoothEnabled
 
-char BluetootBuffIn[255];
-int BluetootBuffInPointer = 0;
+static char BluetootBuffIn[255];
+static int BluetootBuffInPointer = 0;
 
-char BluetootBufftoProcess[255];
+static char BluetootBufftoProcess[255];
 
-char BluetoothBuffOut[255];
-int BluetoothBuffOutPointer=0;
+static char BluetoothBuffOut[255];
+static int BluetoothBuffOutPointer=0;
 
-BluetoothSerial SerialBT;
+static BluetoothSerial SerialBT;
 
 void ReadfromBLE() {
 
