@@ -2,6 +2,8 @@
 #define __HARDWARECONFIG_H_
 #include <stdint.h>
 
+#include <Arduino.h>
+
 void InitHardwarePins();
 
 ///Define Pin configuration here, these are the defaults as given on github

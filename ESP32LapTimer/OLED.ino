@@ -18,6 +18,7 @@ const TickType_t xDelay = 500 / portTICK_PERIOD_MS;
 uint16_t displayScreenNumber = 0;
 uint8_t  numberOfBaseScreens = 4; // Increment if a new screen is added to cycle through.
 // The actual number of screens will be calculated on Button 1 press in buttons.ino.
+uint8_t numberOfOledScreens = numberOfBaseScreens;
 
 void oledSetup(void) {
   display.init();
@@ -146,6 +147,7 @@ void displayRxPage() {
   display.drawString(0,55, "Btn2 LONG  - Band.");
 }
 
+// TODO: this doesn't belong here
 void incrementRxFrequency() {
   uint8_t currentRXNumber = (displayScreenNumber % numberOfOledScreens) - 4;
   uint8_t currentRXChannel = getRXChannel(currentRXNumber);
@@ -175,6 +177,25 @@ void incrementRxBand() {
 
 void setDisplayScreenNumber(uint16_t num) {
 	displayScreenNumber = num;
+}
+
+uint16_t getDisplayScreenNumber() {
+	return displayScreenNumber;
+}
+
+void setNumberOfOledScreens(uint8_t num) {
+	numberOfOledScreens = num;
+}
+uint8_t getNumberOfOledScreens() {
+	return numberOfOledScreens;
+}
+
+void setNumberOfBaseScreens(uint8_t num) {
+	numberOfBaseScreens = num;
+}
+
+uint8_t getNumberOfBaseScreens(){
+	return numberOfBaseScreens;
 }
 
 #endif
