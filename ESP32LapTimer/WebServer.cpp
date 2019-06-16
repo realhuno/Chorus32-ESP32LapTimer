@@ -17,21 +17,22 @@
 #include "SPIFFS.h"
 #include <Update.h>
 
-const byte DNS_PORT = 53;
-IPAddress apIP(192, 168, 4, 1);
-DNSServer dnsServer;
-WebServer  webServer(80);
-WiFiClient client = webServer.client();
+static const byte DNS_PORT = 53;
+static IPAddress apIP(192, 168, 4, 1);
+static DNSServer dnsServer;
+static WebServer  webServer(80);
+static WiFiClient client = webServer.client();
 
 //flag to use from web update to reboot the ESP
-bool shouldReboot = false;
-const char NOSPIFFS[] PROGMEM = "You have not uploaded the SPIFFs filesystem!!!, Please install the <b><a href=\"https://github.com/me-no-dev/arduino-esp32fs-plugin\">following plugin</a></b>.<br> Place the plugin file here: <b>\"C:\ Program Files (x86)\ Arduino \ tools \ ESP32FS \ tool \ esp32fs.jar\"</b>.<br><br> Next select <b>Tools > ESP32 Sketch Data Upload</b>.<br>NOTE: This is a seperate upload to the normal arduino upload!!!<br><br> The web interface will not work until you do this.";
+static bool shouldReboot = false;
+static const char NOSPIFFS[] PROGMEM = "You have not uploaded the SPIFFs filesystem!!!, Please install the <b><a href=\"https://github.com/me-no-dev/arduino-esp32fs-plugin\">following plugin</a></b>.<br> Place the plugin file here: <b>\"C:\ Program Files (x86)\ Arduino \ tools \ ESP32FS \ tool \ esp32fs.jar\"</b>.<br><br> Next select <b>Tools > ESP32 Sketch Data Upload</b>.<br>NOTE: This is a seperate upload to the normal arduino upload!!!<br><br> The web interface will not work until you do this.";
 
 
-bool firstRedirect = true;
-bool HasSPIFFsBegun = false;
+static bool firstRedirect = true;
+static bool HasSPIFFsBegun = false;
 
-bool HTTPupdating = false;
+static bool HTTPupdating = false;
+static bool airplaneMode = false;
 
 ///////////Extern Variable we need acces too///////////////////////
 
@@ -435,6 +436,35 @@ void updateWifi() {
 	dnsServer.processNextRequest();
 	webServer.handleClient();
 }
+
+void airplaneModeOn() {
+  // Enable Airplane Mode (WiFi Off)
+  Serial.println("Airplane Mode On");
+  WiFi.mode(WIFI_OFF);
+  airplaneMode = true;
+}
+
+void airplaneModeOff() {
+  // Disable Airplane Mode (WiFi On)
+  Serial.println("Airplane Mode OFF");
+  InitWifiAP();
+  InitWebServer();
+  airplaneMode = false;
+}
+
+// Toggle Airplane mode on and off based on current state
+void toggleAirplaneMode() {
+  if (!airplaneMode) {
+    airplaneModeOn();
+  } else {
+    airplaneModeOff();
+  }
+}
+
+bool isAirplaneModeOn() {
+	return airplaneMode;
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
