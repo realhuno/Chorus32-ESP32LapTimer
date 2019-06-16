@@ -13,6 +13,7 @@
 #include "Calibration.h"
 #include "UDP.h"
 #include "Buttons.h"
+#include "WebServer.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
@@ -94,13 +95,7 @@ void loop() {
   HandleSerialRead();
   HandleServerUDP();
   SendCurrRSSIloop();
-  dnsServer.processNextRequest();
-
-  //if (raceMode == 0) {
-  //if (client.connected()) {
-  webServer.handleClient();
-  //}
-  // }
+  updateWifi();
 
 #ifdef BluetoothEnabled
   HandleBluetooth();
