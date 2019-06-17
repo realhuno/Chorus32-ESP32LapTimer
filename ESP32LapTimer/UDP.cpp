@@ -5,12 +5,12 @@
 
 #include "Comms.h"
 
-#define MAX_UDP_SIZE 1500
+#define MAX_UDP_OUTPUT_QUEUE_SIZE 1500
 
 static char packetBuffer[1500];
 static char UDPin[1500];
 
-static uint8_t UDPoutQue[MAX_UDP_SIZE];
+static uint8_t UDPoutQue[MAX_UDP_OUTPUT_QUEUE_SIZE];
 static int UDPoutQuePtr = 0; //Keep track of where we are in the Que
 
 static bool MirrorToSerial = true;
@@ -44,11 +44,10 @@ void IRAM_ATTR SendUDPpacket() {
 
 
 bool IRAM_ATTR addToSendQueue(uint8_t item) {
-	if(UDPoutQuePtr >= MAX_UDP_SIZE) {
+	if(UDPoutQuePtr >= MAX_UDP_OUTPUT_QUEUE_SIZE) {
 		return false;
 	}
 	UDPoutQue[UDPoutQuePtr++] = item;
-	UDPoutQuePtr++;
 
 #ifdef BluetoothEnabled
 	BluetoothBuffOut[BluetoothBuffOutPointer] = item;
@@ -63,7 +62,7 @@ bool IRAM_ATTR addToSendQueue(uint8_t item) {
 
 
 uint8_t IRAM_ATTR addToSendQueue(uint8_t * buff, uint8_t length) {
-	for (uint8_t i = 0; i < length; ++i) {
+	for (int i = 0; i < length; ++i) {
 		if(!addToSendQueue(buff[i])) {
 			return i;
 		}
