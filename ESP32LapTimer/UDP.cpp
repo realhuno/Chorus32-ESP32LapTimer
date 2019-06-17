@@ -5,10 +5,12 @@
 
 #include "Comms.h"
 
+#define MAX_UDP_SIZE 1500
+
 static char packetBuffer[1500];
 static char UDPin[1500];
 
-static uint8_t UDPoutQue[1500];
+static uint8_t UDPoutQue[MAX_UDP_SIZE];
 static int UDPoutQuePtr = 0; //Keep track of where we are in the Que
 
 static bool MirrorToSerial = true;
@@ -41,36 +43,32 @@ void IRAM_ATTR SendUDPpacket() {
 }
 
 
-void IRAM_ATTR addToSendQueue(uint8_t item) {
-  UDPoutQue[UDPoutQuePtr] = item;
-  UDPoutQuePtr++;
+bool IRAM_ATTR addToSendQueue(uint8_t item) {
+	if(UDPoutQuePtr >= MAX_UDP_SIZE) {
+		return false;
+	}
+	UDPoutQue[UDPoutQuePtr++] = item;
+	UDPoutQuePtr++;
 
 #ifdef BluetoothEnabled
-  BluetoothBuffOut[BluetoothBuffOutPointer] = item;
-  BluetoothBuffOutPointer++;
+	BluetoothBuffOut[BluetoothBuffOutPointer] = item;
+	BluetoothBuffOutPointer++;
 #endif
 
  // if (item == '\n') {
  //   SendUDPpacket();
  // }
+	return true;
 }
 
 
-void IRAM_ATTR addToSendQueue(uint8_t * buff, uint8_t length) {
-
-  for (int i = 0; i < length; i++) {
-    UDPoutQue[UDPoutQuePtr] = buff[i];
-    UDPoutQuePtr++;
-
-#ifdef BluetoothEnabled
-    BluetoothBuffOut[BluetoothBuffOutPointer] = buff[i];
-    BluetoothBuffOutPointer++;
-#endif
-
-    //    if (MirrorToSerial) {
-    //      Serial.print(char(buff[i]));
-    //    }
-  }
+uint8_t IRAM_ATTR addToSendQueue(uint8_t * buff, uint8_t length) {
+	for (uint8_t i = 0; i < length; ++i) {
+		if(!addToSendQueue(buff[i])) {
+			return i;
+		}
+	}
+	return length;
 }
 
 char SerialBuffIn[50];
