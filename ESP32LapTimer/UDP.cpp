@@ -45,6 +45,7 @@ void IRAM_ATTR SendUDPpacket() {
 
 bool IRAM_ATTR addToSendQueue(uint8_t item) {
 	if(UDPoutQuePtr >= MAX_UDP_OUTPUT_QUEUE_SIZE) {
+		Serial.println("UDP buf full!");
 		return false;
 	}
 	UDPoutQue[UDPoutQuePtr++] = item;
