@@ -10,9 +10,9 @@ static volatile int LapTimePtr[MaxNumRecievers] = {0, 0, 0, 0, 0, 0}; //Keep tra
 static uint32_t MinLapTime = 5000;  //this is in millis
 
 void resetLaptimes() {
-   for (int i = 0; i < NumRecievers; i ++) {
-      LapTimePtr[i] = 0;
-    } //reset all lap times
+	for (int i = 0; i < NumRecievers; i ++) {
+		LapTimePtr[i] = 0;
+	} // reset all lap times
 }
 
 uint32_t getLaptime(uint8_t receiver, uint8_t lap) {
@@ -23,12 +23,10 @@ uint32_t getLaptime(uint8_t receiver) {
 	return getLaptime(receiver, LapTimePtr[receiver]);
 }
 
-
-
 uint8_t addLap(uint8_t receiver, uint32_t time) {
-		LapTimePtr[receiver] = LapTimePtr[receiver] + 1;
-        LapTimes[receiver][LapTimePtr[receiver]] = time;
-        return LapTimePtr[receiver];
+	LapTimePtr[receiver] = LapTimePtr[receiver] + 1;
+	LapTimes[receiver][LapTimePtr[receiver]] = time;
+	return LapTimePtr[receiver];
 }
 
 uint32_t getMinLapTime() {
