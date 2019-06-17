@@ -24,8 +24,8 @@ static WebServer  webServer(80);
 static WiFiClient client = webServer.client();
 
 //flag to use from web update to reboot the ESP
-static bool shouldReboot = false;
-static const char NOSPIFFS[] PROGMEM = "You have not uploaded the SPIFFs filesystem!!!, Please install the <b><a href=\"https://github.com/me-no-dev/arduino-esp32fs-plugin\">following plugin</a></b>.<br> Place the plugin file here: <b>\"C:\ Program Files (x86)\ Arduino \ tools \ ESP32FS \ tool \ esp32fs.jar\"</b>.<br><br> Next select <b>Tools > ESP32 Sketch Data Upload</b>.<br>NOTE: This is a seperate upload to the normal arduino upload!!!<br><br> The web interface will not work until you do this.";
+//static bool shouldReboot = false;
+static const char NOSPIFFS[] PROGMEM = "You have not uploaded the SPIFFs filesystem!!!, Please install the <b><a href=\"https://github.com/me-no-dev/arduino-esp32fs-plugin\">following plugin</a></b>.<br> Place the plugin file here: <b>\"<path to your Arduino dir>/tools/ESP32FS/tool/esp32fs.jar\"</b>.<br><br> Next select <b>Tools > ESP32 Sketch Data Upload</b>.<br>NOTE: This is a seperate upload to the normal arduino upload!!!<br><br> The web interface will not work until you do this.";
 
 
 static bool firstRedirect = true;
@@ -96,6 +96,7 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
     //Serial.println(path);// If the file exists
     File file = SPIFFS.open(path, "r");                 // Open it
     size_t sent = webServer.streamFile(file, contentType); // And send it to the client
+    (void)sent;
     file.close();
     HTTPupdating = false;
     //Serial.println("on");
@@ -133,10 +134,6 @@ void InitWifiAP() {
   dnsServer.start(DNS_PORT, "*", apIP);
   HTTPupdating = false;
   Serial.println("on");
-
-}
-
-bool DoesSPIFFsExist() {
 
 }
 
@@ -183,13 +180,14 @@ void ProcessGeneralSettingsUpdate() {
   String NumRXs = webServer.arg("NumRXs");
   NumRecievers = (byte)NumRXs.toInt();
 
-  if (NumRecievers >= 0) {
-    String Band1 = webServer.arg("band1");
-    String Channel1 = webServer.arg("channel1");
-    int band1 = (byte)Band1.toInt();
-    int channel1 = (byte)Channel1.toInt();
-    updateRx(band1, channel1, 1);
-  }
+  // NumRecievers is always >= 0
+  // TODO: why does NumRecievers == 0 equals to 1 rx?
+  String Band1 = webServer.arg("band1");
+  String Channel1 = webServer.arg("channel1");
+  int band1 = (byte)Band1.toInt();
+  int channel1 = (byte)Channel1.toInt();
+  updateRx(band1, channel1, 1);
+
   if (NumRecievers >= 1) {
     String Band2 = webServer.arg("band2");
     String Channel2 = webServer.arg("channel2");
@@ -240,6 +238,7 @@ void ProcessGeneralSettingsUpdate() {
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  (void)sent;
   file.close();
   setSaveRequired();
 #ifdef OLED
@@ -277,6 +276,7 @@ void ProcessVBATModeUpdate() {
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  (void)sent;
   file.close();
   setSaveRequired();
 }
@@ -289,6 +289,7 @@ void ProcessADCRXFilterUpdate() {
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
   size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+  (void)sent;
   file.close();
   setSaveRequired();
 
@@ -360,6 +361,7 @@ void InitWebServer() {
     File file = SPIFFS.open("/index.html", "r");
     // Open it
     size_t sent = webServer.streamFile(file, "text/html"); // And send it to the client
+    (void)sent;
     file.close();
     HTTPupdating = false;
     //Serial.println("on");

@@ -256,22 +256,24 @@ uint16_t getSynthRegisterBFreq(uint16_t f) {
 void setChannel(uint8_t channel, uint8_t NodeAddr) {
   Serial.println(channel);
 
-  if (channel >= 0 && channel <= 7) {
+  if (channel <= 7) {
     Serial.println("setChannel");
     RXChannel[NodeAddr] = channel;
     uint8_t band = RXBand[NodeAddr];
     uint16_t SetFreq = setModuleChannelBand(channel, band, NodeAddr);
+    (void)SetFreq;
   }
 }
 
 void setBand(uint8_t band, uint8_t NodeAddr) {
   Serial.println(band);
 
-  if (band >= 0 && band <= MAX_BAND) {
+  if (band <= MAX_BAND) {
     Serial.println("setBand");
     RXBand[NodeAddr] = band;
     uint8_t channel = RXChannel[NodeAddr];
     uint16_t SetFreq = setModuleChannelBand(channel, band, NodeAddr);
+    (void)SetFreq;
   }
 }
 
@@ -423,6 +425,9 @@ String getBandLabel(int band) {
       break;
     case 7:
       return "XX";
+      break;
+    default:
+      return "";
       break;
   }
 

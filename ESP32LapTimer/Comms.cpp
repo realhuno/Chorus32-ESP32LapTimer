@@ -293,7 +293,6 @@ void SendThresholdValue(uint8_t NodeAddr) {
 void SendCurrRSSI(uint8_t NodeAddr) {
 
   ///Calculate Averages///
-  uint32_t AvgValue = 0;
   uint16_t Result = getRSSI(NodeAddr);
 
   //MirrorToSerial = false;  // this so it doesn't spam the serial console with RSSI updates
@@ -353,7 +352,7 @@ void setupThreshold(uint8_t phase, uint8_t node) {
     //playThresholdSetupStartTones();
     thresholdSetupMode[node] = 1;
     rssiLow[node] = rssi; // using slowRssi to avoid catching random current rssi
-    rssiHigh[node] = rssiLow[MaxNumRecievers];
+    rssiHigh[node] = rssiLow[node];
     accumulatedShiftedRssi[node] = rssiLow[node] * ACCUMULATION_TIME_CONSTANT; // multiply to prevent loss in accuracy
     rssiHighEnoughForMonitoring[node] = rssiLow[node] + rssiLow[node] * RISE_RSSI_THRESHOLD_PERCENT / 100;
     lastRssiAccumulationTime[node] = millis();
@@ -421,7 +420,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
   //  Serial.print("SendLap: ");
   //  Serial.println(String(Lap) + " " + String(NodeAddr));
 
-  uint32_t RequestedLap;
+  uint32_t RequestedLap = 0;
 
   if (raceMode == 0) {
     Serial.println("RaceMode == 0 and sendlaps was called");
@@ -505,7 +504,7 @@ void SendLipoVoltage() {
   addToSendQueue(TO_HEX(0));
   addToSendQueue('v');
   uint8_t buf[4];
-  float VbatFloat;
+  float VbatFloat = 0;
 
   if(getADCVBATmode() != OFF) {
     VbatFloat = (getVbatFloat() / 11.0) * (1024.0 / 5.0); // App expects raw pin reading through a potential divider.
