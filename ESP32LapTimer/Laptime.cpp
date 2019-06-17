@@ -16,7 +16,7 @@ void resetLaptimes() {
 }
 
 uint32_t getLaptime(uint8_t receiver, uint8_t lap) {
-	return LapTimes[receiver][LapTimePtr[receiver]];
+	return LapTimes[receiver][lap];
 }
 
 uint32_t getLaptime(uint8_t receiver) {
