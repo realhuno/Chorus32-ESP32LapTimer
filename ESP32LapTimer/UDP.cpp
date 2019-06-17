@@ -13,7 +13,7 @@ static char UDPin[1500];
 static uint8_t UDPoutQue[MAX_UDP_OUTPUT_QUEUE_SIZE];
 static int UDPoutQuePtr = 0; //Keep track of where we are in the Que
 
-static bool MirrorToSerial = true;
+static bool MirrorToSerial = false;
 
 static WiFiUDP UDPserver;
 

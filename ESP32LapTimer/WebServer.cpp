@@ -141,10 +141,10 @@ void updateRx (int band, int channel, int rx) {
   rx = rx - 1;
   setModuleChannelBand(band, channel, rx);
   EepromSettings.RXBand[rx] = band;
-  setRXBand(rx, band);
+  setRXBandPilot(rx, band);
   EepromSettings.RXChannel[rx] = channel;
-  setRXChannel(rx, channel);
-  uint16_t index = getRXChannel(rx) + (8 * getRXBand(rx));
+  setRXChannelPilot(rx, channel);
+  uint16_t index = getRXChannelPilot(rx) + (8 * getRXBandPilot(rx));
   EepromSettings.RXfrequencies[rx] = channelFreqTable[index];
 }
 
