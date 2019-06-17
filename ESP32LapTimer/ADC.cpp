@@ -100,21 +100,21 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
 	switch (getRXADCfilter()) {
 
-	  case LPF_10Hz:
-		ADCvalues[current_adc] = Filter_10HZ[current_adc].step(ADCReadingsRAW[current_adc]);
-		break;
+		case LPF_10Hz:
+			ADCvalues[current_adc] = Filter_10HZ[current_adc].step(ADCReadingsRAW[current_adc]);
+			break;
 
-	  case LPF_20Hz:
-		ADCvalues[current_adc] = Filter_20HZ[current_adc].step(ADCReadingsRAW[current_adc]);
-		break;
+		case LPF_20Hz:
+			ADCvalues[current_adc] = Filter_20HZ[current_adc].step(ADCReadingsRAW[current_adc]);
+			break;
 
-	  case LPF_50Hz:
-		ADCvalues[current_adc] = Filter_50HZ[current_adc].step(ADCReadingsRAW[current_adc]);
-		break;
+		case LPF_50Hz:
+			ADCvalues[current_adc] = Filter_50HZ[current_adc].step(ADCReadingsRAW[current_adc]);
+			break;
 
-	  case LPF_100Hz:
-		ADCvalues[current_adc] = Filter_100HZ[current_adc].step(ADCReadingsRAW[current_adc]);
-		break;
+		case LPF_100Hz:
+			ADCvalues[current_adc] = Filter_100HZ[current_adc].step(ADCReadingsRAW[current_adc]);
+			break;
 	}
 
 	switch (getADCVBATmode()) {
@@ -131,7 +131,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 	}
 
 	if (LIKELY(isInRaceMode() > 0)) {
-	  CheckRSSIthresholdExceeded();
+		CheckRSSIthresholdExceeded(current_adc);
 	}
 	current_adc = (current_adc + 1) % 6;
 }
@@ -145,16 +145,14 @@ void ReadVBAT_INA219() {
   }
 }
 
-void IRAM_ATTR CheckRSSIthresholdExceeded() {
-  uint32_t CurrTime = millis();
-  for (uint8_t i = 0; i < NumRecievers; i++) {
-    if ( ADCvalues[i] > RSSIthresholds[i]) {
-		if (CurrTime > (getMinLapTime() + getLaptime(i))) {
-        uint8_t lap_num = addLap(i, CurrTime);
-        sendLap(lap_num, i);
-      }
-    }
-  }
+void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t node) {
+	uint32_t CurrTime = millis();
+	if ( ADCvalues[node] > RSSIthresholds[node]) {
+		if (CurrTime > (getMinLapTime() + getLaptime(node))) {
+			uint8_t lap_num = addLap(node, CurrTime);
+			sendLap(lap_num, node);
+		}
+	}
 }
 
 uint16_t getRSSI(uint8_t index) {
