@@ -20,7 +20,7 @@ void InitHardwarePins();
 #define NUM_PHYSICAL_RECEIVERS 1
 #define MULTIPLEX_STAY_TIME_US 5 * 1000
 
-#define MIN_TUNE_TIME 30000 // value in micro seconds
+#define MIN_TUNE_TIME_US 30000 // value in micro seconds
 
 #define OLED //uncomment this to enable OLED support
 

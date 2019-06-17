@@ -74,10 +74,9 @@ void ConfigureADC() {
 
 void IRAM_ATTR nbADCread( void * pvParameters ) {
 	static uint8_t current_adc = 0;
+	// TODO: save for every rx
 	static uint32_t last_hop = 0;
 	static uint8_t current_pilot = 0;
-	
-	if(current_adc == 0) ++adcLoopCounter;
 
 	//xSemaphoreTake( xBinarySemaphore, portMAX_DELAY );
 	uint32_t now = micros();
@@ -104,8 +103,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		break;
 	}
 	if(current_pilot_num > NUM_PHYSICAL_RECEIVERS) {
-		if(now - last_hop > MULTIPLEX_STAY_TIME_US) {
-			// TODO: save pilot status of every pilot
+		if(now - last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
 			current_pilot = getNextPilot(current_pilot);
 			// TODO: support multiple modules
 			// TODO: add class between this and rx5808
@@ -113,61 +111,64 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 			// TODO: add smarter jumping with multiple modules available
 			setModuleChannelBand(getRXChannelPilot(current_pilot), getRXBandPilot(current_pilot), current_adc);
 			last_hop = now;
-			Serial.print("Current Pilot: ");
-			Serial.println(current_pilot);
 		}
 	} else { // only a single pilot
 		current_pilot = getNextPilot(current_pilot);
 	}
-	
-	ADCReadingsRAW[current_pilot] = adc1_get_raw(channel);
+	// go to next adc if vrx is not ready
+	if(isRxReady(current_adc)) {
+		ADCReadingsRAW[current_pilot] = adc1_get_raw(channel);
 
-	// Applying calibration
-	if (LIKELY(!isCalibrating())) {
-		// skip if voltage is on this channel
-		if(!(getADCVBATmode() == ADC_CH5 && current_adc == 4) || (getADCVBATmode() == ADC_CH6 && current_adc == 5)) {
-			uint16_t rawRSSI = constrain(ADCReadingsRAW[current_pilot], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
-			ADCReadingsRAW[current_pilot] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
-		} 
-	}
+		// Applying calibration
+		if (LIKELY(!isCalibrating())) {
+			// skip if voltage is on this channel
+			if(!(getADCVBATmode() == ADC_CH5 && current_adc == 4) || (getADCVBATmode() == ADC_CH6 && current_adc == 5)) {
+				uint16_t rawRSSI = constrain(ADCReadingsRAW[current_pilot], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
+				ADCReadingsRAW[current_pilot] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
+			} 
+		}
 
-	/*switch (getRXADCfilter()) {
+		// TODO: fix filtering
+		/*switch (getRXADCfilter()) {
 
-		case LPF_10Hz:
-			ADCvalues[current_pilot] = Filter_10HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
-			break;
+			case LPF_10Hz:
+				ADCvalues[current_pilot] = Filter_10HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
+				break;
 
-		case LPF_20Hz:
-			ADCvalues[current_pilot] = Filter_20HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
-			break;
+			case LPF_20Hz:
+				ADCvalues[current_pilot] = Filter_20HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
+				break;
 
-		case LPF_50Hz:
-			ADCvalues[current_pilot] = Filter_50HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
-			break;
+			case LPF_50Hz:
+				ADCvalues[current_pilot] = Filter_50HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
+				break;
 
-		case LPF_100Hz:
-			ADCvalues[current_pilot] = Filter_100HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
-			break;
-	}*/
-	
-	ADCvalues[current_pilot] = ADCReadingsRAW[current_pilot];
+			case LPF_100Hz:
+				ADCvalues[current_pilot] = Filter_100HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
+				break;
+		}*/
+		
+		ADCvalues[current_pilot] = ADCReadingsRAW[current_pilot];
 
-	switch (getADCVBATmode()) {
-		case ADC_CH5:
-			VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[4], &adc_chars);
-			setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
-			break;
-		case ADC_CH6:
-			VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[5], &adc_chars);
-			setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
-			break;
-		default:
-			break;
-	}
+		switch (getADCVBATmode()) {
+			case ADC_CH5:
+				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[4], &adc_chars);
+				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
+				break;
+			case ADC_CH6:
+				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[5], &adc_chars);
+				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
+				break;
+			default:
+				break;
+		}
 
-	if (LIKELY(isInRaceMode() > 0)) {
-		CheckRSSIthresholdExceeded(current_pilot);
-	}
+		if (LIKELY(isInRaceMode() > 0)) {
+			CheckRSSIthresholdExceeded(current_pilot);
+		}
+		
+		if(current_adc == 0) ++adcLoopCounter;
+	} // end if isRxReady
 	current_adc = (current_adc + 1) % NUM_PHYSICAL_RECEIVERS;
 }
 
