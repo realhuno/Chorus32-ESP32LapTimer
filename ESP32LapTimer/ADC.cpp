@@ -45,7 +45,7 @@ static FilterBeLp2_20HZ Filter_20HZ[6] = {FilterBeLp2_20HZ(), FilterBeLp2_20HZ()
 static FilterBeLp2_50HZ Filter_50HZ[6] = {FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ()};
 static FilterBeLp2_100HZ Filter_100HZ[6] = {FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ()};
 
-float VBATcalibration;
+static float VBATcalibration;
 static float mAReadingFloat;
 static float VbatReadingFloat;
 
@@ -255,4 +255,12 @@ float getVbatFloat(){
 
 void setVbatFloat(float val){
 	VbatReadingFloat = val;
+}
+
+void setVBATcalibration(float val) {
+	VBATcalibration = val;
+}
+
+float getVBATcalibration() {
+	return VBATcalibration;
 }

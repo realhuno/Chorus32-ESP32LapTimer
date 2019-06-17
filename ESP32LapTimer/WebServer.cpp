@@ -37,7 +37,6 @@ static bool airplaneMode = false;
 ///////////Extern Variable we need acces too///////////////////////
 
 extern byte NumRecievers;
-extern float VBATcalibration;
 
 //////////////////////////////////////////////////////////////////
 
@@ -158,7 +157,7 @@ void SendStatusVars() {
 
 void SendStaticVars() {
 
-  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0));
+  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0));
   sendSTR = sendSTR + ",\"Band\":{";
   for (int i = 0; i < NumRecievers; i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
@@ -269,10 +268,10 @@ void ProcessVBATModeUpdate() {
   String inADCcalibValue = webServer.arg("ADCcalibValue");
 
   setADCVBATmode((ADCVBATmode_)(byte)inADCVBATmode.toInt());
-  VBATcalibration =  inADCcalibValue.toFloat();
+  setVBATcalibration(inADCcalibValue.toFloat());
 
   EepromSettings.ADCVBATmode = getADCVBATmode();
-  EepromSettings.VBATcalibration = VBATcalibration;
+  EepromSettings.VBATcalibration = getVBATcalibration();
   setSaveRequired();
 
   webServer.sendHeader("Connection", "close");
