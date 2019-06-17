@@ -198,5 +198,5 @@ void IRAM_ATTR HandleServerUDP() {
 }
 
 void UDPinit() {
-	UDPserver.begin(9600);
+	UDPserver.begin(9000);
 }
