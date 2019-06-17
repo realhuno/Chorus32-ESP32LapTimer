@@ -17,12 +17,6 @@
 
 static Timer ina219Timer = Timer(1000);
 
-extern RXADCfilter_ RXADCfilter;
-extern ADCVBATmode_ ADCVBATmode;
-//extern uint8_t NumRecievers;
-
-extern RXADCfilter_ RXADCfilter; //variable to hold which filter we use.
-
 static Adafruit_INA219 ina219; // A0+A1=GND
 
 static uint32_t ADCstartMicros;
@@ -31,10 +25,10 @@ static uint16_t ADCcaptime;
 
 static uint32_t LastADCcall;
 
-hw_timer_t * timer = NULL;
-portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
+static hw_timer_t * timer = NULL;
+static portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 
-SemaphoreHandle_t xBinarySemaphore;
+static SemaphoreHandle_t xBinarySemaphore;
 
 static esp_adc_cal_characteristics_t adc_chars;
 
@@ -98,13 +92,13 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
     // Applying calibration
     if (!isCalibrating()) {
       for (uint8_t i = 0; i < NumRecievers; i++) {
-        if((ADCVBATmode == ADC_CH5 && i == 4) || (ADCVBATmode == ADC_CH6 && i == 5)) continue; // skip if voltage is on this channel
+        if((getADCVBATmode() == ADC_CH5 && i == 4) || (getADCVBATmode() == ADC_CH6 && i == 5)) continue; // skip if voltage is on this channel
         uint16_t rawRSSI = constrain(ADCReadingsRAW[i], EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i]);
         ADCReadingsRAW[i] = map(rawRSSI, EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i], 800, 2700); // 800 and 2700 are about average min max raw values
       }
     }
     
-    switch (RXADCfilter) {
+    switch (getRXADCfilter()) {
 
       case LPF_10Hz:
         for (int i = 0; i < 6; i++) {
@@ -131,7 +125,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
         break;
     }
 
-    switch (ADCVBATmode) {
+    switch (getADCVBATmode()) {
       case ADC_CH5:
         VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[4], &adc_chars);
         setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);

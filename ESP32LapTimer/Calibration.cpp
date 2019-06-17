@@ -11,8 +11,6 @@ static int calibrationFreqIndex = 0;
 static bool isCurrentlyCalibrating = false;
 static Timer calibrationTimer = Timer(50);
 
-extern uint8_t NumRecievers;
-
 bool isCalibrating() {
   return isCurrentlyCalibrating;
 }

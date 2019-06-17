@@ -36,9 +36,6 @@ static bool airplaneMode = false;
 
 ///////////Extern Variable we need acces too///////////////////////
 
-extern RXADCfilter_ RXADCfilter;
-extern ADCVBATmode_ ADCVBATmode;
-
 extern byte NumRecievers;
 extern float VBATcalibration;
 
@@ -161,7 +158,7 @@ void SendStatusVars() {
 
 void SendStaticVars() {
 
-  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(ADCVBATmode) + ", \"RXFilter\": " + String(RXADCfilter) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0));
+  String sendSTR = "{\"NumRXs\": " + String(NumRecievers - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(VBATcalibration, 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0));
   sendSTR = sendSTR + ",\"Band\":{";
   for (int i = 0; i < NumRecievers; i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
@@ -271,10 +268,10 @@ void ProcessVBATModeUpdate() {
   String inADCVBATmode = webServer.arg("ADCVBATmode");
   String inADCcalibValue = webServer.arg("ADCcalibValue");
 
-  ADCVBATmode = (ADCVBATmode_)(byte)inADCVBATmode.toInt();
+  setADCVBATmode((ADCVBATmode_)(byte)inADCVBATmode.toInt());
   VBATcalibration =  inADCcalibValue.toFloat();
 
-  EepromSettings.ADCVBATmode = ADCVBATmode;
+  EepromSettings.ADCVBATmode = getADCVBATmode();
   EepromSettings.VBATcalibration = VBATcalibration;
   setSaveRequired();
 
@@ -287,11 +284,8 @@ void ProcessVBATModeUpdate() {
 
 void ProcessADCRXFilterUpdate() {
   String inRXFilter = webServer.arg("RXFilter");
-  RXADCfilter = (RXADCfilter_)(byte)inRXFilter.toInt();
-
-  EepromSettings.RXADCfilter = RXADCfilter;
-
-
+  setRXADCfilter((RXADCfilter_)(byte)inRXFilter.toInt());
+  EepromSettings.RXADCfilter = getRXADCfilter();
 
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
