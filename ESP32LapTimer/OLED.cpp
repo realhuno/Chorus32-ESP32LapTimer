@@ -11,6 +11,8 @@
 #include "Calibration.h"
 #include "WebServer.h"
 
+extern uint8_t NumRecievers;
+
 static uint8_t oledRefreshTime = 50;
 
 static Timer oledTimer = Timer(oledRefreshTime);

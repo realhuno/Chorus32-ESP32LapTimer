@@ -18,7 +18,7 @@
 #include <SPI.h>
 #include <driver/timer.h>
 
-static uint16_t freq = 5820;
+extern uint8_t NumRecievers;
 
 static volatile uint8_t RXBand[MaxNumRecievers];
 static volatile uint8_t RXChannel[MaxNumRecievers];

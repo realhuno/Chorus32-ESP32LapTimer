@@ -103,6 +103,8 @@
 // special item that sends all subsequent items from 0 (see above)
 #define SEND_ALL_DEVICE_STATE       255
 
+extern uint8_t NumRecievers;
+
 //----- RSSI --------------------------------------
 #define FILTER_ITERATIONS 5 // software filtering iterations; set 0 - if filtered in hardware; set 5 - if not
 static uint16_t rssiArr[FILTER_ITERATIONS + 1];

@@ -17,7 +17,7 @@ void InitHardwarePins();
 #define EEPROM_VERSION_NUMBER 6 // Increment when eeprom struct modified
 
 #define MaxNumRecievers 6
-extern uint8_t NumRecievers;
+#define PHYSICAL_RECEIVERS 1
 
 #define MIN_TUNE_TIME 30000 // value in micro seconds
 
