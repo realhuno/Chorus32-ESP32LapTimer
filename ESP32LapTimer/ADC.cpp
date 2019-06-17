@@ -164,19 +164,13 @@ void StartNB_ADCread() {
 void ReadVBAT_INA219() {
   if (ina219Timer.hasTicked()) {
     setVbatFloat(ina219.getBusVoltage_V() + (ina219.getShuntVoltage_mV() / 1000));
-//    Serial.print("VbatReading = ");
-//    Serial.println(VbatReadingFloat);
-
     mAReadingFloat = ina219.getCurrent_mA();
-    //Serial.print("mAReadingFloat = ");
-    //Serial.println(mAReadingFloat);
-
     ina219Timer.reset();
   }
 }
 
 void IRAM_ATTR readADCs() {
-  adcLoopCounter++;
+  ++adcLoopCounter;
   
   static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   /* un-block the interrupt processing task now */
@@ -200,8 +194,6 @@ void IRAM_ATTR CheckRSSIthresholdExceeded() {
 
 
 void InitADCtimer() {
-
-
   xBinarySemaphore = xSemaphoreCreateBinary();
   StartNB_ADCread();
 
@@ -209,7 +201,6 @@ void InitADCtimer() {
   timerAttachInterrupt(timer, &readADCs, true);
   timerAlarmWrite(timer, 1000, true);
   timerAlarmEnable(timer);
-
 }
 
 void StopADCtimer() {

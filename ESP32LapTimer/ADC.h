@@ -4,10 +4,6 @@
 #include "HardwareConfig.h"
 #include "Filter.h"
 
-#ifndef IRAM_ATTR
-#define IRAM_ATTR
-#endif
-
 void ConfigureADC();
 void InitADCtimer();
 void IRAM_ATTR CheckRSSIthresholdExceeded();
