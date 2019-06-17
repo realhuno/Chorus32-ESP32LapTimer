@@ -21,18 +21,11 @@ static Adafruit_INA219 ina219; // A0+A1=GND
 
 static uint32_t LastADCcall;
 
-static hw_timer_t * timer = NULL;
-static portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
-
-static SemaphoreHandle_t xBinarySemaphore;
-
 static esp_adc_cal_characteristics_t adc_chars;
 
 static int RSSIthresholds[MaxNumRecievers];
 static uint16_t ADCReadingsRAW[MaxNumRecievers];
-static unsigned int VbatReadingRaw;
 static unsigned int VbatReadingSmooth;
-static int FilteredADCvalues[MaxNumRecievers];
 static int ADCvalues[MaxNumRecievers];
 static uint16_t adcLoopCounter = 0;
 
@@ -65,90 +58,81 @@ void ConfigureADC() {
 }
 
 void IRAM_ATTR nbADCread( void * pvParameters ) {
+	static uint8_t current_adc = 0;
+	
+	if(current_adc == 0) ++adcLoopCounter;
 
-  Serial.println("Task created...");
+	//xSemaphoreTake( xBinarySemaphore, portMAX_DELAY );
+	uint32_t now = micros();
+	LastADCcall = now;
+	adc1_channel_t channel = ADC1;
+	switch (current_adc) {
+		case 0:
+		channel = ADC1;
+		break;
+		case 1:
+		channel = ADC2;
+		break;
+		case 2:
+		channel = ADC3;
+		break;
+		case 3:
+		channel = ADC4;
+		break;
+		case 4:
+		channel = ADC5;
+		break;
+		case 5:
+		channel = ADC6;
+		break;
+	}
+	ADCReadingsRAW[current_adc] = adc1_get_raw(channel);
 
-  while (1) {
+	// Applying calibration
+	if (!isCalibrating()) {
+		// skip if voltage is on this channel
+		if(!(getADCVBATmode() == ADC_CH5 && current_adc == 4) || (getADCVBATmode() == ADC_CH6 && current_adc == 5)) {
+			uint16_t rawRSSI = constrain(ADCReadingsRAW[current_adc], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
+			ADCReadingsRAW[current_adc] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
+		} 
+	}
 
-    xSemaphoreTake( xBinarySemaphore, portMAX_DELAY );
-    uint32_t now = micros();
-    LastADCcall = now;
+	switch (getRXADCfilter()) {
 
-    ADCReadingsRAW[0] = adc1_get_raw(ADC1);
-    ADCReadingsRAW[1] = adc1_get_raw(ADC2);
-    ADCReadingsRAW[2] = adc1_get_raw(ADC3);
-    ADCReadingsRAW[3] = adc1_get_raw(ADC4);
-    ADCReadingsRAW[4] = adc1_get_raw(ADC5);
-    ADCReadingsRAW[5] = adc1_get_raw(ADC6);
-    
+	  case LPF_10Hz:
+		ADCvalues[current_adc] = Filter_10HZ[current_adc].step(ADCReadingsRAW[current_adc]);
+		break;
 
-    // Applying calibration
-    if (!isCalibrating()) {
-      for (uint8_t i = 0; i < NumRecievers; i++) {
-        if((getADCVBATmode() == ADC_CH5 && i == 4) || (getADCVBATmode() == ADC_CH6 && i == 5)) continue; // skip if voltage is on this channel
-        uint16_t rawRSSI = constrain(ADCReadingsRAW[i], EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i]);
-        ADCReadingsRAW[i] = map(rawRSSI, EepromSettings.RxCalibrationMin[i], EepromSettings.RxCalibrationMax[i], 800, 2700); // 800 and 2700 are about average min max raw values
-      }
-    }
-    
-    switch (getRXADCfilter()) {
+	  case LPF_20Hz:
+		ADCvalues[current_adc] = Filter_20HZ[current_adc].step(ADCReadingsRAW[current_adc]);
+		break;
 
-      case LPF_10Hz:
-        for (int i = 0; i < 6; i++) {
-          ADCvalues[i] = Filter_10HZ[i].step(ADCReadingsRAW[i]);
-        }
-        break;
+	  case LPF_50Hz:
+		ADCvalues[current_adc] = Filter_50HZ[current_adc].step(ADCReadingsRAW[current_adc]);
+		break;
 
-      case LPF_20Hz:
-        for (int i = 0; i < 6; i++) {
-          ADCvalues[i] = Filter_20HZ[i].step(ADCReadingsRAW[i]);
-        }
-        break;
+	  case LPF_100Hz:
+		ADCvalues[current_adc] = Filter_100HZ[current_adc].step(ADCReadingsRAW[current_adc]);
+		break;
+	}
 
-      case LPF_50Hz:
-        for (int i = 0; i < 6; i++) {
-          ADCvalues[i] = Filter_50HZ[i].step(ADCReadingsRAW[i]);
-        }
-        break;
+	switch (getADCVBATmode()) {
+		case ADC_CH5:
+			VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[4], &adc_chars);
+			setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
+			break;
+		case ADC_CH6:
+			VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[5], &adc_chars);
+			setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
+			break;
+		default:
+			break;
+	}
 
-      case LPF_100Hz:
-        for (int i = 0; i < 6; i++) {
-          ADCvalues[i] = Filter_100HZ[i].step(ADCReadingsRAW[i]);
-        }
-        break;
-    }
-
-    switch (getADCVBATmode()) {
-      case ADC_CH5:
-        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[4], &adc_chars);
-        setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
-        break;
-      case ADC_CH6:
-        VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[5], &adc_chars);
-       setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
-        break;
-      default:
-        break;
-    }
-
-    if (isInRaceMode() > 0) {
-      CheckRSSIthresholdExceeded();
-    }
-  }
-}
-
-
-void StartNB_ADCread() {
-  Serial.println("Starting ADC reading task on core 1");
-  xTaskCreatePinnedToCore(
-    nbADCread,   /* Function to implement the task */
-    "ADCreader", /* Name of the task */
-    10000,      /* Stack size in words */
-    NULL,       /* Task input parameter */
-    -1,          /* Priority of the task */
-    NULL,
-    0);       /* Task handle. */
-  //1);  /* Core where the task should run */
+	if (isInRaceMode() > 0) {
+	  CheckRSSIthresholdExceeded();
+	}
+	current_adc = (current_adc + 1) % 6;
 }
 
 
@@ -161,14 +145,14 @@ void ReadVBAT_INA219() {
 }
 
 void IRAM_ATTR readADCs() {
-  ++adcLoopCounter;
+ // ++adcLoopCounter;
   
-  static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+  //static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   /* un-block the interrupt processing task now */
-  xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken );
-  if ( xHigherPriorityTaskWoken) {
-    portYIELD_FROM_ISR(); // this wakes up sample_timer_task immediately
-  }
+  //xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken );
+  //if ( xHigherPriorityTaskWoken) {
+  //  portYIELD_FROM_ISR(); // this wakes up sample_timer_task immediately
+  //}
 }
 
 void IRAM_ATTR CheckRSSIthresholdExceeded() {
@@ -181,21 +165,6 @@ void IRAM_ATTR CheckRSSIthresholdExceeded() {
       }
     }
   }
-}
-
-
-void InitADCtimer() {
-  xBinarySemaphore = xSemaphoreCreateBinary();
-  StartNB_ADCread();
-
-  timer = timerBegin(0, 80, true);
-  timerAttachInterrupt(timer, &readADCs, true);
-  timerAlarmWrite(timer, 1000, true);
-  timerAlarmEnable(timer);
-}
-
-void StopADCtimer() {
-  //timerAttachInterrupt(timer, NULL, true); //This doesn't work, not sure why.
 }
 
 uint16_t getRSSI(uint8_t index) {
