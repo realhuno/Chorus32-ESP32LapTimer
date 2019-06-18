@@ -161,12 +161,6 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 			filter_add_value(&filter[current_pilot[current_adc]][j], ADCvalues[current_pilot[current_adc]]);
 			ADCvalues[current_pilot[current_adc]] = filter[current_pilot[current_adc]][j].state;
 		}
-		
-		if(current_pilot == 0) {
-			Serial.print(ADCReadingsRAW[current_pilot[current_adc]]);
-			Serial.print("\t");
-			Serial.println(ADCvalues[current_pilot[current_adc]]);
-		}
 
 		switch (getADCVBATmode()) {
 			case ADC_CH5:
