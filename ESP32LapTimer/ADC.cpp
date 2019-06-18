@@ -38,14 +38,16 @@ static float VBATcalibration;
 static float mAReadingFloat;
 static float VbatReadingFloat;
 
-static uint8_t active_pilots[MaxNumRecievers];
+/// Pilot state 0: unsused, 1: active, 2: taken by a module
+static uint8_t active_pilots[MAX_NUM_PILOTS];
 static uint8_t current_pilot_num = 0;
+static uint32_t last_hop[MaxNumRecievers];
+static uint8_t current_pilot[MaxNumRecievers];
 
 #define FILTER_NUM 2
 
 static lowpass_filter_t filter[MaxNumRecievers][FILTER_NUM];
 
-// TODO: change for multiple modules. assign each module a current pilot?
 static uint8_t getNextPilot(uint8_t current_pilot) {
 	for(uint8_t i = 1; i < MaxNumRecievers + 1; ++i) {
 		uint8_t next_pilot = (current_pilot + i) % MaxNumRecievers;
@@ -95,15 +97,14 @@ void ConfigureADC() {
 			filter_init(&filter[i][j], cutoff);
 		}
 	}
+	
+	memset(active_pilots, 0, MAX_NUM_PILOTS);
+	memset(last_hop, 0, MAX_NUM_RECEIVERS);
+	memset(current_pilot, 0, MAX_NUM_RECEIVERS);
 }
 
 void IRAM_ATTR nbADCread( void * pvParameters ) {
 	static uint8_t current_adc = 0;
-	// TODO: save for every rx
-	static uint32_t last_hop = 0;
-	static uint8_t current_pilot = 0;
-
-	//xSemaphoreTake( xBinarySemaphore, portMAX_DELAY );
 	uint32_t now = micros();
 	LastADCcall = now;
 	adc1_channel_t channel = ADC1;
@@ -128,41 +129,43 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		break;
 	}
 	if(current_pilot_num > NUM_PHYSICAL_RECEIVERS) {
-		if(now - last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
-			current_pilot = getNextPilot(current_pilot);
-			// TODO: support multiple modules
+		if(now - last_hop[current_adc] > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
+			// change state back to one
+			active_pilots[current_pilot[current_adc]] = 1;
+			current_pilot[current_adc] = getNextPilot(current_pilot[current_adc]);
+			active_pilots[current_pilot[current_adc]] = 2;
 			// TODO: add class between this and rx5808
 			// TODO: add better multiplexing. Maybe based on the last laptime?
 			// TODO: add smarter jumping with multiple modules available
-			setModuleChannelBand(getRXChannelPilot(current_pilot), getRXBandPilot(current_pilot), current_adc);
-			last_hop = now;
+			setModuleChannelBand(getRXChannelPilot(current_pilot[current_adc]), getRXBandPilot(current_pilot[current_adc]), current_adc);
+			last_hop[current_adc] = now;
 		}
 	} else { // only a single pilot
-		current_pilot = getNextPilot(current_pilot);
+		current_pilot[current_adc] = getNextPilot(current_pilot[current_adc]);
 	}
 	// go to next adc if vrx is not ready
 	if(isRxReady(current_adc)) {
-		ADCReadingsRAW[current_pilot] = adc1_get_raw(channel);
+		ADCReadingsRAW[current_pilot[current_adc]] = adc1_get_raw(channel);
 
 		// Applying calibration
 		if (LIKELY(!isCalibrating())) {
 			// skip if voltage is on this channel
 			if(!(getADCVBATmode() == ADC_CH5 && current_adc == 4) || (getADCVBATmode() == ADC_CH6 && current_adc == 5)) {
-				uint16_t rawRSSI = constrain(ADCReadingsRAW[current_pilot], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
-				ADCReadingsRAW[current_pilot] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
+				uint16_t rawRSSI = constrain(ADCReadingsRAW[current_pilot[current_adc]], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
+				ADCReadingsRAW[current_pilot[current_adc]] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
 			} 
 		}
 		
-		ADCvalues[current_pilot] = ADCReadingsRAW[current_pilot];
+		ADCvalues[current_pilot[current_adc]] = ADCReadingsRAW[current_pilot[current_adc]];
 		for(uint8_t j = 0; j < FILTER_NUM; ++j) {
-			filter_add_value(&filter[current_pilot][j], ADCvalues[current_pilot]);
-			ADCvalues[current_pilot] = filter[current_pilot][j].state;
+			filter_add_value(&filter[current_pilot[current_adc]][j], ADCvalues[current_pilot[current_adc]]);
+			ADCvalues[current_pilot[current_adc]] = filter[current_pilot[current_adc]][j].state;
 		}
 		
 		if(current_pilot == 0) {
-			Serial.print(ADCReadingsRAW[current_pilot]);
+			Serial.print(ADCReadingsRAW[current_pilot[current_adc]]);
 			Serial.print("\t");
-			Serial.println(ADCvalues[current_pilot]);
+			Serial.println(ADCvalues[current_pilot[current_adc]]);
 		}
 
 		switch (getADCVBATmode()) {
@@ -179,7 +182,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		}
 
 		if (LIKELY(isInRaceMode() > 0)) {
-			CheckRSSIthresholdExceeded(current_pilot);
+			CheckRSSIthresholdExceeded(current_pilot[current_adc]);
 		}
 		
 		if(current_adc == 0) ++adcLoopCounter;
