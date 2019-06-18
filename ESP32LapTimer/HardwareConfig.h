@@ -12,6 +12,8 @@ void InitHardwarePins();
 
 #define BOARD BOARD_DEFAULT
 
+#define EEPROM_COMMIT_DELAY_MS 5000 // the time between checks to save the eeprom in ms
+
 
 // DO NOT CHANGE BELOW UNLESS USING CUSTOM HARDWARE
 

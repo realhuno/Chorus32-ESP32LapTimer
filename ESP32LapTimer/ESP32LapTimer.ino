@@ -1,6 +1,9 @@
 #include <WiFi.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
+
+#include <esp_task_wdt.h>
+
 #include "Comms.h"
 #include "ADC.h"
 #include "HardwareConfig.h"
@@ -24,6 +27,14 @@
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 extern uint8_t raceMode;
+
+void eeprom_task(void* args) {
+  const TickType_t xDelay = EEPROM_COMMIT_DELAY_MS / portTICK_PERIOD_MS;
+  while(42) {
+    EepromSettings.save();
+    vTaskDelay(xDelay);
+  }
+}
 
 void setup() {
 
@@ -67,6 +78,8 @@ void setup() {
 
   InitADCtimer();
 
+  xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1);
+
   //SelectivePowerUp();
 
   // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
@@ -94,7 +107,6 @@ void loop() {
   SendCurrRSSIloop();
   updateWifi();
 
-  EepromSettings.save();
   if (getADCVBATmode() == INA219) {
     ReadVBAT_INA219();
   }
