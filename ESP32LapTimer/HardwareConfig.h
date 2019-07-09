@@ -44,6 +44,11 @@ void InitHardwarePins();
 #define RSSI_ADC_READING_MAX 2700
 #define RSSI_ADC_READING_MIN 800
 
+#ifdef USE_DEBUG_OUTPUT
+  #define OUTPUT_DEBUG
+  #define INPUT_DEBUG
+#endif
+
 #include "targets/target.h" // Needs to be at the bottom
 
 #if defined(BUTTON1) && defined(BUTTON2)
