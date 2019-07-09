@@ -116,15 +116,6 @@ void setup() {
 	xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, NULL, 0); 
 	
 	xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, 1, NULL, 1); 
-
-  //SelectivePowerUp();
-
-  // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
-  for (int i = 0; i < NumRecievers*10; i++) {
-    setModuleChannelBand(i % NumRecievers);
-  }
-
-  //beep();
 }
 
 void loop() {
