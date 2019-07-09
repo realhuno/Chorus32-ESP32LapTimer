@@ -23,6 +23,7 @@
 #include "WebServer.h"
 #include "Watchdog.h"
 #include "Utils.h"
+#include "Laptime.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
@@ -73,6 +74,7 @@ void setup() {
 #ifdef USE_BUTTONS
   newButtonSetup();
 #endif
+  resetLaptimes();
 
   EepromSettings.setup();
 
