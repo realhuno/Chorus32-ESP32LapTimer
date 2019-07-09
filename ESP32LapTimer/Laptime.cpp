@@ -6,8 +6,8 @@
 
 extern uint8_t NumRecievers;
 
-static volatile uint32_t LapTimes[MaxNumRecievers][MAX_LAPS_NUM];
-static volatile int lap_counter[MaxNumRecievers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
+static volatile uint32_t LapTimes[MAX_NUM_PILOTS][MAX_LAPS_NUM];
+static volatile int lap_counter[MAX_NUM_PILOTS] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
 
 static uint32_t MinLapTime = 5000;  //this is in millis
 static uint32_t start_time = 0;

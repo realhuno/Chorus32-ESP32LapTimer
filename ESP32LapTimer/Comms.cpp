@@ -150,8 +150,8 @@ static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the l
 
 static uint32_t RaceStartTime = 0;
 
-static uint8_t thresholdSetupMode[MaxNumRecievers];
-static uint16_t RXfrequencies[MaxNumRecievers];
+static uint8_t thresholdSetupMode[MAX_NUM_PILOTS];
+static uint16_t RXfrequencies[MAX_NUM_RECEIVERS];
 
 static void sendThresholdMode(uint8_t node) {
 	Serial.print("Sending theshold mode ");
@@ -753,7 +753,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         valueToSet = TO_BYTE(controlData[3]);
         uint8_t node = TO_BYTE(controlData[1]);
         // Skip this if we get an invalid node id
-        if(node >= MaxNumRecievers) {
+        if(node >= MAX_NUM_PILOTS) {
           break;
         }
         if (!raceMode) { // don't run threshold setup in race mode because we don't calculate slowRssi in race mode, but it's needed for setup threshold algorithm
@@ -833,7 +833,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 }
 
 void thresholdModeStep() {
-  for(uint8_t i = 0; i < MaxNumRecievers; ++i) {
+  for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
     setupThreshold(RSSI_SETUP_NEXT_STEP, i);
   }
 }
