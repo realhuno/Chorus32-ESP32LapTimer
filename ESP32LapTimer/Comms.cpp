@@ -117,8 +117,6 @@ static uint32_t lastRssiMonitorReading = 0; // millis when rssi monitor value wa
 #define RSSI_SETUP_NEXT_STEP 1
 
 //----- Lap timings--------------------------------
-static uint32_t lastMilliseconds = 0;
-static uint32_t raceStartTime = 0;
 #define MIN_MIN_LAP_TIME 1 //seconds
 #define MAX_MIN_LAP_TIME 120 //seconds
 #define MAX_LAPS 100
@@ -145,8 +143,6 @@ static uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted re
 static uint8_t isConfigured = 0; //changes to 1 if any input changes the state of the device. it will mean that externally stored preferences should not be applied
 static uint8_t newLapIndex = 0;
 static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
-
-static uint32_t RaceStartTime = 0;
 
 static uint8_t thresholdSetupMode[MAX_NUM_PILOTS];
 
@@ -180,10 +176,8 @@ void setRaceMode(uint8_t mode) {
     //playEndRaceTones();
   } else { // start race in specified mode
     //holeShot = true;
-    RaceStartTime = millis();
     raceMode = mode;
-    raceStartTime = millis();
-    lastMilliseconds = raceStartTime;
+    startRaceLap();
     newLapIndex = 0;
     for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
       if(thresholdSetupMode[i]) {
@@ -411,40 +405,31 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
     return;
   }
 
+	if (raceMode == 1) {
+		RequestedLap = getLaptimeRel(NodeAddr, Lap); // realtive mode
 
-  //  if (Lap == 1) {  ///ugh need to fix this logic at some point but it works for now
-  //    RequestedLap = LapTimes[NodeAddr][Lap] - RaceStartTime;
-  //  } else {
-  if (raceMode == 1) {
 
-    if (Lap == 1) {
-      RequestedLap = getLaptime(NodeAddr, Lap) - RaceStartTime; // realtive mode
-    } else {
-      RequestedLap = getLaptime(NodeAddr, Lap) - getLaptime(NodeAddr, Lap - 1); // realtive mode
-    }
+	} else if (raceMode == 2) {
+		RequestedLap = getLaptimeRelToStart(NodeAddr, Lap);  //absolute mode
 
-  } else if (raceMode == 2) {
-    RequestedLap = getLaptime(NodeAddr, Lap) - RaceStartTime;  //absolute mode
+	} else {
+		Serial.println("Error: Invalid RaceMode Set");
+	}
 
-  } else {
-    Serial.println("Error: Invalid RaceMode Set");
-  }
-  //}
+	uint8_t buf1[2];
+	uint8_t buf2[8];
 
-  uint8_t buf1[2];
-  uint8_t buf2[8];
+	addToSendQueue('S');
+	addToSendQueue(TO_HEX(NodeAddr));
+	addToSendQueue('L');
 
-  addToSendQueue('S');
-  addToSendQueue(TO_HEX(NodeAddr));
-  addToSendQueue('L');
+	byteToHex(buf1, Lap - 1);
+	addToSendQueue(buf1, 2);
 
-  byteToHex(buf1, Lap - 1);
-  addToSendQueue(buf1, 2);
+	longToHex(buf2, RequestedLap);
+	addToSendQueue(buf2, 8);
 
-  longToHex(buf2, RequestedLap);
-  addToSendQueue(buf2, 8);
-
-  addToSendQueue('\n');
+	addToSendQueue('\n');
 
 }
 
