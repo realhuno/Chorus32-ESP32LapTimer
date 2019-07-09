@@ -21,10 +21,14 @@ void InitHardwarePins();
 #define BLUETOOTH_NAME WIFI_AP_NAME
 
 #define MaxNumReceivers 6
+#define MAX_NUM_RECEIVERS MaxNumReceivers
+#define MAX_NUM_PILOTS MaxNumReceivers
+#define NUM_PHYSICAL_RECEIVERS 1
+#define MULTIPLEX_STAY_TIME_US (5 * 1000)
 
 #define VOLTAGE_UPDATE_INTERVAL_MS 1000
 
-#define MIN_TUNE_TIME 30000 // value in micro seconds
+#define MIN_TUNE_TIME_US 30000 // value in micro seconds
 
 #define OLED //uncomment this to enable OLED support
 
