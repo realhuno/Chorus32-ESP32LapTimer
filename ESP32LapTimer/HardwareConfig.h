@@ -16,6 +16,7 @@ void InitHardwarePins();
 // DO NOT CHANGE BELOW UNLESS USING CUSTOM HARDWARE
 
 #define EEPROM_VERSION_NUMBER 7 // Increment when eeprom struct modified
+#define EEPROM_COMMIT_DELAY_MS 10000 // the time between checks to save the eeprom in ms
 
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 #define BLUETOOTH_NAME WIFI_AP_NAME
