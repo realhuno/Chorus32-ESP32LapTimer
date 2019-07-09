@@ -284,32 +284,7 @@ uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
   RXBandModule[NodeAddr] = band;
   RXChannelModule[NodeAddr] = channel;
   lastUpdate[NodeAddr] = micros();
-  switch (NodeAddr) {
-    case 0:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS1);
-      break;
-
-    case 1:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS2);
-      break;
-
-    case 2:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS3);
-      break;
-
-    case 3:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS4);
-      break;
-
-    case 4:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS5);
-      break;
-
-    case 5:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS6);
-      break;
-  }
-  return frequency;
+  return setModuleFrequency(frequency, NodeAddr);
 }
 
 uint16_t setModuleFrequency(uint16_t frequency, uint8_t NodeAddr) {
