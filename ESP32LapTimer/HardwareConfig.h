@@ -28,6 +28,7 @@ void InitHardwarePins();
 #define MULTIPLEX_STAY_TIME_US 5 * 1000
 
 #define ADC_VOLTAGE_CUTOFF 1
+#define VOLTAGE_UPDATE_INTERVAL_US 1000 * 1000
 
 #define MIN_TUNE_TIME_US 30000 // value in micro seconds
 
