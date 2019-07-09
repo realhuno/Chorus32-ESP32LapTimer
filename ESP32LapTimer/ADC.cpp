@@ -186,7 +186,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 	// go to next adc if vrx is not ready
 	if(isRxReady(current_adc)) {
 		pilot_data_t* current_pilot = &pilots[receivers[current_adc].current_pilot];
-		if(LIKELY(!isInRaceMode())) {
+		if(LIKELY(isInRaceMode())) {
 			current_pilot->ADCReadingRAW = adc1_get_raw(channel);
 		} else {
 			// multisample when not in race mode (for threshold calibration etc)
