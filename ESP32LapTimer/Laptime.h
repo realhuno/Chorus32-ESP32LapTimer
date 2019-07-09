@@ -23,4 +23,7 @@ uint8_t getBestLap(uint8_t pilot);
 uint8_t addLap(uint8_t receiver, uint32_t time);
 uint8_t getCurrentLap(uint8_t receiver);
 
+uint8_t getSkipFirstLap();
+void setSkipFirstLap(uint8_t shouldWaitForFirstLap);
+
 #endif // __LAPTIME_H__
