@@ -12,6 +12,7 @@
 #include "WebServer.h"
 #include "Filter.h"
 #include "Utils.h"
+#include "Laptime.h"
 
 extern uint8_t NumRecievers;
 
@@ -45,6 +46,7 @@ static struct summaryPageData_s {
 
 oled_page_t oled_pages[] = {
   {&summaryPageData, summary_page_init, summary_page_update, summary_page_input},
+  {NULL, NULL, race_page_update, next_page_input},  
   {&adcPageData, adc_page_init, adc_page_update, next_page_input},
   {NULL, NULL, calib_page_update, calib_page_input},
   {NULL, NULL, airplane_page_update, airplane_page_input},
@@ -162,8 +164,7 @@ void summary_page_input(void* data, uint8_t index, uint8_t type) {
   }
 }
 
-void summary_page_update(void* data) {
-  summaryPageData_s* my_data = (summaryPageData_s*) data;
+void draw_header() {
   // Display on time
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   // Hours
@@ -194,7 +195,11 @@ void summary_page_update(void* data) {
   if (getADCVBATmode() == INA219) {
     display.drawString(90, 0, String(getMaFloat()/1000, 2) + "A");
   }
-  
+}
+
+void summary_page_update(void* data) {
+  summaryPageData_s* my_data = (summaryPageData_s*) data;
+  draw_header();
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   uint8_t skipped = 0;
@@ -207,6 +212,27 @@ void summary_page_update(void* data) {
       display.drawString(0, 9 + (i - skipped) * 9, String(i+1+first_pilot) + ":" + getBandLabel(getRXBandPilot(i + first_pilot)) + String(getRXChannelPilot(i + first_pilot) + 1) + "," + String(getRSSI(i + first_pilot) / 12));
       display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + (i - skipped) * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i + first_pilot), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
       display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(MAX(getRSSIThreshold(i + first_pilot), RSSI_ADC_READING_MIN), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + (i - skipped) * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
+    }
+    else {
+      ++skipped;
+    }
+  }
+}
+
+void race_page_update(void* data) {
+  draw_header();
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  uint8_t skipped = 0;
+  for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
+    if(isPilotActive(i)) {      
+      uint32_t last_lap = getLaptimeRel(i);
+      uint32_t best_lap = getBestLap(i);
+      char last_lap_str[12];
+      char best_lap_str[12];
+      snprintf(last_lap_str, 12, "%01d:%02d.%02d", last_lap / 1000 / 60 ,last_lap / 1000, (last_lap % 1000) / 10);
+      snprintf(best_lap_str, 12, "%01d:%02d.%02d", best_lap / 1000 / 60 ,best_lap / 1000, (best_lap % 1000) / 10);
+      uint8_t lap_count = getCurrentLap(i);
+      display.drawString(0, 9 + (i - skipped) * 9, String(i+1) + ": L:" + last_lap_str + " B: " + best_lap_str + "  #" + String(lap_count));
     }
     else {
       ++skipped;
