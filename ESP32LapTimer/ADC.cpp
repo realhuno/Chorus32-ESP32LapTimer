@@ -93,10 +93,17 @@ static bool setNextPilot(uint8_t adc) {
 
 static void setOneToOnePilotAssignment() {
 	if(current_pilot_num <= NUM_PHYSICAL_RECEIVERS) {
-		for(uint8_t i = 0; i < current_pilot_num; ++i) {
+		uint8_t i = 0;
+		for(; i < current_pilot_num; ++i) {
 			setNextPilot(i);
+			// Wait for module to become ready (in case of a previous reset, not needed when multiplexing)
+			while(!isRxReady(i));
 			// We are assuming adcs are always in order without gaps
 			setModuleChannelBand(getRXChannelPilot(receivers[i].current_pilot), getRXBandPilot(receivers[i].current_pilot), i);
+		}
+		// Power down all unused modules
+		for(i = current_pilot_num; i < NUM_PHYSICAL_RECEIVERS; ++i) {
+			RXPowerDown(i);
 		}
 	}
 }
@@ -315,6 +322,10 @@ bool isPilotActive(uint8_t pilot) {
 }
 
 void setPilotActive(uint8_t pilot, bool active) {
+	// First we power up all modules. If we have less pilots than modules they get activated at a later stage. As this function will never be called during a race this should be okay
+	// There might be a way better solution, but this will have to suffice for now
+	// XXX: We have to reset the module since it won't come online with a simple power up
+	RXResetAll();
 	if(active) {
 		if(pilots[pilot].state == PILOT_UNUSED) {
 			pilots[pilot].state = PILOT_ACTIVE;

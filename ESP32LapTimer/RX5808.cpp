@@ -31,6 +31,9 @@ static uint32_t lastUpdate[MAX_NUM_RECEIVERS] = {0,0,0,0,0,0};
 void InitSPI() {
   SPI.begin(SCK, MISO, MOSI);
   delay(200);
+  // Reset all modules to ensure they come back online in case they were offline without a power cycle (pressing the reset button)
+  RXResetAll();
+  delay(30);
 }
 
 bool isRxReady(uint8_t module) {
@@ -109,7 +112,7 @@ void RXreset(uint8_t NodeAddr) {
 }
 
 
-void PowerDownAll() {
+void RXPowerDownAll() {
   //for (int i = 0; i < getNumReceivers(); i++) {
   //rxWrite(SPI_ADDRESS_POWER, PowerDownState, i);
   //RXstandBy(i);
