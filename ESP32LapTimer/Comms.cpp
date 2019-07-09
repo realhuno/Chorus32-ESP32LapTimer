@@ -154,6 +154,10 @@ static uint8_t thresholdSetupMode[MaxNumRecievers];
 static uint16_t RXfrequencies[MaxNumRecievers];
 
 static void sendThresholdMode(uint8_t node) {
+	Serial.print("Sending theshold mode ");
+	Serial.print(thresholdSetupMode[node]);
+	Serial.print(" to node ");
+	Serial.println(node);
   addToSendQueue('S');
   addToSendQueue(TO_HEX(node));
   addToSendQueue(RESPONSE_THRESHOLD_SETUP);
@@ -321,11 +325,11 @@ void setupThreshold(uint8_t phase, uint8_t node) {
 #define RISE_RSSI_THRESHOLD_PERCENT 25 // rssi value should pass this percentage above low value to continue finding the peak and further fall down of rssi
 #define FALL_RSSI_THRESHOLD_PERCENT 50 // rssi should fall below this percentage of diff between high and low to finalize setup of the threshold
 
-  static uint16_t rssiLow[MaxNumRecievers];
-  static uint16_t rssiHigh[MaxNumRecievers];
-  static uint16_t rssiHighEnoughForMonitoring[MaxNumRecievers];
-  static uint32_t accumulatedShiftedRssi[MaxNumRecievers]; // accumulates rssi slowly; contains multiplied rssi value for better accuracy
-  static uint32_t lastRssiAccumulationTime[MaxNumRecievers];
+  static uint16_t rssiLow[MAX_NUM_PILOTS];
+  static uint16_t rssiHigh[MAX_NUM_PILOTS];
+  static uint16_t rssiHighEnoughForMonitoring[MAX_NUM_PILOTS];
+  static uint32_t accumulatedShiftedRssi[MAX_NUM_PILOTS]; // accumulates rssi slowly; contains multiplied rssi value for better accuracy
+  static uint32_t lastRssiAccumulationTime[MAX_NUM_PILOTS];
 
   if (!thresholdSetupMode[node]) return;
 
@@ -345,7 +349,6 @@ void setupThreshold(uint8_t phase, uint8_t node) {
     // active phase step (searching for high value and fall down)
     if (thresholdSetupMode[node] == 1) {
       // in this phase of the setup we are tracking rssi growth until it reaches the predefined percentage from low
-
       // searching for peak; using slowRssi to avoid catching sudden random peaks
       if (rssi > rssiHigh[node]) {
         rssiHigh[node] = rssi;
@@ -369,7 +372,6 @@ void setupThreshold(uint8_t phase, uint8_t node) {
       }
     } else {
       // in this phase of the setup we are tracking highest rssi and expect it to fall back down so that we know that the process is complete
-
       // continue searching for peak; using slowRssi to avoid catching sudden random peaks
       if (rssi > rssiHigh[node]) {
         rssiHigh[node] = rssi;
@@ -387,7 +389,7 @@ void setupThreshold(uint8_t phase, uint8_t node) {
 
       uint16_t rssiLowEnoughForSetup = rssiHigh[node] - (rssiHigh[node] - rssiLow[node]) * FALL_RSSI_THRESHOLD_PERCENT / 100;
       if (accumulatedRssi < rssiLowEnoughForSetup) {
-        rssiThreshold = rssiHigh[node] - ((rssiHigh[node] - rssiLow[node]) * TOP_RSSI_DECREASE_PERCENT) / 100;
+        rssiThreshold = rssiHigh[node] - ((rssiHigh[node] - rssiLow[node]) * TOP_RSSI_DECREASE_PERCENT) / 100;        
         SetThresholdValue(rssiThreshold / 12, node); // Function expects the threshold in / 12
         thresholdSetupMode[node] = 0;
         isConfigured = 1;
