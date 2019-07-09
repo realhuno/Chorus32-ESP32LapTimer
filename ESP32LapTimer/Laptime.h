@@ -21,6 +21,8 @@ uint8_t getBestLap(uint8_t pilot);
  * Adds a lap to the pool and returns the current lap id
  */
 uint8_t addLap(uint8_t receiver, uint32_t time);
+
+/// Laps begin at 1. lap 0 is always 0
 uint8_t getCurrentLap(uint8_t receiver);
 
 uint8_t getSkipFirstLap();
