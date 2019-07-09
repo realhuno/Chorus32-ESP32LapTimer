@@ -20,14 +20,14 @@
 
 extern uint8_t NumRecievers;
 
-static volatile uint8_t RXBandModule[MaxNumRecievers];
-static volatile uint8_t RXChannelModule[MaxNumRecievers];
+static volatile uint8_t RXBandModule[MAX_NUM_RECEIVERS];
+static volatile uint8_t RXChannelModule[MAX_NUM_RECEIVERS];
 
 // TODO: this doesn't really belong here
-static volatile uint8_t RXBandPilot[MaxNumRecievers];
-static volatile uint8_t RXChannelPilot[MaxNumRecievers];
+static volatile uint8_t RXBandPilot[MAX_NUM_PILOTS];
+static volatile uint8_t RXChannelPilot[MAX_NUM_PILOTS];
 
-static uint32_t lastUpdate[MaxNumRecievers] = {0,0,0,0,0,0};
+static uint32_t lastUpdate[MAX_NUM_RECEIVERS] = {0,0,0,0,0,0};
 
 void InitSPI() {
   SPI.begin(SCK, MISO, MOSI);

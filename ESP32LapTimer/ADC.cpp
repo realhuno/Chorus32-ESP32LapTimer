@@ -280,7 +280,7 @@ void updatePilotNumbers() {
 }
 
 void setRSSIThreshold(uint8_t node, uint16_t threshold) {
-  if(node < MaxNumRecievers) {
+  if(node < MAX_NUM_PILOTS) {
     pilots[node].RSSIthreshold = threshold;
     updatePilotNumbers();
   }
