@@ -325,7 +325,6 @@ uint16_t setModuleFrequencyAll(uint16_t frequency) {
 }
 
 String getBandLabel(int band) {
-
   switch (band) {
     case 0:
       return "R";
@@ -355,7 +354,6 @@ String getBandLabel(int band) {
       return "";
       break;
   }
-
 }
 
 void setRXBandPilot(uint8_t pilot, uint8_t band) {

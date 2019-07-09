@@ -150,8 +150,6 @@ static void sendThresholdMode(uint8_t node) {
 
 void commsSetup() {
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
-    setRXBandPilot(i, EepromSettings.RXBand[i]);
-    setRXChannelPilot(i, EepromSettings.RXChannel[i]);
     thresholdSetupMode[i] = 0;
   }
 }

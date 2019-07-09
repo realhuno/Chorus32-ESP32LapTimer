@@ -72,6 +72,14 @@ void setup() {
   resetLaptimes();
 
   EepromSettings.setup();
+  setRXADCfilter(EepromSettings.RXADCfilter);
+  setADCVBATmode(EepromSettings.ADCVBATmode);
+  setVbatCal(EepromSettings.VBATcalibration);
+  NumRecievers = EepromSettings.NumRecievers;
+  for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
+    setRXBandPilot(i, EepromSettings.RXBand[i]);
+    setRXChannelPilot(i, EepromSettings.RXChannel[i]);
+  }
 
   delay(500);
   InitHardwarePins();
@@ -95,11 +103,16 @@ void setup() {
   setVbatCal(EepromSettings.VBATcalibration);
   NumRecievers = EepromSettings.NumRecievers;
   commsSetup();
-  init_outputs();
 
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
+  // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
+  for (int i = 0; i < NumRecievers*10; i++) {
+    setModuleChannelBand(i % NumRecievers);
+    delayMicroseconds(MIN_TUNE_TIME_US);
+  }
+	
 	init_outputs();
 	Serial.println("Starting ADC reading task on core 0");
 	adc_semaphore = xSemaphoreCreateBinary();
