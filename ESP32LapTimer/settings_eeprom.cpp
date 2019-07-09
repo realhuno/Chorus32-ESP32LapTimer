@@ -9,12 +9,9 @@ struct EepromSettingsStruct EepromSettings;
 
 ///////////Extern Variable we need acces too///////////////////////
 
-static RXADCfilter_ RXADCfilter;
-static ADCVBATmode_ ADCVBATmode;
 static bool eepromSaveRequired = false;
 
 uint8_t NumRecievers = 6;
-extern float VBATcalibration;
 
 //////////////////////////////////////////////////////////////////
 
@@ -172,23 +169,23 @@ bool EepromSettingsStruct::validateCRC(){
 
 
 RXADCfilter_ getRXADCfilter() {
-  return RXADCfilter;
+	return EepromSettings.RXADCfilter;
 }
 
 ADCVBATmode_ getADCVBATmode() {
-  return ADCVBATmode;
+	return EepromSettings.ADCVBATmode;
 }
 
 void setRXADCfilter(RXADCfilter_ filter) {
-  RXADCfilter = filter;
+	EepromSettings.RXADCfilter = filter;
 }
 
 void setADCVBATmode(ADCVBATmode_ mode) {
-  ADCVBATmode = mode;
+	EepromSettings.ADCVBATmode = mode;
 }
 
 void setSaveRequired() {
-  eepromSaveRequired = true;
+	eepromSaveRequired = true;
 }
 
 int getWiFiChannel(){
