@@ -35,10 +35,6 @@ void InitSPI() {
 }
 
 bool isRxReady(uint8_t module) {
-	Serial.print("Micros: ");
-	Serial.print(micros());
-	Serial.print(" last update: ");
-	Serial.println(lastUpdate[module]);
 	return (micros() - lastUpdate[module]) > MIN_TUNE_TIME_US;
 }
 
