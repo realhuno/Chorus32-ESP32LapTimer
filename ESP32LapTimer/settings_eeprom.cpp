@@ -6,14 +6,7 @@
 
 struct EepromSettingsStruct EepromSettings;
 
-
-///////////Extern Variable we need acces too///////////////////////
-
 static bool eepromSaveRequired = false;
-
-uint8_t NumRecievers = 6;
-
-//////////////////////////////////////////////////////////////////
 
 void EepromSettingsStruct::setup() {
   EEPROM.begin(512);
@@ -34,10 +27,10 @@ bool EepromSettingsStruct::SanityCheck() {
 
   bool IsGoodEEPROM = true;
 
-  if (EepromSettings.NumRecievers > MAX_NUM_RECEIVERS) {
+  if (EepromSettings.NumReceivers > MAX_NUM_RECEIVERS) {
     IsGoodEEPROM = false;
-    Serial.print("Error: Corrupted EEPROM value NumRecievers: ");
-    Serial.println(EepromSettings.NumRecievers);
+    Serial.print("Error: Corrupted EEPROM value getNumReceivers(): ");
+    Serial.println(EepromSettings.NumReceivers);
   }
 
 
@@ -132,7 +125,7 @@ void EepromSettingsStruct::defaults() {
   settings.ADCVBATmode = INA219;
   settings.RXADCfilter = LPF_20Hz;
   settings.VBATcalibration = 1;
-  settings.NumRecievers = 6;
+  settings.NumReceivers = 6;
   settings.WiFiProtocol = 1;
   settings.WiFiChannel = 1;
   settings.updateCRC();
@@ -184,4 +177,8 @@ int getWiFiChannel(){
 }
 int getWiFiProtocol(){
   return EepromSettings.WiFiProtocol;
+}
+
+int getNumReceivers() {
+  return EepromSettings.NumReceivers;
 }
