@@ -23,9 +23,6 @@ void EepromSettingsStruct::load() {
   EEPROM.get(0, *this);
   Serial.println("EEPROM LOADED");
 
-  Serial.println(EepromSettings.NumRecievers);
-  Serial.println(NumRecievers);
-
   if (this->eepromVersionNumber != EEPROM_VERSION_NUMBER) {
     this->defaults();
     Serial.println("EEPROM DEFAULTS LOADED");
@@ -65,7 +62,7 @@ bool EepromSettingsStruct::SanityCheck() {
     return IsGoodEEPROM;
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if (EepromSettings.RXBand[i] > MaxBand) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -77,7 +74,7 @@ bool EepromSettingsStruct::SanityCheck() {
 
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if (EepromSettings.RXChannel[i] > MaxChannel) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -88,7 +85,7 @@ bool EepromSettingsStruct::SanityCheck() {
     }
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if ((EepromSettings.RXfrequencies[i] > MaxFreq) or (EepromSettings.RXfrequencies[i] < MinFreq)) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -99,7 +96,7 @@ bool EepromSettingsStruct::SanityCheck() {
     }
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if (EepromSettings.RSSIthresholds[i] > MaxThreshold) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -123,10 +120,20 @@ void EepromSettingsStruct::save() {
 }
 
 void EepromSettingsStruct::defaults() {
-  memcpy_P(this, &EepromDefaults, sizeof(EepromDefaults));
-  this->updateCRC();
-  EEPROM.put(0, *this);
-  EEPROM.commit();
+	memset(this, 0, sizeof(EepromSettingsStruct));
+	memset(this->RxCalibrationMax, 2700, MAX_NUM_RECEIVERS * sizeof(this->RxCalibrationMax[0]));
+	memset(this->RxCalibrationMin, 800, MAX_NUM_RECEIVERS * sizeof(this->RxCalibrationMin[0]));
+	memset(this->RXfrequencies, 5658, MAX_NUM_PILOTS * sizeof(this->RxCalibrationMin[0]));
+	memset(this->RSSIthresholds, 150 * 12, MAX_NUM_PILOTS * sizeof(this->RSSIthresholds[0]));
+	this->eepromVersionNumber = EEPROM_VERSION_NUMBER;
+	this->ADCVBATmode = INA219;
+	this->RXADCfilter = LPF_20Hz;
+	this->VBATcalibration = 1;
+	this->NumRecievers = 6;
+
+	this->updateCRC();
+	EEPROM.put(0, *this);
+	EEPROM.commit();
 }
 
 crc_t EepromSettingsStruct::calcCRC() {
