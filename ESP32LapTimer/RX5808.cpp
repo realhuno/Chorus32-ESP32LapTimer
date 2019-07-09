@@ -29,6 +29,7 @@ static volatile uint8_t RXChannelPilot[MAX_NUM_PILOTS];
 
 static uint32_t lastUpdate[MAX_NUM_RECEIVERS] = {0,0,0,0,0,0};
 
+
 void InitSPI() {
   SPI.begin(SCK, MISO, MOSI);
   delay(200);
@@ -50,6 +51,30 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
 
   digitalWrite(CSpin, HIGH);
   SPI.endTransaction();
+}
+
+void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
+	lastUpdate[node] = micros();
+	switch (node) {
+		case 0:
+			rxWrite(addressBits, dataBits, CS1);
+			break;
+		case 1:
+			rxWrite(addressBits, dataBits, CS2);
+			break;
+		case 2:
+			rxWrite(addressBits, dataBits, CS3);
+			break;
+		case 3:
+			rxWrite(addressBits, dataBits, CS4);
+			break;
+		case 4:
+			rxWrite(addressBits, dataBits, CS5);
+			break;
+		case 5:
+			rxWrite(addressBits, dataBits, CS6);
+			break;
+	}
 }
 
 
@@ -77,92 +102,16 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
 
 }
 
-void RXstandBy(byte NodeAddr) {
-  switch (NodeAddr) {
-
-    case 0:
-      rxWrite(SPI_ADDRESS_STATE, StandbyReg, CS1);
-      break;
-
-    case 1:
-      rxWrite(SPI_ADDRESS_STATE, StandbyReg, CS2);
-      break;
-
-    case 2:
-      rxWrite(SPI_ADDRESS_STATE, StandbyReg, CS3);
-      break;
-
-    case 3:
-      rxWrite(SPI_ADDRESS_STATE, StandbyReg, CS4);
-      break;
-
-    case 4:
-      rxWrite(SPI_ADDRESS_STATE, StandbyReg, CS5);
-      break;
-
-    case 5:
-      rxWrite(SPI_ADDRESS_STATE, StandbyReg, CS6);
-      break;
-  }
+void RXstandBy(uint8_t NodeAddr) {
+	rxWriteNode(NodeAddr, SPI_ADDRESS_STATE, StandbyReg);
 }
 
-void RXpowerOn(byte NodeAddr) {
-  switch (NodeAddr) {
-
-    case 0:
-      rxWrite(SPI_ADDRESS_STATE, PowerOnReg, CS1);
-      break;
-
-    case 1:
-      rxWrite(SPI_ADDRESS_STATE, PowerOnReg, CS2);
-      break;
-
-    case 2:
-      rxWrite(SPI_ADDRESS_STATE, PowerOnReg, CS3);
-      break;
-
-    case 3:
-      rxWrite(SPI_ADDRESS_STATE, PowerOnReg, CS4);
-      break;
-
-    case 4:
-      rxWrite(SPI_ADDRESS_STATE, PowerOnReg, CS5);
-      break;
-
-    case 5:
-      rxWrite(SPI_ADDRESS_STATE, PowerOnReg, CS6);
-      break;
-  }
+void RXpowerOn(uint8_t NodeAddr) {
+	rxWriteNode(NodeAddr, SPI_ADDRESS_STATE, PowerOnReg);
 }
 
 void RXreset(uint8_t NodeAddr) {
-  lastUpdate[NodeAddr] = micros();
-  switch (NodeAddr) {
-
-    case 0:
-      rxWrite(SPI_ADDRESS_STATE, ResetReg, CS1);
-      break;
-
-    case 1:
-      rxWrite(SPI_ADDRESS_STATE, ResetReg, CS2);
-      break;
-
-    case 2:
-      rxWrite(SPI_ADDRESS_STATE, ResetReg, CS3);
-      break;
-
-    case 3:
-      rxWrite(SPI_ADDRESS_STATE, ResetReg, CS4);
-      break;
-
-    case 4:
-      rxWrite(SPI_ADDRESS_STATE, ResetReg, CS5);
-      break;
-
-    case 5:
-      rxWrite(SPI_ADDRESS_STATE, ResetReg, CS6);
-      break;
-  }
+	rxWriteNode(NodeAddr, SPI_ADDRESS_STATE, ResetReg);
 }
 
 void RXResetAll() {
@@ -182,31 +131,7 @@ void RXPowerDownAll() {
 }
 
 void RXPowerDown(uint8_t NodeAddr) {
-  switch (NodeAddr) {
-    case 0:
-      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS1);
-      break;
-
-    case 1:
-      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS2);
-      break;
-
-    case 2:
-      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS3);
-      break;
-
-    case 3:
-      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS4);
-      break;
-
-    case 4:
-      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS5);
-      break;
-
-    case 5:
-      rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS6);
-      break;
-  }
+	rxWriteNode(NodeAddr, SPI_ADDRESS_POWER, PowerDownState);
 }
 
 void RXPowerUpAll() {
@@ -216,31 +141,7 @@ void RXPowerUpAll() {
 }
 
 void RXPowerUp(uint8_t NodeAddr) {
-  switch (NodeAddr) {
-    case 0:
-      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS1);
-      break;
-
-    case 1:
-      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS2);
-      break;
-
-    case 2:
-      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS3);
-      break;
-
-    case 3:
-      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS4);
-      break;
-
-    case 4:
-      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS5);
-      break;
-
-    case 5:
-      rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS6);
-      break;
-  }
+	rxWriteNode(NodeAddr, SPI_ADDRESS_POWER, DefaultPowerState);
 }
 
 void SelectivePowerUp() { //powerup only the RXs that have been requested
@@ -289,44 +190,16 @@ uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
   uint16_t frequency = channelFreqTable[index];
   RXBandModule[NodeAddr] = band;
   RXChannelModule[NodeAddr] = channel;
-  lastUpdate[NodeAddr] = micros();
   return setModuleFrequency(frequency, NodeAddr);
 }
 
 uint16_t setModuleFrequency(uint16_t frequency, uint8_t NodeAddr) {
-
-  switch (NodeAddr) {
-    case 0:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS1);
-      break;
-
-    case 1:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS2);
-      break;
-
-    case 2:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS3);
-      break;
-
-    case 3:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS4);
-      break;
-
-    case 4:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS5);
-      break;
-
-    case 5:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS6);
-      break;
-  }
-  return frequency;
+	rxWriteNode(NodeAddr, SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency));
+	return frequency;
 }
 
 uint16_t setModuleFrequencyAll(uint16_t frequency) {
-
   rxWriteAll(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency));
-
   return frequency;
 }
 
