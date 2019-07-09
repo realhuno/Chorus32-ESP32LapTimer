@@ -10,7 +10,9 @@
 #include "RX5808.h"
 #include "Calibration.h"
 #include "WebServer.h"
-#include "Utils.h"
+#include "Filter.h"
+
+extern uint8_t NumRecievers;
 
 static uint8_t oledRefreshTime = 50;
 
@@ -29,11 +31,15 @@ static struct rxPageData_s {
   uint8_t currentPilotNumber;
 } rxPageData;
 
+static struct adcPageData_s {
+  lowpass_filter_t filter;
+} adcPageData;
+
 
 
 oled_page_t oled_pages[] = {
   {NULL, NULL, summary_page_update, next_page_input},
-  {NULL, NULL, adc_page_update, next_page_input},
+  {&adcPageData, adc_page_init, adc_page_update, next_page_input},
   {NULL, NULL, calib_page_update, calib_page_input},
   {NULL, NULL, airplane_page_update, airplane_page_input},
   {&rxPageData, rx_page_init, rx_page_update, rx_page_input}
@@ -169,15 +175,22 @@ void summary_page_update(void* data) {
   #define RSSI_BAR_HEIGHT 8
   #define RSSI_BAR_X_OFFSET 40
   for (int i = 0; i < getNumReceivers(); i++) {
-    display.drawString(0, 9 + i * 9, getBandLabel(getRXBand(i)) + String(getRXChannel(i) + 1) + ", " + String(getRSSI(i) / 12));
+    display.drawString(0, 9 + i * 9, getBandLabel(getRXBandPilot(i)) + String(getRXChannelPilot(i) + 1) + ", " + String(getRSSI(i) / 12));
     display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + i * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
     display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(MAX(getRSSIThreshold(i), RSSI_ADC_READING_MIN), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + i * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
   }
 }
 
+void adc_page_init(void* data) {
+  adcPageData_s* my_data = (adcPageData_s*)data;
+  filter_init(&my_data->filter, 1, 1); 
+}
+
 void adc_page_update(void* data) {
+  adcPageData_s* my_data = (adcPageData_s*)data;
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.drawString(0, 0, "ADC loop " + String(getADCLoopCount() * (1000.0 / oledRefreshTime)) + " Hz");
+  float freq = filter_add_value(&my_data->filter, getADCLoopCount() * (1000.0 / oledRefreshTime), true);
+  display.drawString(0, 0, "ADC loop " + String(freq) + " Hz");
   setADCLoopCount(0);
   display.drawString(0, 9, String(getMaFloat()) + " mA");
 }
