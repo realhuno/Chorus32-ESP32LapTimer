@@ -13,6 +13,7 @@ typedef struct lowpass_filter_s {
 } lowpass_filter_t; 
 
 void filter_init(lowpass_filter_t* filter, float cutoff, float dt);
+void filter_adjust_dt(lowpass_filter_t* filter, float dt);
 float filter_add_value(lowpass_filter_t* filter, float value, bool dynamic_dt);
 
 
