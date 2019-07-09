@@ -11,6 +11,7 @@
 #include "Calibration.h"
 #include "WebServer.h"
 #include "Filter.h"
+#include "Utils.h"
 
 extern uint8_t NumRecievers;
 
@@ -150,10 +151,11 @@ void summary_page_init(void* data) {
 void summary_page_input(void* data, uint8_t index, uint8_t type) {
   summaryPageData_s* my_data = (summaryPageData_s*) data;
   if(index == 1 && type == BUTTON_SHORT) {
-    my_data->first_pilot += SUMMARY_PILOTS_PER_PAGE;
-    if(my_data->first_pilot >= getActivePilots()) {
+    if(my_data->first_pilot + SUMMARY_PILOTS_PER_PAGE >= getActivePilots()) {
       my_data->first_pilot = 0;
-    }
+    } else {
+      my_data->first_pilot += MIN(SUMMARY_PILOTS_PER_PAGE, getActivePilots() - SUMMARY_PILOTS_PER_PAGE);
+    }    
   }
   else {
     next_page_input(data, index, type);
@@ -202,7 +204,7 @@ void summary_page_update(void* data) {
   #define RSSI_BAR_X_OFFSET 40
   for (uint8_t i = 0; i < SUMMARY_PILOTS_PER_PAGE + skipped && (i + first_pilot) < MAX_NUM_PILOTS; ++i) {
     if(isPilotActive(i)) {
-      display.drawString(0, 9 + (i - skipped) * 9, String(i+1) + ":" + getBandLabel(getRXBandPilot(i + first_pilot)) + String(getRXChannelPilot(i + first_pilot) + 1) + "," + String(getRSSI(i + first_pilot) / 12));
+      display.drawString(0, 9 + (i - skipped) * 9, String(i+1+first_pilot) + ":" + getBandLabel(getRXBandPilot(i + first_pilot)) + String(getRXChannelPilot(i + first_pilot) + 1) + "," + String(getRSSI(i + first_pilot) / 12));
       display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + (i - skipped) * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i + first_pilot), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
       display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(MAX(getRSSIThreshold(i + first_pilot), RSSI_ADC_READING_MIN), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + (i - skipped) * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
     }
