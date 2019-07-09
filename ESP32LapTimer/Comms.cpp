@@ -385,23 +385,20 @@ void setupThreshold(uint8_t phase, uint8_t node) {
 
 void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 
-  //  Serial.print("SendLap: ");
-  //  Serial.println(String(Lap) + " " + String(NodeAddr));
+	// Serial.print("SendLap: ");
+	// Serial.println(String(Lap) + " " + String(NodeAddr));
 
-  uint32_t RequestedLap = 0;
+	uint32_t RequestedLap = 0;
 
-  if (raceMode == 0) {
-    Serial.println("RaceMode == 0 and sendlaps was called");
-    return;
-  }
+	if (Lap == 0) {
+		Serial.println("Lap == 0 and sendlap was called");
+		return;
+	}
 
 	if (raceMode == 1) {
 		RequestedLap = getLaptimeRel(NodeAddr, Lap); // realtive mode
-
-
 	} else if (raceMode == 2) {
 		RequestedLap = getLaptimeRelToStart(NodeAddr, Lap);  //absolute mode
-
 	} else {
 		Serial.println("Error: Invalid RaceMode Set");
 	}
