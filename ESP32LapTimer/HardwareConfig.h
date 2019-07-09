@@ -19,7 +19,8 @@ void InitHardwarePins();
 
 #define MaxNumRecievers 6
 extern byte NumRecievers;
-#define PHYSICAL_RECEIVERS 1
+#define NUM_PHYSICAL_RECEIVERS 1
+#define MULTIPLEX_STAY_TIME_US 5 * 1000
 
 #define MIN_TUNE_TIME 30000 // value in micro seconds
 
