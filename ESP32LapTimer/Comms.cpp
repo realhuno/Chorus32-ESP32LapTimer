@@ -103,8 +103,6 @@
 // special item that sends all subsequent items from 0 (see above)
 #define SEND_ALL_DEVICE_STATE       255
 
-extern uint8_t NumRecievers;
-
 //----- RSSI --------------------------------------
 static uint16_t rssiThreshold = 190;
 
@@ -151,7 +149,7 @@ static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the l
 static uint32_t RaceStartTime = 0;
 
 static uint8_t thresholdSetupMode[MAX_NUM_PILOTS];
-static uint16_t RXfrequencies[MAX_NUM_RECEIVERS];
+static uint16_t RXfrequencies[MAX_NUM_PILOTS];
 
 static void sendThresholdMode(uint8_t node) {
 	Serial.print("Sending theshold mode ");
@@ -166,7 +164,7 @@ static void sendThresholdMode(uint8_t node) {
 }
 
 void commsSetup() {
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     setRXBandPilot(i, EepromSettings.RXBand[i]);
     setRXChannelPilot(i, EepromSettings.RXChannel[i]);
     RXfrequencies[i] = EepromSettings.RXfrequencies[i];
@@ -187,7 +185,7 @@ void setRaceMode(uint8_t mode) {
     raceMode = mode;
     startRaceLap();
     newLapIndex = 0;
-    for(uint8_t i = 0; i < NumRecievers; ++i) {
+    for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
       if(thresholdSetupMode[i]) {
         thresholdSetupMode[i] = 0;
         sendThresholdMode(i);
@@ -215,7 +213,7 @@ void SendMinLap(uint8_t NodeAddr) {
 }
 
 void SendIsModuleConfigured() {
-  for (int i = 0; i < NumRecievers; i ++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i ++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
     addToSendQueue('y');
@@ -259,7 +257,7 @@ void SendMillis() {
   uint8_t buf[8];
   longToHex(buf, CurrMillis);
 
-  for (int i = 0; i < NumRecievers; i ++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i ++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
     addToSendQueue('t');
@@ -301,7 +299,7 @@ void SendCurrRSSIloop() {
     return;
   }
   if (millis() > rssiMonitorInterval + lastRSSIsent) {
-    for (int i = 0; i < NumRecievers; i ++) {
+    for (int i = 0; i < MAX_NUM_PILOTS; i ++) {
       SendCurrRSSI(i);
     }
   }
@@ -433,7 +431,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
 }
 
 void SendNumberOfnodes(byte NodeAddr) {
-  for (int i = NodeAddr + 1; i <= NumRecievers + NodeAddr; i++) {
+  for (int i = NodeAddr + 1; i <= MAX_NUM_PILOTS + NodeAddr; i++) {
     addToSendQueue('N');
     addToSendQueue(TO_HEX(i));
     addToSendQueue('\n');
@@ -551,7 +549,7 @@ void SendVRxFreq(uint8_t NodeAddr) {
 
 void sendAPIversion() {
 
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     addToSendQueue('S');
     addToSendQueue(TO_HEX(i));
     addToSendQueue('#');
@@ -638,7 +636,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
 
   if (controlData[2] == CONTROL_GET_ALL_DATA) {
-    for (int i = 0; i < NumRecievers; i++) {
+    for (int i = 0; i < MAX_NUM_PILOTS; i++) {
       SendAllSettings(i);
       //delay(100);
     }
@@ -660,7 +658,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
       case CONTROL_RACE_MODE:
         valueToSet = TO_BYTE(controlData[3]);
         setRaceMode(valueToSet);
-        for (int i = 0; i < NumRecievers; i++) {
+        for (int i = 0; i < MAX_NUM_PILOTS; i++) {
           SendRaceMode(i);
         }
         isConfigured = 1;
@@ -731,7 +729,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         //        }
         //addToSendQueue(SEND_SOUND_STATE);
         //playClickTones();
-        for (int i = 0; i < NumRecievers; i++) {
+        for (int i = 0; i < MAX_NUM_PILOTS; i++) {
           SendSoundMode(i);
         }
         isConfigured = 1;
@@ -794,7 +792,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendMinLap(NodeAddrByte);
         break;
       case CONTROL_SOUND:
-        for (int i = 0; i < NumRecievers; i++) {
+        for (int i = 0; i < MAX_NUM_PILOTS; i++) {
           SendSoundMode(i);
         }
         break;
@@ -803,7 +801,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
       case CONTROL_GET_RSSI: // get current RSSI value
         //Serial.println("sending current RSSI");
-        for (int i = 0; i < NumRecievers; i++) {
+        for (int i = 0; i < MAX_NUM_PILOTS; i++) {
           SendCurrRSSI(i);
         }
         break;

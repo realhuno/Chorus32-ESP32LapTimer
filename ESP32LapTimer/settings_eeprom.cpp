@@ -24,9 +24,6 @@ void EepromSettingsStruct::load() {
   EEPROM.get(0, *this);
   Serial.println("EEPROM LOADED");
 
-  Serial.println(EepromSettings.NumRecievers);
-  Serial.println(NumRecievers);
-
   if (this->eepromVersionNumber != EEPROM_VERSION_NUMBER) {
     this->defaults();
     Serial.println("EEPROM DEFAULTS LOADED");
@@ -66,7 +63,7 @@ bool EepromSettingsStruct::SanityCheck() {
     return IsGoodEEPROM;
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if (EepromSettings.RXBand[i] > MaxBand) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -78,7 +75,7 @@ bool EepromSettingsStruct::SanityCheck() {
 
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if (EepromSettings.RXChannel[i] > MaxChannel) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -89,7 +86,7 @@ bool EepromSettingsStruct::SanityCheck() {
     }
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if ((EepromSettings.RXfrequencies[i] > MaxFreq) or (EepromSettings.RXfrequencies[i] < MinFreq)) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -100,7 +97,7 @@ bool EepromSettingsStruct::SanityCheck() {
     }
   }
 
-  for (int i = 0; i < EepromSettings.NumRecievers; i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if (EepromSettings.RSSIthresholds[i] > MaxThreshold) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -115,6 +112,7 @@ bool EepromSettingsStruct::SanityCheck() {
 
 void EepromSettingsStruct::save() {
   if (eepromSaveRequired) {
+	this->updateCRC();
     EEPROM.put(0, *this);
     EEPROM.commit();
     eepromSaveRequired = false;
@@ -165,7 +163,6 @@ void EepromSettingsStruct::updateCRC() {
 bool EepromSettingsStruct::validateCRC(){
 	return this->crc == this->calcCRC();
 }
-
 
 
 RXADCfilter_ getRXADCfilter() {

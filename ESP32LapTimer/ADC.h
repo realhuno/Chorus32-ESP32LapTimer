@@ -24,3 +24,7 @@ void setVbatFloat(float val);
 
 float getVBATcalibration();
 void setVBATcalibration(float val);
+
+uint8_t getActivePilots();
+bool isPilotActive(uint8_t pilot);
+

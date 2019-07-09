@@ -13,8 +13,6 @@
 
 #define newButtonDeBounce 40
 
-extern uint8_t NumRecievers;
-
 static bool buttonOneTouched = false;
 static bool buttonTwoTouched = false;
 
