@@ -8,6 +8,8 @@
 #include "Timer.h"
 #include "Utils.h"
 
+extern uint8_t NumRecievers;
+
 static int calibrationFreqIndex = 0;
 static bool isCurrentlyCalibrating = false;
 static Timer calibrationTimer = Timer(50);

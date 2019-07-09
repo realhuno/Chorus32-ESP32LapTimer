@@ -32,6 +32,8 @@ WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 SemaphoreHandle_t adc_semaphore;
 
+extern uint8_t NumRecievers;
+
 void IRAM_ATTR adc_read() {
   static BaseType_t xHigherPriorityTaskWoken = pdFALSE;
   /* un-block the interrupt processing task now */
