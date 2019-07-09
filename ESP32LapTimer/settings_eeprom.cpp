@@ -37,7 +37,6 @@ bool EepromSettingsStruct::SanityCheck() {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value NumRecievers: ");
     Serial.println(EepromSettings.NumRecievers);
-    return IsGoodEEPROM;
   }
 
 
@@ -45,21 +44,18 @@ bool EepromSettingsStruct::SanityCheck() {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value RXADCfilter: ");
     Serial.println(EepromSettings.RXADCfilter);
-    return IsGoodEEPROM;
   }
 
   if (EepromSettings.ADCVBATmode > MaxVbatMode) {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value ADCVBATmode: ");
     Serial.println(EepromSettings.ADCVBATmode);
-    return IsGoodEEPROM;
   }
 
   if (EepromSettings.VBATcalibration > MaxVBATCalibration) {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value VBATcalibration: ");
     Serial.println(EepromSettings.VBATcalibration);
-    return IsGoodEEPROM;
   }
 
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
@@ -69,7 +65,6 @@ bool EepromSettingsStruct::SanityCheck() {
       Serial.print(i);
       Serial.print(" value MaxBand: ");
       Serial.println(EepromSettings.RXBand[i]);
-      return IsGoodEEPROM;
     }
 
   }
@@ -81,18 +76,16 @@ bool EepromSettingsStruct::SanityCheck() {
       Serial.print(i);
       Serial.print(" value RXChannel: ");
       Serial.println(EepromSettings.RXChannel[i]);
-      return IsGoodEEPROM;
     }
   }
 
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
-    if ((EepromSettings.RXfrequencies[i] > MaxFreq) or (EepromSettings.RXfrequencies[i] < MinFreq)) {
+    if ((EepromSettings.RXfrequencies[i] > MaxFreq) || (EepromSettings.RXfrequencies[i] < MinFreq)) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
       Serial.print(i);
       Serial.print(" value RXfrequencies: ");
       Serial.println(EepromSettings.RXfrequencies[i]);
-      return IsGoodEEPROM;
     }
   }
 
@@ -103,7 +96,6 @@ bool EepromSettingsStruct::SanityCheck() {
       Serial.print(i);
       Serial.print(" value RSSIthresholds: ");
       Serial.println(EepromSettings.RSSIthresholds[i]);
-      return IsGoodEEPROM;
     }
   }
   return IsGoodEEPROM && this->validateCRC();
@@ -121,10 +113,15 @@ void EepromSettingsStruct::save() {
 
 void EepromSettingsStruct::defaults() {
 	memset(this, 0, sizeof(EepromSettingsStruct));
-	memset(this->RxCalibrationMax, 2700, MAX_NUM_RECEIVERS * sizeof(this->RxCalibrationMax[0]));
-	memset(this->RxCalibrationMin, 800, MAX_NUM_RECEIVERS * sizeof(this->RxCalibrationMin[0]));
-	memset(this->RXfrequencies, 5658, MAX_NUM_PILOTS * sizeof(this->RxCalibrationMin[0]));
-	memset(this->RSSIthresholds, 150 * 12, MAX_NUM_PILOTS * sizeof(this->RSSIthresholds[0]));
+	for(uint8_t i = 0; i < MAX_NUM_RECEIVERS; ++i){
+		this->RxCalibrationMax[i] = 2700;
+		this->RxCalibrationMin[i] = 800;
+	}
+	
+	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i){
+		this->RXfrequencies[i] = 5658;
+		this->RSSIthresholds[i] = 150 * 12;
+	}
 	this->eepromVersionNumber = EEPROM_VERSION_NUMBER;
 	this->ADCVBATmode = INA219;
 	this->RXADCfilter = LPF_20Hz;
