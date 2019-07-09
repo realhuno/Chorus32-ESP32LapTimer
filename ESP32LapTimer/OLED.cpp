@@ -10,6 +10,7 @@
 #include "RX5808.h"
 #include "Calibration.h"
 #include "WebServer.h"
+#include "Filter.h"
 
 extern uint8_t NumRecievers;
 
@@ -30,11 +31,15 @@ static struct rxPageData_s {
   uint8_t currentPilotNumber;
 } rxPageData;
 
+static struct adcPageData_s {
+  lowpass_filter_t filter;
+} adcPageData;
+
 
 
 oled_page_t oled_pages[] = {
   {NULL, NULL, summary_page_update, next_page_input},
-  {NULL, NULL, adc_page_update, next_page_input},
+  {&adcPageData, adc_page_init, adc_page_update, next_page_input},
   {NULL, NULL, calib_page_update, calib_page_input},
   {NULL, NULL, airplane_page_update, airplane_page_input},
   {&rxPageData, rx_page_init, rx_page_update, rx_page_input}
@@ -167,7 +172,7 @@ void summary_page_update(void* data) {
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   for (int i = 0; i < NumRecievers; i++) {
-    display.drawString(0, 9 + i * 9, getBandLabel(getRXBand(i)) + String(getRXChannel(i) + 1) + ", " + String(getRSSI(i) / 12));
+    display.drawString(0, 9 + i * 9, getBandLabel(getRXBandPilot(i)) + String(getRXChannelPilot(i) + 1) + ", " + String(getRSSI(i) / 12));
     if (getRSSI(i) < 600) {
       display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(600, 600, 3500, 0, 85));
     } else {
@@ -177,9 +182,16 @@ void summary_page_update(void* data) {
   }
 }
 
+void adc_page_init(void* data) {
+  adcPageData_s* my_data = (adcPageData_s*)data;
+  filter_init(&my_data->filter, 1, 1); 
+}
+
 void adc_page_update(void* data) {
+  adcPageData_s* my_data = (adcPageData_s*)data;
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.drawString(0, 0, "ADC loop " + String(getADCLoopCount() * (1000.0 / oledRefreshTime)) + " Hz");
+  float freq = filter_add_value(&my_data->filter, getADCLoopCount() * (1000.0 / oledRefreshTime), true);
+  display.drawString(0, 0, "ADC loop " + String(freq) + " Hz");
   setADCLoopCount(0);
   display.drawString(0, 9, String(getMaFloat()) + " mA");
 }
