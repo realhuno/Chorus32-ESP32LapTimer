@@ -21,3 +21,7 @@ float filter_add_value(lowpass_filter_t* filter, float value, bool dynamic_dt) {
 	filter->state =  filter->state + filter->alpha * (value - filter->state);
 	return filter->state;
 }
+
+void filter_adjust_dt(lowpass_filter_t* filter, float dt) {
+	filter->alpha = dt / (filter->RC + dt);
+}
