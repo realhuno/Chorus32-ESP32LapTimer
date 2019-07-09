@@ -74,6 +74,14 @@ void setup() {
   resetLaptimes();
 
   EepromSettings.setup();
+  setRXADCfilter(EepromSettings.RXADCfilter);
+  setADCVBATmode(EepromSettings.ADCVBATmode);
+  setVbatCal(EepromSettings.VBATcalibration);
+  NumRecievers = EepromSettings.NumRecievers;
+  for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
+    setRXBandPilot(i, EepromSettings.RXBand[i]);
+    setRXChannelPilot(i, EepromSettings.RXChannel[i]);
+  }
 
   delay(500);
   InitHardwarePins();
@@ -92,15 +100,20 @@ void setup() {
     Serial.println("Detected That EEPROM corruption has occured.... \n Resetting EEPROM to Defaults....");
   }
 
-  setRXADCfilter(EepromSettings.RXADCfilter);
-  setADCVBATmode(EepromSettings.ADCVBATmode);
-  setVbatCal(EepromSettings.VBATcalibration);
   commsSetup();
-  init_outputs();
 
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
+  // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
+  for (int i = 0; i < NumRecievers*10; i++) {
+    setModuleChannelBand(i % NumRecievers);
+    delayMicroseconds(MIN_TUNE_TIME_US);
+  }
+	
+	init_outputs();
+	Serial.println("Starting ADC reading task on core 0");
+	adc_semaphore = xSemaphoreCreateBinary();
 
   xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, &adc_task_handle, 0);
   hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
@@ -108,7 +121,7 @@ void setup() {
   timerAlarmWrite(adc_task_timer, 1667, true); // 6khz -> 1khz per adc channel
   timerAlarmEnable(adc_task_timer);
 
-  xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, 1, NULL, 1); 
+  xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1); 
 }
 
 void loop() {

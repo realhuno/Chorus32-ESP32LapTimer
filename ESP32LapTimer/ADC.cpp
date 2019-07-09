@@ -143,8 +143,8 @@ void ConfigureADC() {
 	}
 	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF, 0);
 	
-	// By default enable for NUM_PHYSICAL_RECEIVERS + 1 to force multiplexing and have more reliable way to setup the modules (they seem to have problems coming online) TODO: see if the rx5808 code is correct
-	for(uint8_t i = 0; i < NUM_PHYSICAL_RECEIVERS + 1 && i < MAX_NUM_PILOTS; ++i)  {
+	// By default enable NUM_PHYSICAL_RECEIVERS pilots
+	for(uint8_t i = 0; i < NUM_PHYSICAL_RECEIVERS && i < MAX_NUM_PILOTS; ++i)  {
 		setPilotActive(i, true);
 	}
 	
