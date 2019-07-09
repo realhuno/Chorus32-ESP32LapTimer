@@ -25,6 +25,8 @@ void setVbatFloat(float val);
 float getVBATcalibration();
 void setVBATcalibration(float val);
 
+// TODO: these don't belong here!
 uint8_t getActivePilots();
 bool isPilotActive(uint8_t pilot);
+void setPilotActive(uint8_t pilot, bool active);
 
