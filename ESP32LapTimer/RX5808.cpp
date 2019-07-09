@@ -12,6 +12,7 @@
 #include "RX5808.h"
 
 #include "HardwareConfig.h"
+#include "settings_eeprom.h"
 
 #include <Arduino.h>
 #include <stdint.h>
