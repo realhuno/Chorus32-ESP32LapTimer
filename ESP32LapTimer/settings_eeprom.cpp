@@ -39,21 +39,18 @@ bool EepromSettingsStruct::SanityCheck() {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value RXADCfilter: ");
     Serial.println(EepromSettings.RXADCfilter);
-    return IsGoodEEPROM;
   }
 
   if (EepromSettings.ADCVBATmode > MaxVbatMode) {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value ADCVBATmode: ");
     Serial.println(EepromSettings.ADCVBATmode);
-    return IsGoodEEPROM;
   }
 
   if (EepromSettings.VBATcalibration > MaxVBATCalibration) {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value VBATcalibration: ");
     Serial.println(EepromSettings.VBATcalibration);
-    return IsGoodEEPROM;
   }
 
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
@@ -63,7 +60,6 @@ bool EepromSettingsStruct::SanityCheck() {
       Serial.print(i);
       Serial.print(" value MaxBand: ");
       Serial.println(EepromSettings.RXBand[i]);
-      return IsGoodEEPROM;
     }
 
   }
@@ -75,18 +71,16 @@ bool EepromSettingsStruct::SanityCheck() {
       Serial.print(i);
       Serial.print(" value RXChannel: ");
       Serial.println(EepromSettings.RXChannel[i]);
-      return IsGoodEEPROM;
     }
   }
 
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
-    if ((EepromSettings.RXfrequencies[i] > MaxFreq) or (EepromSettings.RXfrequencies[i] < MinFreq)) {
+    if ((EepromSettings.RXfrequencies[i] > MaxFreq) || (EepromSettings.RXfrequencies[i] < MinFreq)) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
       Serial.print(i);
       Serial.print(" value RXfrequencies: ");
       Serial.println(EepromSettings.RXfrequencies[i]);
-      return IsGoodEEPROM;
     }
   }
 
@@ -97,7 +91,6 @@ bool EepromSettingsStruct::SanityCheck() {
       Serial.print(i);
       Serial.print(" value RSSIthresholds: ");
       Serial.println(EepromSettings.RSSIthresholds[i]);
-      return IsGoodEEPROM;
     }
   }
   return IsGoodEEPROM && this->validateCRC();
@@ -118,9 +111,11 @@ void EepromSettingsStruct::defaults() {
   EepromSettingsStruct settings;
   // by setting everything to 0 we guarantee that every variable is initialized
   memset(&settings, 0, sizeof(EepromSettingsStruct));
-  for(uint8_t i = 0; i < MaxNumReceivers; ++i){
+  for(uint8_t i = 0; i < MAX_NUM_RECEIVERS; ++i){
     settings.RxCalibrationMax[i] = 2700;
     settings.RxCalibrationMin[i] = 800;
+  }
+  for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i){
     settings.RSSIthresholds[i] = 2048;
     settings.RXBand[i] = 0;
     settings.RXChannel[i] = i % 8;
