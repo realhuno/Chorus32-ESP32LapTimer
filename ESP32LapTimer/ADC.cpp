@@ -123,6 +123,7 @@ void ConfigureADC() {
 	memset(active_pilots, 0, MAX_NUM_PILOTS);
 	memset(last_hop, 0, MAX_NUM_RECEIVERS);
 	memset(current_pilot, 0, MAX_NUM_RECEIVERS);
+	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF);
 }
 
 void IRAM_ATTR nbADCread( void * pvParameters ) {
@@ -279,6 +280,7 @@ float getVbatFloat(bool force_read){
         break;
     }
     last_voltage_update = millis();
+    VbatReadingFloat = filter_add_value(&adc_voltage_filter, VbatReadingFloat);
   }
   return VbatReadingFloat;
 }
