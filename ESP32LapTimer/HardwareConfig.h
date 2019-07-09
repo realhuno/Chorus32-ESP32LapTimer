@@ -33,6 +33,8 @@ void InitHardwarePins();
 
 #define MIN_TUNE_TIME_US 30000 // value in micro seconds
 
+#define MAX_LAPS_NUM 100
+
 #define OLED //uncomment this to enable OLED support
 
 #define MAX_UDP_CLIENTS 5
