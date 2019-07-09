@@ -6,6 +6,11 @@
 #ifdef USE_BLUETOOTH
 #include "Bluetooth.h"
 #endif
+#ifdef USE_LORA
+#include "Lora.h"
+#endif
+
+#include "HardwareConfig.h"
 
 #define MAX_OUTPUT_BUFFER_SIZE 1500
 
@@ -21,6 +26,9 @@ static output_t outputs[] = {
 #ifdef USE_BLUETOOTH
   {NULL, bluetooth_init, bluetooth_send_packet, bluetooth_update, output_input_callback},
 #endif // USE_BLUETOOTH
+#ifdef USE_LORA
+	{NULL, lora_init, lora_send_packet, lora_update, output_input_callback},
+#endif // USE_LORA
 };
 
 #define OUTPUT_SIZE (sizeof(outputs)/sizeof(outputs[0]))
