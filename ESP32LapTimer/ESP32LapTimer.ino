@@ -78,7 +78,6 @@ void setup() {
   setRXADCfilter(EepromSettings.RXADCfilter);
   setADCVBATmode(EepromSettings.ADCVBATmode);
   setVbatCal(EepromSettings.VBATcalibration);
-  NumRecievers = EepromSettings.NumRecievers;
   for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
     setRXBandPilot(i, EepromSettings.RXBand[i]);
     setRXChannelPilot(i, EepromSettings.RXChannel[i]);
@@ -101,17 +100,15 @@ void setup() {
     Serial.println("Detected That EEPROM corruption has occured.... \n Resetting EEPROM to Defaults....");
   }
 
-  setRXADCfilter(EepromSettings.RXADCfilter);
-  setADCVBATmode(EepromSettings.ADCVBATmode);
-  setVbatCal(EepromSettings.VBATcalibration);
   commsSetup();
 
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
+
   // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
-  for (int i = 0; i < NumRecievers*10; i++) {
-    setModuleChannelBand(i % NumRecievers);
+  for (int i = 0; i < getNumReceivers()*10; i++) {
+    setModuleChannelBand(i % getNumReceivers());
     delayMicroseconds(MIN_TUNE_TIME_US);
   }
 	
