@@ -72,6 +72,7 @@ void setup() {
 #ifdef USE_BUTTONS
   newButtonSetup();
 #endif
+  resetLaptimes();
 
   EepromSettings.setup();
 
