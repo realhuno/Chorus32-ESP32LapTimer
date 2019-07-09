@@ -2,14 +2,14 @@
 
 This fork adds (mostly backend):
  * Mutliplexing modules. Reduces the accuracy, but is the only option if you want to go cheap and small
-   * Use my fork of the app (branch "pilot_active"), so disabling and enabling pilots in the app works as expected
- * Better ADC voltage reading (on a scale from 5V to 20V off by about 0.3V instead of several volts)
+ * Better ADC voltage reading (on a scale from 5V to 20V off by about 0.3V instead of several volts) (merged)
  * Support for "normal" buttons (merged)
  * Threshold setup mode (long press set in the app) (merged)
  * Remove all .ino files and replace them with .cpp files -> no more variables out of thin air
  * Refactor input and OLED to make adding new pages much easier
    * Page with lap times
- * Support for Bluetooth (need to change the partition scheme to "Huge APP" (will disable OTA updates)
+ * Refactor outputs
+   * Support for Bluetooth (need to change the partition scheme to "Huge APP" (will disable OTA updates)
  * Multiple WiFi/Bluetooth clients
  * Some other changes I don't remember
 
