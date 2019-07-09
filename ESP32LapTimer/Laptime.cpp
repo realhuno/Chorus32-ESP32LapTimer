@@ -42,13 +42,18 @@ uint32_t getLaptime(uint8_t receiver) {
   return getLaptime(receiver, lap_counter[receiver]);
 }
 
-
-
 uint8_t addLap(uint8_t receiver, uint32_t time) {
 	lap_counter[receiver] = lap_counter[receiver] + 1;
 	LapTimes[receiver][lap_counter[receiver]] = time;
-	if(getLaptimeRel(receiver) > getLaptimeRel(receiver, best_lap_num[receiver])) {
-		best_lap_num[receiver] = lap_counter[receiver];
+	Serial.print("New lap: ");
+	Serial.print(getLaptimeRel(receiver));
+	Serial.print(" Best: ");
+	Serial.println(getLaptimeRel(receiver, best_lap_num[receiver]));
+	if((getLaptimeRel(receiver) > getLaptimeRel(receiver, best_lap_num[receiver]) || getLaptimeRel(receiver, best_lap_num[receiver]) == 0)) {
+		// skip best time if we skip the first lap
+		if(!(lap_counter[receiver] == 1 && skip_first_lap)) {
+			best_lap_num[receiver] = lap_counter[receiver];
+		}
 	}
 	return lap_counter[receiver];
 }
