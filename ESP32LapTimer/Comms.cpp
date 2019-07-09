@@ -130,13 +130,6 @@ static uint32_t lastRssiMonitorReading = 0; // millis when rssi monitor value wa
 // * set to INFINITE_TIME_ADJUSTMENT, means time adjustment was performed, but no need to adjust
 static int32_t timeAdjustment = INFINITE_TIME_ADJUSTMENT;
 
-// ----------------------------------------------------------------------------
-
-//-----------
-static uint8_t CurrNodeAddrAPI = 0;  //used for functions like R*# and R*a to enumerate over all node ids
-static uint8_t CurrNodeAddrLaps = 0;  //used for functions like R*# and R*a to enumerate over all node ids
-
-
 //----- other globals------------------------------
 static uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted relative to last lap end; 2: lap times are relative to the race start (sum of all previous lap times);
 //static uint8_t isSoundEnabled = 1; // TODO: implement this option
@@ -615,8 +608,6 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   //Serial.println(length);
 
   if (ControlByte == CONTROL_NUM_RECIEVERS) {
-    CurrNodeAddrAPI = 0;
-    CurrNodeAddrLaps = 0;
     SendNumberOfnodes(NodeAddrByte);
   }
 
