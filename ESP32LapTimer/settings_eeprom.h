@@ -25,7 +25,7 @@ struct EepromSettingsStruct {
   RXADCfilter_ RXADCfilter;
   ADCVBATmode_ ADCVBATmode;
   float VBATcalibration;
-  uint8_t NumRecievers;
+  uint8_t NumReceivers;
   uint16_t RxCalibrationMin[MAX_NUM_RECEIVERS];
   uint16_t RxCalibrationMax[MAX_NUM_RECEIVERS];
   uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
@@ -53,5 +53,6 @@ void setADCVBATmode(ADCVBATmode_ mode);
 
 int getWiFiChannel();
 int getWiFiProtocol();
+int getNumReceivers();
 
 void setSaveRequired();

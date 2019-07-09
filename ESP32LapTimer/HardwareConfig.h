@@ -23,7 +23,6 @@ void InitHardwarePins();
 
 #define MAX_NUM_RECEIVERS 6
 #define MAX_NUM_PILOTS 8
-#define NUM_PHYSICAL_RECEIVERS 1
 #define MULTIPLEX_STAY_TIME_US (5 * 1000)
 
 #define ADC_VOLTAGE_CUTOFF 1

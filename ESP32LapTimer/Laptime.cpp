@@ -4,8 +4,6 @@
 
 #include "HardwareConfig.h"
 
-extern uint8_t NumRecievers;
-
 static uint32_t LapTimes[MAX_NUM_PILOTS][MAX_LAPS_NUM];
 static uint8_t lap_counter[MAX_NUM_PILOTS]; //Keep track of what lap we are up too
 static uint8_t best_lap_num[MAX_NUM_PILOTS];
