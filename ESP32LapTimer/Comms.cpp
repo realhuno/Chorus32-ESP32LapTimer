@@ -141,10 +141,6 @@ static uint8_t newLapIndex = 0;
 static uint8_t thresholdSetupMode[MAX_NUM_PILOTS];
 
 static void sendThresholdMode(uint8_t node) {
-	Serial.print("Sending theshold mode ");
-	Serial.print(thresholdSetupMode[node]);
-	Serial.print(" to node ");
-	Serial.println(node);
   addToSendQueue('S');
   addToSendQueue(TO_HEX(node));
   addToSendQueue(RESPONSE_THRESHOLD_SETUP);
