@@ -90,13 +90,8 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
 
 void updateRx (int band, int channel, int rx) {
   rx = rx - 1;
-  setModuleChannelBand(band, channel, rx);
-  EepromSettings.RXBand[rx] = band;
-  setRXBand(rx, band);
-  EepromSettings.RXChannel[rx] = channel;
-  setRXChannel(rx, channel);
-  uint16_t index = getRXChannel(rx) + (8 * getRXBand(rx));
-  EepromSettings.RXfrequencies[rx] = channelFreqTable[index];
+  setPilotBand(rx, band);
+  setPilotChannel(rx, channel);
 }
 
 void SendStatusVars() {
@@ -179,7 +174,7 @@ void ProcessGeneralSettingsUpdate() {
   String Rssi = webServer.arg("RSSIthreshold");
   int rssi = (byte)Rssi.toInt();
   int value = rssi * 12;
-  for (int i = 0 ; i < MAX_NUM_RECEIVERS; i++) {
+  for (int i = 0 ; i < MAX_NUM_PILOTS; i++) {
     EepromSettings.RSSIthresholds[i] = value;
     setRSSIThreshold(i, value);
   }
