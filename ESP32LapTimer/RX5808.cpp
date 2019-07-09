@@ -32,6 +32,9 @@ static uint32_t lastUpdate[MAX_NUM_RECEIVERS] = {0,0,0,0,0,0};
 void InitSPI() {
   SPI.begin(SCK, MISO, MOSI);
   delay(200);
+  // Reset all modules to ensure they come back online in case they were offline without a power cycle (pressing the reset button)
+  RXResetAll();
+  delay(30);
 }
 
 bool isRxReady(uint8_t module) {
@@ -75,7 +78,6 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
 }
 
 void RXstandBy(byte NodeAddr) {
-
   switch (NodeAddr) {
 
     case 0:
@@ -105,7 +107,6 @@ void RXstandBy(byte NodeAddr) {
 }
 
 void RXpowerOn(byte NodeAddr) {
-
   switch (NodeAddr) {
 
     case 0:
@@ -134,8 +135,8 @@ void RXpowerOn(byte NodeAddr) {
   }
 }
 
-void RXreset(byte NodeAddr) {
-
+void RXreset(uint8_t NodeAddr) {
+  lastUpdate[NodeAddr] = micros();
   switch (NodeAddr) {
 
     case 0:
@@ -164,8 +165,14 @@ void RXreset(byte NodeAddr) {
   }
 }
 
+void RXResetAll() {
+	for (int i = 0; i < NumRecievers; i++) {
+		RXreset(i);
+	}
+}
 
-void PowerDownAll() {
+
+void RXPowerDownAll() {
   //for (int i = 0; i < NumRecievers; i++) {
   //rxWrite(SPI_ADDRESS_POWER, PowerDownState, i);
   //RXstandBy(i);
@@ -174,8 +181,7 @@ void PowerDownAll() {
   rxWriteAll(SPI_ADDRESS_POWER, PowerDownState);
 }
 
-void PowerDown(byte NodeAddr) {
-
+void RXPowerDown(uint8_t NodeAddr) {
   switch (NodeAddr) {
     case 0:
       rxWrite(SPI_ADDRESS_POWER, PowerDownState, CS1);
@@ -203,13 +209,13 @@ void PowerDown(byte NodeAddr) {
   }
 }
 
-void PowerUpAll() {
+void RXPowerUpAll() {
   for (int i = 0; i < NumRecievers; i++) {
     rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, i);
   }
 }
 
-void PowerUp(byte NodeAddr) {
+void RXPowerUp(uint8_t NodeAddr) {
   switch (NodeAddr) {
     case 0:
       rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, CS1);
