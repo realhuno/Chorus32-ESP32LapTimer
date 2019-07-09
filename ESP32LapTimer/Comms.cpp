@@ -47,6 +47,7 @@
 #define CONTROL_NUM_RECIEVERS       'N'
 #define CONTROL_SOUND               'S'
 #define CONTROL_THRESHOLD           'T'
+#define CONTROL_PILOT_ACTIVE        'A'
 // get only:
 #define CONTROL_GET_API_VERSION     '#'
 #define CONTROL_WILDCARD_INDICATOR  '*'
@@ -69,6 +70,7 @@
 #define RESPONSE_MIN_LAP_TIME        'M'
 #define RESPONSE_SOUND               'S'
 #define RESPONSE_THRESHOLD           'T'
+#define RESPONSE_PILOT_ACTIVE        'A'
 
 #define RESPONSE_API_VERSION         '#'
 #define RESPONSE_RSSI                'r'
@@ -429,8 +431,16 @@ void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
   }
 }
 
-void SendRSSImonitorInterval(uint8_t NodeAddr) {
+void sendPilotActive(uint8_t pilot) {
+	uint8_t status = isPilotActive(pilot);
+	addToSendQueue('S');
+	addToSendQueue(TO_HEX(pilot));
+	addToSendQueue('A');
+	addToSendQueue(TO_HEX(status));
+	addToSendQueue('\n');
+}
 
+void SendRSSImonitorInterval(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   uint8_t buf[4];
@@ -596,6 +606,7 @@ void SendAllSettings(uint8_t NodeAddr) {
   sendAPIversion();
   sendThresholdMode(NodeAddr);
   SendXdone(NodeAddr);
+  sendPilotActive(NodeAddr);
 
 }
 
@@ -636,6 +647,11 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   if (length > 4) { // set value commands  changed to n+1 ie, 3+1 = 4.
 
     switch (ControlByte) {
+
+		case CONTROL_PILOT_ACTIVE:
+			valueToSet = TO_BYTE(controlData[3]);
+			setPilotActive(NodeAddrByte, valueToSet);
+			break;
 
       case CONTROL_RACE_MODE:
         valueToSet = TO_BYTE(controlData[3]);
