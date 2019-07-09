@@ -47,6 +47,7 @@ static uint8_t current_pilot[MaxNumRecievers];
 #define FILTER_NUM 2
 
 static lowpass_filter_t filter[MaxNumRecievers][FILTER_NUM];
+static lowpass_filter_t adc_voltage_filter;
 
 /**
  * Find next free pilot and set them to busy. Marks the old pilot as active. Sets the current pilot for the given module
@@ -118,6 +119,7 @@ void ConfigureADC() {
 	memset(active_pilots, 0, MAX_NUM_PILOTS);
 	memset(last_hop, 0, MAX_NUM_RECEIVERS);
 	memset(current_pilot, 0, MAX_NUM_RECEIVERS);
+	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF);
 }
 
 void IRAM_ATTR nbADCread( void * pvParameters ) {
@@ -270,6 +272,7 @@ float getVbatFloat(){
 		default:
 			break;
 	}
+	VbatReadingFloat = filter_add_value(&adc_voltage_filter, VbatReadingFloat);
 	return VbatReadingFloat;
 }
 
