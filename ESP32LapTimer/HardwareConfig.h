@@ -16,6 +16,7 @@ void InitHardwarePins();
 // DO NOT CHANGE BELOW UNLESS USING CUSTOM HARDWARE
 
 #define EEPROM_VERSION_NUMBER 7 // Increment when eeprom struct modified
+#define EEPROM_COMMIT_DELAY_MS 10000 // the time between checks to save the eeprom in ms
 
 #define MaxNumRecievers 6
 #define MAX_NUM_RECEIVERS MaxNumRecievers

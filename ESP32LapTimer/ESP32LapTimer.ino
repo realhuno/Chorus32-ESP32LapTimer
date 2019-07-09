@@ -50,6 +50,14 @@ void IRAM_ATTR adc_task(void* args) {
 	}
 }
 
+void eeprom_task(void* args) {
+	const TickType_t xDelay = EEPROM_COMMIT_DELAY_MS / portTICK_PERIOD_MS;
+	while(42) {
+		EepromSettings.save();
+		vTaskDelay(xDelay);
+	}
+}
+
 
 void setup() {
 
@@ -90,12 +98,17 @@ void setup() {
   for (int i = 0; i < NumRecievers; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
+  
+    Serial.println("Starting ADC reading task on core 1");
+	adc_semaphore = xSemaphoreCreateBinary();
 
 	hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
 	timerAttachInterrupt(adc_task_timer, &adc_read, true);
 	timerAlarmWrite(adc_task_timer, 1667, true); // 6khz -> 1khz per adc channel
 	timerAlarmEnable(adc_task_timer);
 	xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, NULL, 0); 
+	
+	xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, 1, NULL, 1); 
 
   //SelectivePowerUp();
 
@@ -124,7 +137,6 @@ void loop() {
   SendCurrRSSIloop();
   updateWifi();
 
-  EepromSettings.save();
   if (getADCVBATmode() == INA219) {
     ReadVBAT_INA219();
   }
