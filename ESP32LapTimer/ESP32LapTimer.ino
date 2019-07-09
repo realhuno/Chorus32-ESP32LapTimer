@@ -97,7 +97,7 @@ void setup() {
   commsSetup();
   init_outputs();
 
-  for (int i = 0; i < getNumReceivers(); i++) {
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
 
