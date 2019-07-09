@@ -95,7 +95,7 @@ void rx_page_input(void* data, uint8_t index, uint8_t type) {
   rxPageData_s* my_data = (rxPageData_s*) data;
   if(index == 0 && type == BUTTON_SHORT) {
     ++my_data->currentPilotNumber;
-    if(my_data->currentPilotNumber >= getNumReceivers()) {
+    if(my_data->currentPilotNumber >= MAX_NUM_PILOTS) {
       oledNextPage();
       my_data->currentPilotNumber = 0;
     }
@@ -111,14 +111,14 @@ void rx_page_input(void* data, uint8_t index, uint8_t type) {
 void rx_page_update(void* data) {
   // Gather Data
   rxPageData_s* my_data = (rxPageData_s*) data;
-  uint8_t frequencyIndex = getRXChannel(my_data->currentPilotNumber) + (8 * getRXBand(my_data->currentPilotNumber));
+  uint8_t frequencyIndex = getRXChannelPilot(my_data->currentPilotNumber) + (8 * getRXBandPilot(my_data->currentPilotNumber));
   uint16_t frequency = channelFreqTable[frequencyIndex];
 
   // Display things
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_16);
   display.drawString(0, 0, "Settings for RX" + String(my_data->currentPilotNumber + 1));
-  display.drawString(0, 18, getBandLabel(getRXBand(my_data->currentPilotNumber)) + String(getRXChannel(my_data->currentPilotNumber) + 1) + " - " + frequency);
+  display.drawString(0, 18, getBandLabel(getRXBandPilot(my_data->currentPilotNumber)) + String(getRXChannelPilot(my_data->currentPilotNumber) + 1) + " - " + frequency);
   if (getRSSI(my_data->currentPilotNumber) < 600) {
     display.drawProgressBar(48, 35, 120 - 42, 8, map(600, 600, 3500, 0, 85));
   } else {
@@ -226,8 +226,8 @@ void airplane_page_input(void* data, uint8_t index, uint8_t type) {
 }
 
 void incrementRxFrequency(uint8_t currentRXNumber) {
-  uint8_t currentRXChannel = getRXChannel(currentRXNumber);
-  uint8_t currentRXBand = getRXBand(currentRXNumber);
+  uint8_t currentRXChannel = getRXChannelPilot(currentRXNumber);
+  uint8_t currentRXBand = getRXBandPilot(currentRXNumber);
   currentRXChannel++;
   if (currentRXChannel >= 8) {
     //currentRXBand++;
@@ -240,8 +240,8 @@ void incrementRxFrequency(uint8_t currentRXNumber) {
   setModuleChannelBand(currentRXChannel,currentRXBand,currentRXNumber);
 }
 void incrementRxBand(uint8_t currentRXNumber) {
-  uint8_t currentRXChannel = getRXChannel(currentRXNumber);
-  uint8_t currentRXBand = getRXBand(currentRXNumber);
+  uint8_t currentRXChannel = getRXChannelPilot(currentRXNumber);
+  uint8_t currentRXBand = getRXBandPilot(currentRXNumber);
   currentRXBand++;
   if (currentRXBand >= 8) {
     currentRXBand = 0;
