@@ -70,11 +70,11 @@ void updateRx (int band, int channel, int rx) {
   rx = rx - 1;
   setModuleChannelBand(band, channel, rx);
   EepromSettings.RXBand[rx] = band;
-  setRXBand(rx, band);
+  setRXBandPilot(rx, band);
   EepromSettings.RXChannel[rx] = channel;
-  setRXChannel(rx, channel);
-  uint16_t index = getRXChannel(rx) + (8 * getRXBand(rx));
-  EepromSettings.RXfrequencies[rx] = channelFreqTable[index];
+  setRXChannelPilot(rx, channel);
+  uint16_t index = getRXChannelPilot(rx) + (8 * getRXBandPilot(rx));
+  (void) index;
 }
 
 void SendStatusVars(AsyncWebServerRequest* req) {
@@ -156,7 +156,7 @@ void ProcessGeneralSettingsUpdate(AsyncWebServerRequest* req) {
   String Rssi = req->arg("RSSIthreshold");
   int rssi = (byte)Rssi.toInt();
   int value = rssi * 12;
-  for (int i = 0 ; i < MAX_NUM_RECEIVERS; i++) {
+  for (int i = 0 ; i < MAX_NUM_PILOTS; i++) {
     EepromSettings.RSSIthresholds[i] = value;
     setRSSIThreshold(i, value);
   }
