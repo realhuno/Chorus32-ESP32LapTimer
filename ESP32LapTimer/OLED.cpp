@@ -202,9 +202,9 @@ void summary_page_update(void* data) {
   #define RSSI_BAR_X_OFFSET 40
   for (uint8_t i = 0; i < SUMMARY_PILOTS_PER_PAGE + skipped && (i + first_pilot) < MAX_NUM_PILOTS; ++i) {
     if(isPilotActive(i)) {
-      display.drawString(0, 9 + i * 9, getBandLabel(getRXBandPilot(i)) + String(getRXChannelPilot(i) + 1) + ", " + String(getRSSI(i) / 12));
-      display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + i * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
-      display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(MAX(getRSSIThreshold(i), RSSI_ADC_READING_MIN), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + i * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
+      display.drawString(0, 9 + (i - skipped) * 9, String(i+1) + ":" + getBandLabel(getRXBandPilot(i + first_pilot)) + String(getRXChannelPilot(i + first_pilot) + 1) + "," + String(getRSSI(i + first_pilot) / 12));
+      display.drawProgressBar(RSSI_BAR_X_OFFSET, 10 + (i - skipped) * 9, RSSI_BAR_LENGTH, RSSI_BAR_HEIGHT, map(getRSSI(i + first_pilot), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, 100));
+      display.drawVerticalLine(RSSI_BAR_X_OFFSET + map(MAX(getRSSIThreshold(i + first_pilot), RSSI_ADC_READING_MIN), RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX, 0, RSSI_BAR_LENGTH),  10 + (i - skipped) * 9, RSSI_BAR_HEIGHT); // line to show the RSSIthresholds
     }
     else {
       ++skipped;
