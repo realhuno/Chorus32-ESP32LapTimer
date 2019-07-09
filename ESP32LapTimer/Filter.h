@@ -13,7 +13,7 @@ typedef struct lowpass_filter_s {
 } lowpass_filter_t; 
 
 void filter_init(lowpass_filter_t* filter, float cutoff);
-void filter_add_value(lowpass_filter_t* filter, float value);
+float filter_add_value(lowpass_filter_t* filter, float value);
 
 
 #endif // __FILTER_H__
