@@ -255,6 +255,17 @@ void updatePilotNumbers() {
 	Serial.print("New pilot num: ");
 	Serial.println(current_pilot_num);
 	
+	// adjust the filters for all active pilots
+	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
+		if(pilots[i].state == PILOT_ACTIVE) {
+			uint32_t other_pilot_time_us = ((MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) * current_pilot_num) / NUM_PHYSICAL_RECEIVERS;
+			float on_fraction_inv = other_pilot_time_us / (float)MULTIPLEX_STAY_TIME_US;
+			for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
+				filter_adjust_dt(&pilots[i].filter[j], on_fraction_inv * 166 * 1e-6); // inverted fraction eg 70/5 * 166 (6khz -> our sampling rate)
+			}
+		}
+	}
+	
 	if(current_pilot_num <= NUM_PHYSICAL_RECEIVERS) {
 		Serial.println("Multiplexing disabled.");
 		setOneToOnePilotAssignment();
