@@ -683,9 +683,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
 
       case CONTROL_CHANNEL:
-
         setRXChannelPilot(NodeAddrByte, TO_BYTE(controlData[3]));
-        setModuleChannelBand(NodeAddrByte);
         SendVRxChannel(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
