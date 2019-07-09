@@ -18,6 +18,9 @@ void InitHardwarePins();
 #define EEPROM_VERSION_NUMBER 7 // Increment when eeprom struct modified
 #define EEPROM_COMMIT_DELAY_MS 10000 // the time between checks to save the eeprom in ms
 
+// TODO: add to eeprom?
+#define WIFI_AP_NAME "Chorus32 LapTimer"
+
 #define MaxNumRecievers 6
 #define MAX_NUM_RECEIVERS MaxNumRecievers
 #define MAX_NUM_PILOTS MaxNumRecievers
