@@ -474,7 +474,7 @@ void WaitFirstLap(uint8_t NodeAddr) {
   addToSendQueue('S');
   addToSendQueue(TO_HEX(NodeAddr));
   addToSendQueue('1');
-  addToSendQueue(TO_HEX(getSkipFirstLap()));
+  addToSendQueue(TO_HEX(getCountFirstLap()));
   addToSendQueue('\n');
 }
 
@@ -654,7 +654,8 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
       case CONTROL_WAIT_FIRST_LAP:
         valueToSet = TO_BYTE(controlData[3]);
-        setSkipFirstLap(valueToSet);
+        setCountFirstLap(valueToSet);
+        WaitFirstLap(0);
         //playClickTones();
         isConfigured = 1;
         break;
