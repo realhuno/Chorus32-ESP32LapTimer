@@ -26,7 +26,7 @@ uint32_t getLaptime(uint8_t receiver, uint8_t lap) {
 
 uint32_t getLaptimeRel(uint8_t receiver, uint8_t lap) {
 	if(lap == 1) {
-		return start_time - getLaptime(receiver, lap);
+		return getLaptime(receiver, lap) - start_time;
 	}
 	return getLaptime(receiver, lap) - getLaptime(receiver, lap - 1);
 }
