@@ -132,8 +132,8 @@ static uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted re
 static uint8_t isConfigured = 0; //changes to 1 if any input changes the state of the device. it will mean that externally stored preferences should not be applied
 static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
 
-static uint8_t thresholdSetupMode[MaxNumReceivers];
-static uint16_t RXfrequencies[MaxNumReceivers];
+static uint8_t thresholdSetupMode[MAX_NUM_PILOTS];
+static uint16_t RXfrequencies[MAX_NUM_RECEIVERS];
 
 static void sendThresholdMode(uint8_t node) {
   addToSendQueue('S');
@@ -728,7 +728,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         valueToSet = TO_BYTE(controlData[3]);
         uint8_t node = TO_BYTE(controlData[1]);
         // Skip this if we get an invalid node id
-        if(node >= MaxNumReceivers) {
+        if(node >= MAX_NUM_PILOTS) {
           break;
         }
         if (!raceMode) { // don't run threshold setup in race mode because we don't calculate slowRssi in race mode, but it's needed for setup threshold algorithm
@@ -808,7 +808,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 }
 
 void thresholdModeStep() {
-  for(uint8_t i = 0; i < MaxNumReceivers; ++i) {
+  for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
     setupThreshold(RSSI_SETUP_NEXT_STEP, i);
   }
 }

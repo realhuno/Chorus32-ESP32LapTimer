@@ -4,24 +4,23 @@
 
 #include "HardwareConfig.h"
 #include "settings_eeprom.h"
-#include "Comms.h"
 
-static volatile uint32_t LapTimes[MaxNumReceivers][MAX_LAPS_NUM];
-static volatile int lap_counter[MaxNumReceivers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
-static int last_lap_sent[MaxNumReceivers];
+static volatile uint32_t LapTimes[MAX_NUM_PILOTS][MAX_LAPS_NUM];
+static volatile int lap_counter[MAX_NUM_PILOTS] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
+static int last_lap_sent[MAX_NUM_PILOTS];
 
 static uint32_t MinLapTime = 5000;  //this is in millis
 static uint32_t start_time = 0;
 
 void resetLaptimes() {
-  for (int i = 0; i < getNumReceivers(); ++i) {
+  for (int i = 0; i < MAX_NUM_PILOTS; ++i) {
     lap_counter[i] = 0;
     last_lap_sent[i] = 0;
   }
 }
 
 void sendNewLaps() {
-  for (int i = 0; i < getNumReceivers(); ++i) {
+  for (int i = 0; i < MAX_NUM_PILOTS; ++i) {
     int laps_to_send = lap_counter[i] - last_lap_sent[i];
     if(laps_to_send > 0) {
       for(int j = 0; j < laps_to_send; ++j) {

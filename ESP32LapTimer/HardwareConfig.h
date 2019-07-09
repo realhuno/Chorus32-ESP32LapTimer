@@ -21,9 +21,8 @@ void InitHardwarePins();
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 #define BLUETOOTH_NAME WIFI_AP_NAME
 
-#define MaxNumReceivers 6
-#define MAX_NUM_RECEIVERS MaxNumReceivers
-#define MAX_NUM_PILOTS MaxNumReceivers
+#define MAX_NUM_RECEIVERS 6
+#define MAX_NUM_PILOTS 8
 #define NUM_PHYSICAL_RECEIVERS 1
 #define MULTIPLEX_STAY_TIME_US (5 * 1000)
 

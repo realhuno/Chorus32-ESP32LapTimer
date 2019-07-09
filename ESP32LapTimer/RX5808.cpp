@@ -19,14 +19,14 @@
 #include <SPI.h>
 #include <driver/timer.h>
 
-static volatile uint8_t RXBandModule[MaxNumReceivers];
-static volatile uint8_t RXChannelModule[MaxNumReceivers];
+static volatile uint8_t RXBandModule[MAX_NUM_RECEIVERS];
+static volatile uint8_t RXChannelModule[MAX_NUM_RECEIVERS];
 
 // TODO: this doesn't really belong here
-static volatile uint8_t RXBandPilot[MaxNumReceivers];
-static volatile uint8_t RXChannelPilot[MaxNumReceivers];
+static volatile uint8_t RXBandPilot[MAX_NUM_PILOTS];
+static volatile uint8_t RXChannelPilot[MAX_NUM_PILOTS];
 
-static uint32_t lastUpdate[MaxNumReceivers] = {0,0,0,0,0,0};
+static uint32_t lastUpdate[MAX_NUM_RECEIVERS] = {0,0,0,0,0,0};
 
 void InitSPI() {
   SPI.begin(SCK, MISO, MOSI);
