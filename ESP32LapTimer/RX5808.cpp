@@ -27,9 +27,19 @@ static volatile uint8_t RXChannelModule[MaxNumRecievers];
 static volatile uint8_t RXBandPilot[MaxNumRecievers];
 static volatile uint8_t RXChannelPilot[MaxNumRecievers];
 
+static uint32_t lastUpdate[MaxNumRecievers] = {0,0,0,0,0,0};
+
 void InitSPI() {
   SPI.begin(SCK, MISO, MOSI);
   delay(200);
+}
+
+bool isRxReady(uint8_t module) {
+	Serial.print("Micros: ");
+	Serial.print(micros());
+	Serial.print(" last update: ");
+	Serial.println(lastUpdate[module]);
+	return (micros() - lastUpdate[module]) > MIN_TUNE_TIME_US;
 }
 
 void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
@@ -41,7 +51,6 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
 
   digitalWrite(CSpin, HIGH);
   SPI.endTransaction();
-  delayMicroseconds(MIN_TUNE_TIME);
 }
 
 
@@ -58,7 +67,7 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
 
   SPI.transferBits(data, NULL, 25);
 
-  delayMicroseconds(MIN_TUNE_TIME);
+  delayMicroseconds(MIN_TUNE_TIME_US);
   digitalWrite(CS1, HIGH);
   digitalWrite(CS2, HIGH);
   digitalWrite(CS3, HIGH);
@@ -270,47 +279,15 @@ void setBand(uint8_t band, uint8_t NodeAddr) {
 }
 
 uint16_t setModuleChannelBand(uint8_t NodeAddr) {
-  uint8_t index = RXChannelModule[NodeAddr] + (8 * RXBandModule[NodeAddr]);
-  uint16_t frequency = channelFreqTable[index];
-  //return setModuleFrequency(frequency);
-
-  switch (NodeAddr) {
-    case 0:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS1);
-      break;
-
-    case 1:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS2);
-      break;
-
-    case 2:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS3);
-      break;
-
-    case 3:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS4);
-      break;
-
-    case 4:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS5);
-      break;
-
-    case 5:
-      rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS6);
-      break;
-  }
-
-
-  printf("a = %" PRIu16 "\n", frequency);
-  return frequency;
+	return setModuleChannelBand(RXChannelModule[NodeAddr], RXBandModule[NodeAddr], NodeAddr);
 }
 
 uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {  
   uint8_t index = channel + (8 * band);
   uint16_t frequency = channelFreqTable[index];
-  //return setModuleFrequency(frequency);
   RXBandModule[NodeAddr] = band;
   RXChannelModule[NodeAddr] = channel;
+  lastUpdate[NodeAddr] = micros();
   switch (NodeAddr) {
     case 0:
       rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS1);
@@ -336,9 +313,6 @@ uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
       rxWrite(SPI_ADDRESS_SYNTH_B, getSynthRegisterBFreq(frequency), CS6);
       break;
   }
-
-
-  //printf("a = %" PRIu16 "\n", frequency);
   return frequency;
 }
 
