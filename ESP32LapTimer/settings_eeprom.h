@@ -44,23 +44,6 @@ struct EepromSettingsStruct {
   crc_t calcCRC();
 };
 
-const EepromSettingsStruct EepromDefaults = {
- EEPROM_VERSION_NUMBER,
- {0, 0, 0, 0, 0, 0},
-  {0, 1, 2, 3, 4, 5},
-  {5658, 5695, 5732, 5769, 5806, 5843},
-  {2048, 2048, 2048, 2048, 2048, 2048},
-  LPF_20Hz,
-  INA219,
-  1.000,
-  6,
-  {800, 800, 800, 800, 800, 800},
-  {2700, 2700, 2700, 2700, 2700, 2700},
-  1,
-  1,
-  0
-};
-
 extern EepromSettingsStruct EepromSettings;
 
 RXADCfilter_ getRXADCfilter();

@@ -344,3 +344,11 @@ void setVBATcalibration(float val) {
 float getVBATcalibration() {
   return VBATcalibration;
 }
+
+uint8_t getActivePilots() {
+	return current_pilot_num;
+}
+
+bool isPilotActive(uint8_t pilot) {
+	return pilots[pilot].state != PILOT_UNUSED;
+}

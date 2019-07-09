@@ -391,7 +391,9 @@ uint8_t getRXBandPilot(uint8_t pilot) {
 }
 
 void setRXChannelPilot(uint8_t pilot, uint8_t channel) {
-	RXChannelPilot[pilot] = channel;
+	if(pilot < MAX_NUM_PILOTS) {
+		RXChannelPilot[pilot] = channel;
+	}
 }
 uint8_t getRXChannelPilot(uint8_t pilot) {
 	return RXChannelPilot[pilot];
