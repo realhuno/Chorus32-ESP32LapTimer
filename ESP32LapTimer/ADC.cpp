@@ -172,30 +172,14 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 
 		// Applying calibration
 		if (LIKELY(!isCalibrating())) {
-			// skip if voltage is on this channel
-			if(!(getADCVBATmode() == ADC_CH5 && current_adc == 4) || (getADCVBATmode() == ADC_CH6 && current_adc == 5)) {
-				uint16_t rawRSSI = constrain(ADCReadingsRAW[current_pilot[current_adc]], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
-				ADCReadingsRAW[current_pilot[current_adc]] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
-			} 
+			uint16_t rawRSSI = constrain(ADCReadingsRAW[current_pilot[current_adc]], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
+			ADCReadingsRAW[current_pilot[current_adc]] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
 		}
 		
 		ADCvalues[current_pilot[current_adc]] = ADCReadingsRAW[current_pilot[current_adc]];
 		for(uint8_t j = 0; j < FILTER_NUM; ++j) {
 			filter_add_value(&filter[current_pilot[current_adc]][j], ADCvalues[current_pilot[current_adc]]);
 			ADCvalues[current_pilot[current_adc]] = filter[current_pilot[current_adc]][j].state;
-		}
-
-		switch (getADCVBATmode()) {
-			case ADC_CH5:
-				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[4], &adc_chars);
-				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
-				break;
-			case ADC_CH6:
-				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(ADCvalues[5], &adc_chars);
-				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
-				break;
-			default:
-				break;
 		}
 
 		if (LIKELY(isInRaceMode() > 0)) {
