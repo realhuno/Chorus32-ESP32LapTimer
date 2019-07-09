@@ -201,6 +201,13 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 			current_pilot->ADCvalue = filter_add_value(&(current_pilot->filter[j]), current_pilot->ADCvalue);
 		}
 
+#ifdef DEBUG_FILTER
+		if(receivers[current_adc].current_pilot == 0) {
+			Serial.print(current_pilot->ADCReadingRAW);
+			Serial.print("\t");
+			Serial.println(current_pilot->ADCvalue);
+		}
+#endif // DEBUG_FILTER
 		if (LIKELY(isInRaceMode() > 0)) {
 			CheckRSSIthresholdExceeded(receivers[current_adc].current_pilot);
 		}
