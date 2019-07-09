@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "HardwareConfig.h"
+#include "crc.h"
 
 enum RXADCfilter_ {LPF_10Hz, LPF_20Hz, LPF_50Hz, LPF_100Hz};
 enum ADCVBATmode_ {OFF, ADC_CH5, ADC_CH6, INA219};
@@ -30,6 +31,7 @@ struct EepromSettingsStruct {
   uint16_t RxCalibrationMax[MaxNumRecievers];
   uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
   uint8_t WiFiChannel;
+  crc_t crc;
 
 
   void setup();
@@ -37,26 +39,27 @@ struct EepromSettingsStruct {
   void save();
   void defaults();
   bool SanityCheck();
+  void updateCRC();
+  bool validateCRC();
+  crc_t calcCRC();
 };
 
-const struct {
-  uint16_t eepromVersionNumber = EEPROM_VERSION_NUMBER;
-
-  uint8_t RXBand[MaxNumRecievers] = {0, 0, 0, 0, 0, 0};
-  uint8_t RXChannel[MaxNumRecievers] = {0, 1, 2, 3, 4, 5};
-  uint16_t RXfrequencies[MaxNumRecievers] = {5658, 5695, 5732, 5769, 5806, 5843};
-  int RSSIthresholds[MaxNumRecievers] = {2048, 2048, 2048, 2048, 2048, 2048};
-  RXADCfilter_ RXADCfilter = LPF_20Hz;
-  ADCVBATmode_ ADCVBATmode = INA219;
-  float VBATcalibration = 1.000;
-  uint8_t NumRecievers = 6;
-  uint16_t RxCalibrationMin[MaxNumRecievers] = {800, 800, 800, 800, 800, 800};
-  uint16_t RxCalibrationMax[MaxNumRecievers] = {2700, 2700, 2700, 2700, 2700, 2700};
-  uint8_t WiFiProtocol = 1;
-  uint8_t WiFiChannel = 1;
-
-
-} EepromDefaults;
+const EepromSettingsStruct EepromDefaults = {
+ EEPROM_VERSION_NUMBER,
+ {0, 0, 0, 0, 0, 0},
+  {0, 1, 2, 3, 4, 5},
+  {5658, 5695, 5732, 5769, 5806, 5843},
+  {2048, 2048, 2048, 2048, 2048, 2048},
+  LPF_20Hz,
+  INA219,
+  1.000,
+  6,
+  {800, 800, 800, 800, 800, 800},
+  {2700, 2700, 2700, 2700, 2700, 2700},
+  1,
+  1,
+  0
+};
 
 extern EepromSettingsStruct EepromSettings;
 
