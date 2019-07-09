@@ -48,14 +48,31 @@ static uint8_t current_pilot[MaxNumRecievers];
 
 static lowpass_filter_t filter[MaxNumRecievers][FILTER_NUM];
 
-static uint8_t getNextPilot(uint8_t current_pilot) {
+/**
+ * Find next free pilot and set them to busy. Marks the old pilot as active. Sets the current pilot for the given module
+ * \returns if a different pilot was found.
+ */
+static bool setNextPilot(uint8_t adc) {
 	for(uint8_t i = 1; i < MaxNumRecievers + 1; ++i) {
-		uint8_t next_pilot = (current_pilot + i) % MaxNumRecievers;
+		uint8_t next_pilot = (current_pilot[adc] + i) % MaxNumRecievers;
 		if(active_pilots[next_pilot] == 1) {
-			return next_pilot;
+			active_pilots[current_pilot[adc]] = 1;
+			active_pilots[next_pilot] = 2;
+			current_pilot[adc] = next_pilot;
+			return true;
 		}
 	}
-	return current_pilot;
+	return false;
+}
+
+static void setOneToOnePilotAssignment() {
+	if(current_pilot_num <= NUM_PHYSICAL_RECEIVERS) {
+		for(uint8_t i = 0; i < current_pilot_num; ++i) {
+			setNextPilot(i);
+			// We are assuming adcs are always in order without gaps
+			setModuleChannelBand(getRXChannelPilot(current_pilot[i]), getRXBandPilot(current_pilot[i]), i);
+		}
+	}
 }
 
 void ConfigureADC() {
@@ -128,20 +145,16 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		channel = ADC6;
 		break;
 	}
+	// Only multiplex, if we need to
 	if(current_pilot_num > NUM_PHYSICAL_RECEIVERS) {
 		if(now - last_hop[current_adc] > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
-			// change state back to one
-			active_pilots[current_pilot[current_adc]] = 1;
-			current_pilot[current_adc] = getNextPilot(current_pilot[current_adc]);
-			active_pilots[current_pilot[current_adc]] = 2;
+			setNextPilot(current_adc);
 			// TODO: add class between this and rx5808
 			// TODO: add better multiplexing. Maybe based on the last laptime?
 			// TODO: add smarter jumping with multiple modules available
 			setModuleChannelBand(getRXChannelPilot(current_pilot[current_adc]), getRXBandPilot(current_pilot[current_adc]), current_adc);
 			last_hop[current_adc] = now;
 		}
-	} else { // only a single pilot
-		current_pilot[current_adc] = getNextPilot(current_pilot[current_adc]);
 	}
 	// go to next adc if vrx is not ready
 	if(isRxReady(current_adc)) {
@@ -224,6 +237,11 @@ void updatePilotNumbers() {
 	}
 	Serial.print("New pilot num: ");
 	Serial.println(current_pilot_num);
+	
+	if(current_pilot_num <= NUM_PHYSICAL_RECEIVERS) {
+		Serial.println("Multiplexing disabled.");
+		setOneToOnePilotAssignment();
+	}
 }
 
 void setRSSIThreshold(uint8_t node, uint16_t threshold) {
