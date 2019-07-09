@@ -14,8 +14,6 @@
 #include "Utils.h"
 #include "Laptime.h"
 
-extern uint8_t NumRecievers;
-
 #define SUMMARY_PILOTS_PER_PAGE 6
 
 static uint8_t oledRefreshTime = 50;

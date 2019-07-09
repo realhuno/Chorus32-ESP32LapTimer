@@ -636,7 +636,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   }
 
   //  if (controlData[2] == RESPONSE_API_VERSION) {
-  //   // for (int i = 0; i < NumRecievers; i++) {
+  //   // for (int i = 0; i < getNumReceivers(); i++) {
   //      sendAPIversion();
   //    //}
   //  }
@@ -801,7 +801,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         //addToSendQueue(SEND_ALL_DEVICE_STATE);
         break;
       case CONTROL_GET_API_VERSION: //get API version
-        //for (int i = 0; i < NumRecievers; i++) {
+        //for (int i = 0; i < getNumReceivers(); i++) {
         sendAPIversion();
         //}
         break;

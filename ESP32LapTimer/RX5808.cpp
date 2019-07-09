@@ -18,8 +18,6 @@
 #include <SPI.h>
 #include <driver/timer.h>
 
-extern uint8_t NumRecievers;
-
 static volatile uint8_t RXBandModule[MAX_NUM_RECEIVERS];
 static volatile uint8_t RXChannelModule[MAX_NUM_RECEIVERS];
 
@@ -115,14 +113,14 @@ void RXreset(uint8_t NodeAddr) {
 }
 
 void RXResetAll() {
-	for (int i = 0; i < NumRecievers; i++) {
+	for (int i = 0; i < getNumReceivers(); i++) {
 		RXreset(i);
 	}
 }
 
 
 void RXPowerDownAll() {
-  //for (int i = 0; i < NumRecievers; i++) {
+  //for (int i = 0; i < getNumReceivers(); i++) {
   //rxWrite(SPI_ADDRESS_POWER, PowerDownState, i);
   //RXstandBy(i);
   //delay(100);
@@ -135,7 +133,7 @@ void RXPowerDown(uint8_t NodeAddr) {
 }
 
 void RXPowerUpAll() {
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < getNumReceivers(); i++) {
     rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, i);
   }
 }
@@ -145,7 +143,7 @@ void RXPowerUp(uint8_t NodeAddr) {
 }
 
 void SelectivePowerUp() { //powerup only the RXs that have been requested
-  for (int i = 0; i < NumRecievers; i++) {
+  for (int i = 0; i < getNumReceivers(); i++) {
     RXreset(i);
     //RXstandBy(i);
     delay(50);
