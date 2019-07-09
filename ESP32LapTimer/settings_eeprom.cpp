@@ -27,11 +27,10 @@ bool EepromSettingsStruct::SanityCheck() {
 
   bool IsGoodEEPROM = true;
 
-  if (EepromSettings.NumRecievers > MAX_NUM_RECEIVERS) {
+  if (EepromSettings.NumReceivers > MAX_NUM_RECEIVERS) {
     IsGoodEEPROM = false;
-    Serial.print("Error: Corrupted EEPROM value NumRecievers: ");
+    Serial.print("Error: Corrupted EEPROM value getNumReceivers(): ");
     Serial.println(EepromSettings.NumReceivers);
-    return IsGoodEEPROM;
   }
 
 

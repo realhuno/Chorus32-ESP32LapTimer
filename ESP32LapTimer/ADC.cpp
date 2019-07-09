@@ -92,7 +92,7 @@ static bool setNextPilot(uint8_t adc) {
 }
 
 static void setOneToOnePilotAssignment() {
-	if(current_pilot_num <= NUM_PHYSICAL_RECEIVERS) {
+	if(current_pilot_num <= getNumReceivers()) {
 		uint8_t i = 0;
 		for(; i < current_pilot_num; ++i) {
 			setNextPilot(i);
@@ -102,7 +102,7 @@ static void setOneToOnePilotAssignment() {
 			setModuleChannelBand(getRXChannelPilot(receivers[i].current_pilot), getRXBandPilot(receivers[i].current_pilot), i);
 		}
 		// Power down all unused modules
-		for(i = current_pilot_num; i < NUM_PHYSICAL_RECEIVERS; ++i) {
+		for(i = current_pilot_num; i < getNumReceivers(); ++i) {
 			RXPowerDown(i);
 		}
 	}
@@ -145,13 +145,13 @@ void ConfigureADC() {
 	
 	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
 		for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
-			filter_init(&pilots[i].filter[j], cutoff, 166 * NUM_PHYSICAL_RECEIVERS * 1e-6);
+			filter_init(&pilots[i].filter[j], cutoff, 166 * getNumReceivers() * 1e-6);
 		}
 	}
 	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF, 0);
 	
-	// By default enable NUM_PHYSICAL_RECEIVERS pilots
-	for(uint8_t i = 0; i < NUM_PHYSICAL_RECEIVERS && i < MAX_NUM_PILOTS; ++i)  {
+	// By default enable getNumReceivers() pilots
+	for(uint8_t i = 0; i < getNumReceivers() && i < MAX_NUM_PILOTS; ++i)  {
 		setPilotActive(i, true);
 	}
 	
@@ -183,7 +183,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		break;
 	}
 	// Only multiplex, if we need to
-	if(current_pilot_num > NUM_PHYSICAL_RECEIVERS) {
+	if(current_pilot_num > getNumReceivers()) {
 		if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
 			setNextPilot(current_adc);
 			// TODO: add class between this and rx5808
@@ -227,7 +227,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		
 		if(current_adc == 0) ++adcLoopCounter;
 	} // end if isRxReady
-	current_adc = (current_adc + 1) % NUM_PHYSICAL_RECEIVERS;
+	current_adc = (current_adc + 1) % getNumReceivers();
 }
 
 
@@ -347,7 +347,7 @@ void setPilotActive(uint8_t pilot, bool active) {
 	// adjust the filters for all active pilots
 	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
 		if(pilots[i].state == PILOT_ACTIVE) {
-			uint32_t other_pilot_time_us = ((MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) * current_pilot_num) / NUM_PHYSICAL_RECEIVERS;
+			uint32_t other_pilot_time_us = ((MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) * current_pilot_num) / getNumReceivers();
 			float on_fraction_inv = other_pilot_time_us / (float)MULTIPLEX_STAY_TIME_US;
 			for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
 				filter_adjust_dt(&pilots[i].filter[j], on_fraction_inv * 166 * 1e-6); // inverted fraction eg 70/5 * 166 (6khz -> our sampling rate)
@@ -355,7 +355,7 @@ void setPilotActive(uint8_t pilot, bool active) {
 		}
 	}
 
-	if(current_pilot_num <= NUM_PHYSICAL_RECEIVERS) {
+	if(current_pilot_num <= getNumReceivers()) {
 		Serial.println("Multiplexing disabled.");
 		setOneToOnePilotAssignment();
 	}
