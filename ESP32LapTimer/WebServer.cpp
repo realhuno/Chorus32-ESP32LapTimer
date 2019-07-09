@@ -149,7 +149,7 @@ void updateRx (int band, int channel, int rx) {
   EepromSettings.RXChannel[rx] = channel;
   setRXChannelPilot(rx, channel);
   uint16_t index = getRXChannelPilot(rx) + (8 * getRXBandPilot(rx));
-  EepromSettings.RXfrequencies[rx] = channelFreqTable[index];
+  (void) index;
 }
 
 void SendStatusVars() {

@@ -149,7 +149,6 @@ static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the l
 static uint32_t RaceStartTime = 0;
 
 static uint8_t thresholdSetupMode[MAX_NUM_PILOTS];
-static uint16_t RXfrequencies[MAX_NUM_PILOTS];
 
 static void sendThresholdMode(uint8_t node) {
 	Serial.print("Sending theshold mode ");
@@ -167,7 +166,6 @@ void commsSetup() {
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     setRXBandPilot(i, EepromSettings.RXBand[i]);
     setRXChannelPilot(i, EepromSettings.RXChannel[i]);
-    RXfrequencies[i] = EepromSettings.RXfrequencies[i];
     thresholdSetupMode[i] = 0;
   }
 }
@@ -674,7 +672,6 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
       case CONTROL_BAND:
 
         setRXBandPilot(NodeAddrByte, TO_BYTE(controlData[3]));
-        setModuleChannelBand(NodeAddrByte);
         SendVRxBand(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
@@ -692,15 +689,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
 
       case CONTROL_FREQUENCY:
-
-        InString += (char)controlData[3];
-        InString += (char)controlData[4];
-        InString += (char)controlData[5];
-        InString += (char)controlData[6];
-        RXfrequencies[NodeAddr] = InString.toInt();
-        EepromSettings.RXfrequencies[NodeAddr] = RXfrequencies[NodeAddr];
-        setSaveRequired();
-        setModuleFrequency(RXfrequencies[NodeAddrByte], NodeAddrByte);
+        //  TODO: convert to band/freq?
         isConfigured = 1;
         break;
 
