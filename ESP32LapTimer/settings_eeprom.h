@@ -21,7 +21,6 @@ struct EepromSettingsStruct {
   uint16_t eepromVersionNumber;
   uint8_t RXBand[MAX_NUM_PILOTS];
   uint8_t RXChannel[MAX_NUM_PILOTS];
-  uint16_t RXfrequencies[MAX_NUM_PILOTS];
   uint16_t RSSIthresholds[MAX_NUM_PILOTS];
   RXADCfilter_ RXADCfilter;
   ADCVBATmode_ ADCVBATmode;
