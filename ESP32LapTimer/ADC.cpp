@@ -38,7 +38,7 @@ static float VbatReadingFloat;
 // count of current active pilots
 static uint8_t current_pilot_num = 0;
 
-#define PILOT_FILTER_NUM 2
+#define PILOT_FILTER_NUM 1
 
 static lowpass_filter_t adc_voltage_filter;
 
@@ -141,10 +141,10 @@ void ConfigureADC() {
 	
 	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
 		for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
-			filter_init(&pilots[i].filter[j], cutoff);
+			filter_init(&pilots[i].filter[j], cutoff, 166 * NUM_PHYSICAL_RECEIVERS * 1e-6);
 		}
 	}
-	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF);
+	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF, 0);
 }
 
 void IRAM_ATTR nbADCread( void * pvParameters ) {
@@ -186,7 +186,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 	// go to next adc if vrx is not ready
 	if(isRxReady(current_adc)) {
 		pilot_data_t* current_pilot = &pilots[receivers[current_adc].current_pilot];
-		if(LIKELY(isInRaceMode())) {
+		if(LIKELY(!isInRaceMode())) {
 			current_pilot->ADCReadingRAW = adc1_get_raw(channel);
 		} else {
 			// multisample when not in race mode (for threshold calibration etc)
@@ -194,14 +194,14 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		}
 
 		// Applying calibration
-		if (LIKELY(!isCalibrating())) {
+		if (LIKELY(isCalibrating())) {
 			uint16_t rawRSSI = constrain(current_pilot->ADCReadingRAW, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
 			current_pilot->ADCReadingRAW = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
 		}
 		
 		current_pilot->ADCvalue = current_pilot->ADCReadingRAW;
 		for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
-			current_pilot->ADCvalue = filter_add_value(&(current_pilot->filter[j]), current_pilot->ADCvalue);
+			current_pilot->ADCvalue = filter_add_value(&(current_pilot->filter[j]), current_pilot->ADCvalue, false);
 		}
 
 		if (LIKELY(isInRaceMode() > 0)) {
@@ -309,7 +309,7 @@ float getVbatFloat(){
 			default:
 				break;
 		}
-		VbatReadingFloat = filter_add_value(&adc_voltage_filter, VbatReadingFloat);
+		VbatReadingFloat = filter_add_value(&adc_voltage_filter, VbatReadingFloat, true);
 		last_voltage_update = micros();
 	}
 	return VbatReadingFloat;
