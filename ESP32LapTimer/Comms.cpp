@@ -117,8 +117,6 @@ static uint32_t lastRssiMonitorReading = 0; // millis when rssi monitor value wa
 #define RSSI_SETUP_NEXT_STEP 1
 
 //----- Lap timings--------------------------------
-static uint32_t lastMilliseconds = 0;
-static uint32_t raceStartTime = 0;
 #define MIN_MIN_LAP_TIME 1 //seconds
 #define MAX_MIN_LAP_TIME 120 //seconds
 #define MAX_LAPS 100
@@ -145,8 +143,6 @@ static uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted re
 static uint8_t isConfigured = 0; //changes to 1 if any input changes the state of the device. it will mean that externally stored preferences should not be applied
 static uint8_t newLapIndex = 0;
 static uint8_t shouldWaitForFirstLap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
-
-static uint32_t RaceStartTime = 0;
 
 static uint8_t thresholdSetupMode[MAX_NUM_PILOTS];
 
