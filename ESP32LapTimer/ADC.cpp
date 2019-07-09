@@ -35,7 +35,7 @@ static float VbatReadingFloat;
 // count of current active pilots
 static uint8_t current_pilot_num = 0;
 
-#define PILOT_FILTER_NUM 2
+#define PILOT_FILTER_NUM 1
 
 static lowpass_filter_t adc_voltage_filter;
 
@@ -138,10 +138,10 @@ void ConfigureADC() {
 	
 	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
 		for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
-			filter_init(&pilots[i].filter[j], cutoff);
+			filter_init(&pilots[i].filter[j], cutoff, 166 * NUM_PHYSICAL_RECEIVERS * 1e-6);
 		}
 	}
-	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF);
+	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF, 0);
 }
 
 void IRAM_ATTR nbADCread( void * pvParameters ) {
@@ -191,7 +191,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		}
 
 		// Applying calibration
-		if (LIKELY(!isCalibrating())) {
+		if (LIKELY(isCalibrating())) {
 			uint16_t rawRSSI = constrain(current_pilot->ADCReadingRAW, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
 			current_pilot->ADCReadingRAW = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
 		}
