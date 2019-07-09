@@ -226,7 +226,7 @@ void ProcessGeneralSettingsUpdate() {
   String Rssi = webServer.arg("RSSIthreshold");
   int rssi = (byte)Rssi.toInt();
   int value = rssi * 12;
-  for (int i = 0 ; i < MaxNumReceivers; i++) {
+  for (int i = 0 ; i < MAX_NUM_PILOTS; i++) {
     EepromSettings.RSSIthresholds[i] = value;
     setRSSIThreshold(i, value);
   }
