@@ -14,6 +14,8 @@
 
 extern uint8_t NumRecievers;
 
+#define SUMMARY_PILOTS_PER_PAGE 6
+
 static uint8_t oledRefreshTime = 50;
 
 static Timer oledTimer = Timer(oledRefreshTime);
@@ -35,10 +37,13 @@ static struct adcPageData_s {
   lowpass_filter_t filter;
 } adcPageData;
 
+static struct summaryPageData_s {
+  uint8_t first_pilot;
+} summaryPageData;
 
 
 oled_page_t oled_pages[] = {
-  {NULL, NULL, summary_page_update, next_page_input},
+  {&summaryPageData, summary_page_init, summary_page_update, summary_page_input},
   {&adcPageData, adc_page_init, adc_page_update, next_page_input},
   {NULL, NULL, calib_page_update, calib_page_input},
   {NULL, NULL, airplane_page_update, airplane_page_input},
@@ -137,7 +142,26 @@ void rx_page_update(void* data) {
   display.drawString(0,55, "Btn2 LONG  - Band.");
 }
 
+void summary_page_init(void* data) {
+  summaryPageData_s* my_data = (summaryPageData_s*) data;
+  my_data->first_pilot = 0;
+}
+
+void summary_page_input(void* data, uint8_t index, uint8_t type) {
+  summaryPageData_s* my_data = (summaryPageData_s*) data;
+  if(index == 1 && type == BUTTON_SHORT) {
+    my_data->first_pilot += SUMMARY_PILOTS_PER_PAGE;
+    if(my_data->first_pilot >= getActivePilots()) {
+      my_data->first_pilot = 0;
+    }
+  }
+  else {
+    next_page_input(data, index, type);
+  }
+}
+
 void summary_page_update(void* data) {
+  summaryPageData_s* my_data = (summaryPageData_s*) data;
   // Display on time
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   // Hours
@@ -171,14 +195,21 @@ void summary_page_update(void* data) {
   
   // Rx modules
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  for (int i = 0; i < NumRecievers; i++) {
-    display.drawString(0, 9 + i * 9, getBandLabel(getRXBandPilot(i)) + String(getRXChannelPilot(i) + 1) + ", " + String(getRSSI(i) / 12));
-    if (getRSSI(i) < 600) {
-      display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(600, 600, 3500, 0, 85));
-    } else {
-      display.drawProgressBar(40, 10 + i * 9, 127 - 42, 8, map(getRSSI(i), 600, 3500, 0, 85));
+  uint8_t skipped = 0;
+  uint8_t first_pilot = my_data->first_pilot;
+  for (uint8_t i = 0; i < SUMMARY_PILOTS_PER_PAGE + skipped && (i + first_pilot) < MAX_NUM_PILOTS; ++i) {
+    if(isPilotActive(i)) {
+      display.drawString(0, 9 + (i - skipped) * 9, getBandLabel(getRXBandPilot(i + first_pilot)) + String(getRXChannelPilot(i + first_pilot) + 1) + ", " + String(getRSSI(i + first_pilot) / 12));
+      if (getRSSI(i + first_pilot) < 600) {
+        display.drawProgressBar(40, 10 + (i - skipped) * 9, 127 - 42, 8, map(600, 600, 3500, 0, 85));
+      } else {
+        display.drawProgressBar(40, 10 + (i - skipped) * 9, 127 - 42, 8, map(getRSSI(i + first_pilot), 600, 3500, 0, 85));
+      }
+      display.drawVerticalLine(40 + map(getRSSIThreshold(i + first_pilot), 600, 3500, 0, 85),  10 + (i - skipped) * 9, 8); // line to show the RSSIthresholds
     }
-    display.drawVerticalLine(40 + map(getRSSIThreshold(i), 600, 3500, 0, 85),  10 + i * 9, 8); // line to show the RSSIthresholds
+    else {
+      ++skipped;
+    }
   }
 }
 
