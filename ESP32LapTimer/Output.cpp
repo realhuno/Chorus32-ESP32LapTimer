@@ -52,6 +52,10 @@ void update_outputs() {
     }
   }
   if(output_buffer_pos >0) {
+#ifdef OUTPUT_DEBUG
+  Serial.print("Output packet: ");
+  Serial.write(output_buffer, output_buffer_pos);
+#endif
     // Send current buffer to all configured outputs
     for(int i = 0; i < OUTPUT_SIZE; ++i) {
       if(outputs[i].sendPacket) {
@@ -74,5 +78,9 @@ void init_outputs() {
 void output_input_callback(uint8_t* buf, uint32_t size) {
   uint8_t ControlPacket = buf[0];
   uint8_t NodeAddr = buf[1];
+#ifdef INPUT_DEBUG
+  Serial.print("Input packet: ");
+  Serial.write(buf, size);
+#endif
   handleSerialControlInput((char*)buf, ControlPacket, NodeAddr, size);
 }
