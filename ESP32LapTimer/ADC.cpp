@@ -281,17 +281,13 @@ float getMaFloat() {
 float getVbatFloat(){
 	static uint32_t last_voltage_update = 0;
 	if((micros() - last_voltage_update) > VOLTAGE_UPDATE_INTERVAL_US) {
-		uint8_t multisampling_samples = 1;
-		if(LIKELY(!isInRaceMode())) {
-			multisampling_samples = VOLTAGE_MULTISAMPLING_SAMPLES;
-		}
 		switch (getADCVBATmode()) {
 			case ADC_CH5:
-				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(multisample_adc1(ADC5, multisampling_samples), &adc_chars);
+				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC5), &adc_chars);
 				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
 				break;
 			case ADC_CH6:
-				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(multisample_adc1(ADC6, multisampling_samples), &adc_chars);
+				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC6), &adc_chars);
 				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
 				break;
 			case INA219:
