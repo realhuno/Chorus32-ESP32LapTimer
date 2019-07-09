@@ -246,43 +246,9 @@ uint16_t getRSSI(uint8_t pilot) {
   return 0;
 }
 
-void updatePilotNumbers() {
-	current_pilot_num = MAX_NUM_PILOTS;
-	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
-		if(pilots[i].RSSIthreshold == 12) { // equals to 1 in the app
-			pilots[i].state = PILOT_UNUSED;
-			// Set adc values to 0 for display etc
-			pilots[i].ADCvalue = 0;
-			pilots[i].ADCReadingRAW = 0;
-			--current_pilot_num;
-		} else {
-			pilots[i].state = PILOT_ACTIVE;
-		}
-	}
-	Serial.print("New pilot num: ");
-	Serial.println(current_pilot_num);
-	
-	// adjust the filters for all active pilots
-	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
-		if(pilots[i].state == PILOT_ACTIVE) {
-			uint32_t other_pilot_time_us = ((MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) * current_pilot_num) / NUM_PHYSICAL_RECEIVERS;
-			float on_fraction_inv = other_pilot_time_us / (float)MULTIPLEX_STAY_TIME_US;
-			for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
-				filter_adjust_dt(&pilots[i].filter[j], on_fraction_inv * 166 * 1e-6); // inverted fraction eg 70/5 * 166 (6khz -> our sampling rate)
-			}
-		}
-	}
-	
-	if(current_pilot_num <= NUM_PHYSICAL_RECEIVERS) {
-		Serial.println("Multiplexing disabled.");
-		setOneToOnePilotAssignment();
-	}
-}
-
 void setRSSIThreshold(uint8_t node, uint16_t threshold) {
   if(node < MAX_NUM_PILOTS) {
     pilots[node].RSSIthreshold = threshold;
-    updatePilotNumbers();
   }
 }
 
@@ -351,4 +317,40 @@ uint8_t getActivePilots() {
 
 bool isPilotActive(uint8_t pilot) {
 	return pilots[pilot].state != PILOT_UNUSED;
+}
+
+void setPilotActive(uint8_t pilot, bool active) {
+	if(active) {
+		if(pilots[pilot].state == PILOT_UNUSED) {
+			pilots[pilot].state = PILOT_ACTIVE;
+			++current_pilot_num;
+		}
+	} else {
+		if(pilots[pilot].state != PILOT_UNUSED) {
+			pilots[pilot].state = PILOT_UNUSED;
+			// Set adc values to 0 for display etc
+			pilots[pilot].ADCvalue = 0;
+			pilots[pilot].ADCReadingRAW = 0;
+			--current_pilot_num;
+		}
+	}
+
+	Serial.print("New pilot num: ");
+	Serial.println(current_pilot_num);
+
+	// adjust the filters for all active pilots
+	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
+		if(pilots[i].state == PILOT_ACTIVE) {
+			uint32_t other_pilot_time_us = ((MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) * current_pilot_num) / NUM_PHYSICAL_RECEIVERS;
+			float on_fraction_inv = other_pilot_time_us / (float)MULTIPLEX_STAY_TIME_US;
+			for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
+				filter_adjust_dt(&pilots[i].filter[j], on_fraction_inv * 166 * 1e-6); // inverted fraction eg 70/5 * 166 (6khz -> our sampling rate)
+			}
+		}
+	}
+
+	if(current_pilot_num <= NUM_PHYSICAL_RECEIVERS) {
+		Serial.println("Multiplexing disabled.");
+		setOneToOnePilotAssignment();
+	}
 }
