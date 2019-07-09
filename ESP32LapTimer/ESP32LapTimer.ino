@@ -102,8 +102,8 @@ void setup() {
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
-  
-    Serial.println("Starting ADC reading task on core 1");
+	init_outputs();
+	Serial.println("Starting ADC reading task on core 1");
 	adc_semaphore = xSemaphoreCreateBinary();
 
 	hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
