@@ -41,6 +41,10 @@
 #define RSSI_ADC_READING_MAX 2700
 #define RSSI_ADC_READING_MIN 800
 
+#define MAX_NUM_RECEIVERS 6
+#define MAX_NUM_PILOTS 8
+#define MULTIPLEX_STAY_TIME_US (5 * 1000)
+
 #include "targets/target.h" // Needs to be at the bottom
 
 void InitHardwarePins();
