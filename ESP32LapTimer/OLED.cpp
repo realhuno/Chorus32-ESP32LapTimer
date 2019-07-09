@@ -272,26 +272,23 @@ void airplane_page_input(void* data, uint8_t index, uint8_t type) {
 
 void incrementRxFrequency(uint8_t currentRXNumber) {
   uint8_t currentRXChannel = getRXChannelPilot(currentRXNumber);
-  uint8_t currentRXBand = getRXBandPilot(currentRXNumber);
   currentRXChannel++;
   if (currentRXChannel >= 8) {
-    //currentRXBand++;
     currentRXChannel = 0;
   }
-  if (currentRXBand >= 7 && currentRXChannel >= 2) {
-    currentRXBand = 0;
-    currentRXChannel = 0;
-  }
-  setModuleChannelBand(currentRXChannel,currentRXBand,currentRXNumber);
+  setRXChannelPilot(currentRXNumber, currentRXChannel);
+  EepromSettings.RXChannel[currentRXNumber] = getRXChannelPilot(currentRXNumber);
+  setSaveRequired();
 }
 void incrementRxBand(uint8_t currentRXNumber) {
-  uint8_t currentRXChannel = getRXChannelPilot(currentRXNumber);
   uint8_t currentRXBand = getRXBandPilot(currentRXNumber);
   currentRXBand++;
   if (currentRXBand >= 8) {
     currentRXBand = 0;
   }
-  setModuleChannelBand(currentRXChannel,currentRXBand,currentRXNumber);
+  setRXBandPilot(currentRXNumber, currentRXBand);
+  EepromSettings.RXBand[currentRXNumber] = getRXBandPilot(currentRXNumber);
+  setSaveRequired();
 }
 
 void setDisplayScreenNumber(uint16_t num) {
