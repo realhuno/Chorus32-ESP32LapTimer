@@ -101,7 +101,7 @@ void setup() {
     setRSSIThreshold(i, EepromSettings.RSSIthresholds[i]);
   }
 	init_outputs();
-	Serial.println("Starting ADC reading task on core 1");
+	Serial.println("Starting ADC reading task on core 0");
 	adc_semaphore = xSemaphoreCreateBinary();
 
 	hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
@@ -110,18 +110,11 @@ void setup() {
 	timerAlarmEnable(adc_task_timer);
 	xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, NULL, 0); 
 	
-	xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, 1, NULL, 1); 
+	xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1);
 }
 
 void loop() {
   rssiCalibrationUpdate();
-  // touchMonitor(); // A function to monitor capacitive touch values, defined in buttons.ino
-
-  //  if (shouldReboot) {  //checks if reboot is needed
-  //    Serial.println("Rebooting...");
-  //    delay(100);
-  //    ESP.restart();
-  //  }
   newButtonUpdate();
 #ifdef OLED
   OLED_CheckIfUpdateReq();
