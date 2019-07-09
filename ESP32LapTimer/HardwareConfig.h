@@ -28,7 +28,6 @@ void InitHardwarePins();
 
 #define ADC_VOLTAGE_CUTOFF 1
 #define VOLTAGE_UPDATE_INTERVAL_US (1000 * 1000)
-#define VOLTAGE_MULTISAMPLING_SAMPLES 10
 
 #define MIN_TUNE_TIME_US 30000 // value in micro seconds
 
