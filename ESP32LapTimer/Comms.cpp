@@ -412,8 +412,8 @@ void SendNumberOfnodes(byte NodeAddr) {
 }
 
 void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
-  uint8_t Pointer = getCurrentLap(NodeAddr);
-  for (uint8_t i = 0; i < Pointer; i++) {
+  uint8_t lap_count = getCurrentLap(NodeAddr);
+  for (uint8_t i = 0; i < lap_count; i++) {
     sendLap(i + 1, NodeAddr);
     update_outputs(); // Flush outputs as the buffer could overflow with a large number of laps
   }

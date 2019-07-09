@@ -12,6 +12,7 @@ static int last_lap_sent[MAX_NUM_PILOTS];
 
 static uint32_t MinLapTime = 5000;  //this is in millis
 static uint32_t start_time = 0;
+static uint8_t skip_first_lap = 0; // 0 means start table is before the laptimer, so first lap is not a full-fledged lap (i.e. don't respect min-lap-time for the very first lap)
 
 void resetLaptimes() {
 	memset(LapTimes, 0, MAX_NUM_PILOTS * MAX_LAPS_NUM * sizeof(LapTimes[0][0]));
@@ -33,12 +34,17 @@ void sendNewLaps() {
 }
 
 uint32_t getLaptime(uint8_t receiver, uint8_t lap) {
-  return LapTimes[receiver][lap];
+	if(receiver < MAX_NUM_PILOTS && lap < MAX_LAPS_NUM) {
+		return LapTimes[receiver][lap];
+	}
+	return 0;
 }
 
 uint32_t getLaptimeRel(uint8_t receiver, uint8_t lap) {
 	if(lap == 1) {
 		return getLaptime(receiver, lap) - start_time;
+	} else if(lap == 0) {
+		return 0;
 	}
 	return getLaptime(receiver, lap) - getLaptime(receiver, lap - 1);
 }
@@ -48,21 +54,17 @@ uint32_t getLaptimeRelToStart(uint8_t receiver, uint8_t lap) {
 }
 
 uint32_t getLaptimeRel(uint8_t receiver) {
-	return getLaptimeRel(receiver, LapTimePtr[receiver]);
+	return getLaptimeRel(receiver, lap_counter[receiver]);
 }
 
 uint32_t getLaptime(uint8_t receiver) {
-  return getLaptime(receiver, lap_counter[receiver]);
+	return getLaptime(receiver, lap_counter[receiver]);
 }
 
 uint8_t addLap(uint8_t receiver, uint32_t time) {
-	lap_counter[receiver] = lap_counter[receiver] + 1;
+	++lap_counter[receiver];
 	LapTimes[receiver][lap_counter[receiver]] = time;
-	Serial.print("New lap: ");
-	Serial.print(getLaptimeRel(receiver));
-	Serial.print(" Best: ");
-	Serial.println(getLaptimeRel(receiver, best_lap_num[receiver]));
-	if((getLaptimeRel(receiver) > getLaptimeRel(receiver, best_lap_num[receiver]) || getLaptimeRel(receiver, best_lap_num[receiver]) == 0)) {
+	if((getLaptimeRel(receiver) < getLaptimeRel(receiver, best_lap_num[receiver]) || getLaptimeRel(receiver, best_lap_num[receiver]) == 0)) {
 		// skip best time if we skip the first lap
 		if(!(lap_counter[receiver] == 1 && skip_first_lap)) {
 			best_lap_num[receiver] = lap_counter[receiver];
@@ -76,18 +78,26 @@ uint8_t getBestLap(uint8_t pilot) {
 }
 
 uint32_t getMinLapTime() {
-  return MinLapTime;
+	return MinLapTime;
 }
 
 void setMinLapTime(uint32_t time) {
-  MinLapTime = time;
+	MinLapTime = time;
 }
 
 uint8_t getCurrentLap(uint8_t receiver) {
-  return lap_counter[receiver];
+	return lap_counter[receiver];
 }
 
 void startRaceLap() {
-  resetLaptimes();
-  start_time = millis();
+	resetLaptimes();
+	start_time = millis();
+}
+
+void setSkipFirstLap(uint8_t shouldWaitForFirstLap) {
+	skip_first_lap = shouldWaitForFirstLap;
+}
+
+uint8_t getSkipFirstLap() {
+	return skip_first_lap;
 }
