@@ -49,6 +49,14 @@ static uint8_t current_pilot[MaxNumRecievers];
 static lowpass_filter_t filter[MaxNumRecievers][FILTER_NUM];
 static lowpass_filter_t adc_voltage_filter;
 
+static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
+	uint16_t val = 0;
+	for(uint8_t i = 0; i < samples; ++i) {
+		val += adc1_get_raw(channel);
+	}
+	return val/samples;
+}
+
 /**
  * Find next free pilot and set them to busy. Marks the old pilot as active. Sets the current pilot for the given module
  * \returns if a different pilot was found.
@@ -260,13 +268,17 @@ float getMaFloat() {
 float getVbatFloat(){
 	static uint32_t last_voltage_update = 0;
 	if((micros() - last_voltage_update) > VOLTAGE_UPDATE_INTERVAL_US) {
+		uint8_t multisampling_samples = 1;
+		if(LIKELY(!isInRaceMode())) {
+			multisampling_samples = VOLTAGE_MULTISAMPLING_SAMPLES;
+		}
 		switch (getADCVBATmode()) {
 			case ADC_CH5:
-				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC5), &adc_chars);
+				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(multisample_adc1(ADC5, multisampling_samples), &adc_chars);
 				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
 				break;
 			case ADC_CH6:
-				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC6), &adc_chars);
+				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(multisample_adc1(ADC6, multisampling_samples), &adc_chars);
 				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
 				break;
 			case INA219:
