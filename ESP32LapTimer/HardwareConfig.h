@@ -21,9 +21,8 @@ void InitHardwarePins();
 // TODO: add to eeprom?
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 
-#define MaxNumRecievers 6
-#define MAX_NUM_RECEIVERS MaxNumRecievers
-#define MAX_NUM_PILOTS MaxNumRecievers
+#define MAX_NUM_RECEIVERS 6
+#define MAX_NUM_PILOTS 8
 #define NUM_PHYSICAL_RECEIVERS 1
 #define MULTIPLEX_STAY_TIME_US (5 * 1000)
 
