@@ -70,4 +70,6 @@ uint8_t getRXChannelPilot(uint8_t pilot);
 
 uint16_t getFrequencyFromBandChannel(uint8_t band, uint8_t channel);
 
+bool isRxReady(uint8_t module);
+
 #endif

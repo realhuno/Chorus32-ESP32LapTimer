@@ -27,9 +27,15 @@ static volatile uint8_t RXChannelModule[MaxNumRecievers];
 static volatile uint8_t RXBandPilot[MaxNumRecievers];
 static volatile uint8_t RXChannelPilot[MaxNumRecievers];
 
+static uint32_t lastUpdate[MaxNumRecievers] = {0,0,0,0,0,0};
+
 void InitSPI() {
   SPI.begin(SCK, MISO, MOSI);
   delay(200);
+}
+
+bool isRxReady(uint8_t module) {
+	return (micros() - lastUpdate[module]) > MIN_TUNE_TIME_US;
 }
 
 void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
@@ -39,10 +45,8 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
   digitalWrite(CSpin, LOW);
   SPI.transferBits(data, NULL, 25);
 
-  delayMicroseconds(MIN_TUNE_TIME);
   digitalWrite(CSpin, HIGH);
   SPI.endTransaction();
-
 }
 
 void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
@@ -82,7 +86,7 @@ void rxWriteAll(uint8_t addressBits, uint32_t dataBits) {
 
   SPI.transferBits(data, NULL, 25);
 
-  delayMicroseconds(MIN_TUNE_TIME);
+  delayMicroseconds(MIN_TUNE_TIME_US);
   digitalWrite(CS1, HIGH);
   digitalWrite(CS2, HIGH);
   digitalWrite(CS3, HIGH);
@@ -167,16 +171,15 @@ void setBand(uint8_t band, uint8_t NodeAddr) {
 }
 
 uint16_t setModuleChannelBand(uint8_t NodeAddr) {
-  uint8_t index = RXChannelModule[NodeAddr] + (8 * RXBandModule[NodeAddr]);
-  uint16_t frequency = channelFreqTable[index];
-  return setModuleFrequency(frequency, NodeAddr);
+	return setModuleChannelBand(RXChannelModule[NodeAddr], RXBandModule[NodeAddr], NodeAddr);
 }
 
-uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
+uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {  
   uint8_t index = channel + (8 * band);
   uint16_t frequency = channelFreqTable[index];
   RXBandModule[NodeAddr] = band;
   RXChannelModule[NodeAddr] = channel;
+  lastUpdate[NodeAddr] = micros();
   return setModuleFrequency(frequency, NodeAddr);
 }
 
