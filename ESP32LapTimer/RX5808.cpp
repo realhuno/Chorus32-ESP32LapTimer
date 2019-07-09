@@ -18,6 +18,8 @@
 #include <SPI.h>
 #include <driver/timer.h>
 
+extern uint8_t NumRecievers;
+
 static volatile uint8_t RXBand[MaxNumRecievers];
 static volatile uint8_t RXChannel[MaxNumRecievers];
 

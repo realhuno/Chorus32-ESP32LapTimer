@@ -4,6 +4,8 @@
 
 #include "HardwareConfig.h"
 
+extern uint8_t NumRecievers;
+
 static volatile uint32_t LapTimes[MaxNumRecievers][100];
 static volatile int lap_counter[MaxNumRecievers] = {0, 0, 0, 0, 0, 0}; //Keep track of what lap we are up too
 
