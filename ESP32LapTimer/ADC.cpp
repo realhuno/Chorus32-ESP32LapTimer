@@ -78,11 +78,13 @@ static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
  * \returns if a different pilot was found.
  */
 static bool setNextPilot(uint8_t adc) {
-	for(uint8_t i = 1; i < MaxNumRecievers + 1; ++i) {
-		uint8_t next_pilot = (receivers[adc].current_pilot + i) % MaxNumRecievers;
+	for(uint8_t i = 1; i < MAX_NUM_PILOTS + 1; ++i) {
+		uint8_t next_pilot = (receivers[adc].current_pilot + i) % MAX_NUM_PILOTS;
 		if(pilots[next_pilot].state == PILOT_ACTIVE) {
 			// set old pilot to active again
-			pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
+			if(pilots[receivers[adc].current_pilot].state != PILOT_UNUSED) {
+				pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
+			}
 			// take next pilot
 			pilots[next_pilot].state = PILOT_TAKEN_BY_MODULE;
 			receivers[adc].current_pilot = next_pilot;
