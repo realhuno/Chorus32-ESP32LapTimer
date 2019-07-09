@@ -168,7 +168,12 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 	}
 	// go to next adc if vrx is not ready
 	if(isRxReady(current_adc)) {
-		ADCReadingsRAW[current_pilot[current_adc]] = adc1_get_raw(channel);
+		if(LIKELY(isInRaceMode())) {
+			ADCReadingsRAW[current_pilot[current_adc]] = adc1_get_raw(channel);
+		} else {
+			// multisample when not in race mode (for threshold calibration etc)
+			ADCReadingsRAW[current_pilot[current_adc]] = multisample_adc1(channel, 10);
+		}
 
 		// Applying calibration
 		if (LIKELY(!isCalibrating())) {
@@ -212,7 +217,7 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t node) {
 
 uint16_t getRSSI(uint8_t index) {
   if(index < MaxNumRecievers) {
-    return ADCvalues[index];  
+    return ADCvalues[index];
   }
   return 0;
 }
