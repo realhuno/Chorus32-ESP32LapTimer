@@ -25,25 +25,42 @@ static uint32_t LastADCcall;
 
 static esp_adc_cal_characteristics_t adc_chars;
 
-static int RSSIthresholds[MaxNumReceivers];
-static uint16_t ADCReadingsRAW[MaxNumReceivers];
 static unsigned int VbatReadingSmooth;
-static int ADCvalues[MaxNumReceivers];
 static uint16_t adcLoopCounter = 0;
 
 static float VBATcalibration;
 static float mAReadingFloat;
 static float VbatReadingFloat;
 
-/// Pilot state 0: unsused, 1: active, 2: taken by a module
-static uint8_t active_pilots[MAX_NUM_PILOTS];
+// count of current active pilots
 static uint8_t current_pilot_num = 0;
-static uint32_t last_hop[MaxNumReceivers];
-static uint8_t current_pilot[MaxNumReceivers];
 
-#define FILTER_NUM 2
+#define PILOT_FILTER_NUM 2
 
-static lowpass_filter_t filter[MaxNumReceivers][FILTER_NUM];
+static lowpass_filter_t adc_voltage_filter;
+
+enum pilot_state {
+	PILOT_UNUSED,
+	PILOT_ACTIVE,
+	PILOT_TAKEN_BY_MODULE,
+};
+
+typedef struct receiver_data_s {
+	uint32_t last_hop;
+	uint8_t current_pilot;
+} receiver_data_t;
+
+typedef struct pilot_data_s {
+	uint16_t RSSIthreshold;
+	uint16_t ADCReadingRAW;
+	uint16_t ADCvalue;
+	lowpass_filter_t filter[PILOT_FILTER_NUM];
+	/// Pilot state 0: unsused, 1: active, 2: taken by a module
+	uint8_t state;
+} pilot_data_t;
+
+static pilot_data_t pilots[MAX_NUM_PILOTS];
+static receiver_data_t receivers[MAX_NUM_RECEIVERS];
 
 static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
   uint32_t val = 0;
@@ -59,11 +76,13 @@ static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
  */
 static bool setNextPilot(uint8_t adc) {
 	for(uint8_t i = 1; i < MaxNumReceivers + 1; ++i) {
-		uint8_t next_pilot = (current_pilot[adc] + i) % MaxNumReceivers;
-		if(active_pilots[next_pilot] == 1) {
-			active_pilots[current_pilot[adc]] = 1;
-			active_pilots[next_pilot] = 2;
-			current_pilot[adc] = next_pilot;
+		uint8_t next_pilot = (receivers[adc].current_pilot + i) % MaxNumReceivers;
+		if(pilots[next_pilot].state == PILOT_ACTIVE) {
+			// set old pilot to active again
+			pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
+			// take next pilot
+			pilots[next_pilot].state = PILOT_TAKEN_BY_MODULE;
+			receivers[adc].current_pilot = next_pilot;
 			return true;
 		}
 	}
@@ -75,12 +94,15 @@ static void setOneToOnePilotAssignment() {
 		for(uint8_t i = 0; i < current_pilot_num; ++i) {
 			setNextPilot(i);
 			// We are assuming adcs are always in order without gaps
-			setModuleChannelBand(getRXChannelPilot(current_pilot[i]), getRXBandPilot(current_pilot[i]), i);
+			setModuleChannelBand(getRXChannelPilot(receivers[i].current_pilot), getRXBandPilot(receivers[i].current_pilot), i);
 		}
 	}
 }
 
 void ConfigureADC() {
+	
+	memset(pilots, 0, MAX_NUM_PILOTS * sizeof(pilot_data_t));
+	memset(receivers, 0, MAX_NUM_RECEIVERS * sizeof(receiver_data_t));
 
   adc1_config_width(ADC_WIDTH_BIT_12);
 
@@ -101,28 +123,22 @@ void ConfigureADC() {
 	case LPF_10Hz:
 		cutoff = 10;
 		break;
-
 	case LPF_20Hz:
 		cutoff = 20;
 		break;
-
 	case LPF_50Hz:
 		cutoff = 50;
 		break;
-
 	case LPF_100Hz:
 		cutoff = 100;
 		break;
 	}
-	for(uint8_t i = 0; i < MaxNumRecievers; ++i) {
-		for(uint8_t j = 0; j < FILTER_NUM; ++j) {
-			filter_init(&filter[i][j], cutoff);
+	
+	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
+		for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
+			filter_init(&pilots[i].filter[j], cutoff);
 		}
 	}
-	
-	memset(active_pilots, 0, MAX_NUM_PILOTS);
-	memset(last_hop, 0, MAX_NUM_RECEIVERS);
-	memset(current_pilot, 0, MAX_NUM_RECEIVERS);
 	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF);
 }
 
@@ -153,38 +169,38 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 	}
 	// Only multiplex, if we need to
 	if(current_pilot_num > NUM_PHYSICAL_RECEIVERS) {
-		if(now - last_hop[current_adc] > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
+		if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
 			setNextPilot(current_adc);
 			// TODO: add class between this and rx5808
 			// TODO: add better multiplexing. Maybe based on the last laptime?
 			// TODO: add smarter jumping with multiple modules available
-			setModuleChannelBand(getRXChannelPilot(current_pilot[current_adc]), getRXBandPilot(current_pilot[current_adc]), current_adc);
-			last_hop[current_adc] = now;
+			setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot), getRXBandPilot(receivers[current_adc].current_pilot), current_adc);
+			receivers[current_adc].last_hop = now;
 		}
 	}
 	// go to next adc if vrx is not ready
 	if(isRxReady(current_adc)) {
+		pilot_data_t* current_pilot = &pilots[receivers[current_adc].current_pilot];
 		if(LIKELY(isInRaceMode())) {
-			ADCReadingsRAW[current_pilot[current_adc]] = adc1_get_raw(channel);
+			current_pilot->ADCReadingRAW = adc1_get_raw(channel);
 		} else {
 			// multisample when not in race mode (for threshold calibration etc)
-			ADCReadingsRAW[current_pilot[current_adc]] = multisample_adc1(channel, 10);
+			current_pilot->ADCReadingRAW = multisample_adc1(channel, 10);
 		}
 
 		// Applying calibration
 		if (LIKELY(!isCalibrating())) {
-			uint16_t rawRSSI = constrain(ADCReadingsRAW[current_pilot[current_adc]], EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
-			ADCReadingsRAW[current_pilot[current_adc]] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
+			uint16_t rawRSSI = constrain(current_pilot->ADCReadingRAW, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
+			current_pilot->ADCReadingRAW = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
 		}
 		
-		ADCvalues[current_pilot[current_adc]] = ADCReadingsRAW[current_pilot[current_adc]];
-		for(uint8_t j = 0; j < FILTER_NUM; ++j) {
-			filter_add_value(&filter[current_pilot[current_adc]][j], ADCvalues[current_pilot[current_adc]]);
-			ADCvalues[current_pilot[current_adc]] = filter[current_pilot[current_adc]][j].state;
+		current_pilot->ADCvalue = current_pilot->ADCReadingRAW;
+		for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
+			current_pilot->ADCvalue = filter_add_value(&(current_pilot->filter[j]), current_pilot->ADCvalue);
 		}
 
 		if (LIKELY(isInRaceMode() > 0)) {
-			CheckRSSIthresholdExceeded(current_pilot[current_adc]);
+			CheckRSSIthresholdExceeded(receivers[current_adc].current_pilot);
 		}
 		
 		if(current_adc == 0) ++adcLoopCounter;
@@ -198,32 +214,33 @@ void ReadVBAT_INA219() {
   mAReadingFloat = ina219.getCurrent_mA();
 }
 
-void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t node) {
+void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t pilot) {
 	uint32_t CurrTime = millis();
-	if ( ADCvalues[node] > RSSIthresholds[node]) {
-		if (CurrTime > (getMinLapTime() + getLaptime(node))) {
-			lap_num = addLap(node, CurrTime);
+	if ( pilots[pilot].ADCvalue > pilots[pilot].RSSIthreshold) {
+		if (CurrTime > (getMinLapTime() + getLaptime(pilot))) {
+			addLap(pilot, CurrTime);
 		}
 	}
 }
 
-uint16_t getRSSI(uint8_t index) {
-  if(index < MaxNumReceivers) {
-    return ADCvalues[index];
+uint16_t getRSSI(uint8_t pilot) {
+  if(pilot < MAX_NUM_PILOTS) {
+    return pilots[pilot].ADCvalue;
   }
   return 0;
 }
 
 void updatePilotNumbers() {
-	memset(active_pilots, 1, MaxNumReceivers);
-	current_pilot_num = MaxNumReceivers;
-	for(uint8_t i = 0; i < MaxNumReceivers; ++i) {
-		if(RSSIthresholds[i] == 12) { // equals to 1 in the app
-			active_pilots[i] = 0;
+	current_pilot_num = MAX_NUM_PILOTS;
+	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
+		if(pilots[i].RSSIthreshold == 12) { // equals to 1 in the app
+			pilots[i].state = PILOT_UNUSED;
 			// Set adc values to 0 for display etc
-			ADCvalues[i] = 0;
-			ADCReadingsRAW[i] = 0;
+			pilots[i].ADCvalue = 0;
+			pilots[i].ADCReadingRAW = 0;
 			--current_pilot_num;
+		} else {
+			pilots[i].state = PILOT_ACTIVE;
 		}
 	}
 	Serial.print("New pilot num: ");
@@ -237,29 +254,29 @@ void updatePilotNumbers() {
 
 void setRSSIThreshold(uint8_t node, uint16_t threshold) {
   if(node < MaxNumReceivers) {
-    RSSIthresholds[node] = threshold;
+    pilots[node].RSSIthreshold = threshold;
     updatePilotNumbers();
   }
 }
 
 uint16_t getRSSIThreshold(uint8_t node){
-  return RSSIthresholds[node];
+	return pilots[node].RSSIthreshold;
 }
 
 uint16_t getADCLoopCount() {
-  return adcLoopCounter;
+	return adcLoopCounter;
 }
 
 void setADCLoopCount(uint16_t count) {
-  adcLoopCounter = count;
+	adcLoopCounter = count;
 }
 
 void setVbatCal(float calibration) {
-  VBATcalibration = calibration;
+	VBATcalibration = calibration;
 }
 
 float getMaFloat() {
-  return mAReadingFloat;
+	return mAReadingFloat;
 }
 
 float getVbatFloat(bool force_read){
@@ -286,7 +303,7 @@ float getVbatFloat(bool force_read){
 }
 
 void setVbatFloat(float val){
-  VbatReadingFloat = val;
+	VbatReadingFloat = val;
 }
 
 void setVBATcalibration(float val) {
