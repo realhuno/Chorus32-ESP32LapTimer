@@ -109,15 +109,6 @@ void setup() {
   timerAlarmEnable(adc_task_timer);
 
   xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, 1, NULL, 1); 
-
-  //SelectivePowerUp();
-
-  // inits modules with defaults.  Loops 10 times  because some Rx modules dont initiate correctly.
-  for (int i = 0; i < getNumReceivers()*10; i++) {
-    setModuleChannelBand(i % getNumReceivers());
-  }
-
-  //beep();
 }
 
 void loop() {
