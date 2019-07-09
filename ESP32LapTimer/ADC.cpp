@@ -16,6 +16,7 @@
 #include "Laptime.h"
 #include "Utils.h"
 #include "RX5808.h"
+#include "Queue.h"
 
 #include "Filter.h"
 
@@ -48,11 +49,6 @@ enum pilot_state {
 	PILOT_TAKEN_BY_MODULE,
 };
 
-typedef struct receiver_data_s {
-	uint32_t last_hop;
-	uint8_t current_pilot;
-} receiver_data_t;
-
 typedef struct pilot_data_s {
 	uint16_t RSSIthreshold;
 	uint16_t ADCReadingRAW;
@@ -60,10 +56,20 @@ typedef struct pilot_data_s {
 	lowpass_filter_t filter[PILOT_FILTER_NUM];
 	/// Pilot state 0: unsused, 1: active, 2: taken by a module
 	uint8_t state;
+	uint8_t number;
 } pilot_data_t;
+
+typedef struct receiver_data_s {
+	uint32_t last_hop;
+	uint8_t current_pilot;
+} receiver_data_t;
 
 static pilot_data_t pilots[MAX_NUM_PILOTS];
 static receiver_data_t receivers[MAX_NUM_RECEIVERS];
+
+// multiplexing queue
+static queue_t pilot_queue;
+static pilot_data_t* pilot_queue_data[MAX_NUM_PILOTS];
 
 static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
 	uint16_t val = 0;
@@ -78,19 +84,19 @@ static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
  * \returns if a different pilot was found.
  */
 static bool setNextPilot(uint8_t adc) {
-	for(uint8_t i = 1; i < MAX_NUM_PILOTS + 1; ++i) {
-		uint8_t next_pilot = (receivers[adc].current_pilot + i) % MAX_NUM_PILOTS;
-		if(pilots[next_pilot].state == PILOT_ACTIVE) {
-			// set old pilot to active again
-			if(pilots[receivers[adc].current_pilot].state != PILOT_UNUSED) {
-				pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
-			}
-			// take next pilot
-			pilots[next_pilot].state = PILOT_TAKEN_BY_MODULE;
-			receivers[adc].current_pilot = next_pilot;
-			return true;
+	pilot_data_t* new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue);
+	if(new_pilot->state == PILOT_ACTIVE){
+		// set old pilot to active again
+		if(pilots[receivers[adc].current_pilot].state != PILOT_UNUSED) {
+			pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
+			// readd to multiplex queue
+			queue_enqueue(&pilot_queue, pilots + receivers[adc].current_pilot);
 		}
+		new_pilot->state = PILOT_TAKEN_BY_MODULE;
+		receivers[adc].current_pilot = new_pilot->number;
+		return true;
 	}
+	// Do nothing it the pilot is not active
 	return false;
 }
 
@@ -112,9 +118,14 @@ static void setOneToOnePilotAssignment() {
 }
 
 void ConfigureADC() {
-	
 	memset(pilots, 0, MAX_NUM_PILOTS * sizeof(pilot_data_t));
+	for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
+		pilots[i].number = i;
+	}
 	memset(receivers, 0, MAX_NUM_RECEIVERS * sizeof(receiver_data_t));
+	pilot_queue.curr_size = 0;
+	pilot_queue.max_size = MAX_NUM_PILOTS;
+	pilot_queue.data = (void**)pilot_queue_data;
 
   adc1_config_width(ADC_WIDTH_BIT_12);
 
@@ -191,7 +202,6 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 			setNextPilot(current_adc);
 			// TODO: add class between this and rx5808
 			// TODO: add better multiplexing. Maybe based on the last laptime?
-			// TODO: add smarter jumping with multiple modules available
 			setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot), getRXBandPilot(receivers[current_adc].current_pilot), current_adc);
 			receivers[current_adc].last_hop = now;
 		}
@@ -335,8 +345,10 @@ void setPilotActive(uint8_t pilot, bool active) {
 	RXResetAll();
 	if(active) {
 		if(pilots[pilot].state == PILOT_UNUSED) {
+			// If the pilot was unused until now, we set them to active and add them to the queue
 			pilots[pilot].state = PILOT_ACTIVE;
 			++current_pilot_num;
+			queue_enqueue(&pilot_queue, pilots + pilot);
 		}
 	} else {
 		if(pilots[pilot].state != PILOT_UNUSED) {
@@ -345,6 +357,7 @@ void setPilotActive(uint8_t pilot, bool active) {
 			pilots[pilot].ADCvalue = 0;
 			pilots[pilot].ADCReadingRAW = 0;
 			--current_pilot_num;
+			// Since the pilot state is now unused, it won't get added back to the queue
 		}
 	}
 
