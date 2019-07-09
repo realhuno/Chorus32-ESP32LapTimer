@@ -80,16 +80,6 @@ bool EepromSettingsStruct::SanityCheck() {
   }
 
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
-    if ((EepromSettings.RXfrequencies[i] > MaxFreq) || (EepromSettings.RXfrequencies[i] < MinFreq)) {
-      IsGoodEEPROM = false;
-      Serial.print("Error: Corrupted EEPROM NODE: ");
-      Serial.print(i);
-      Serial.print(" value RXfrequencies: ");
-      Serial.println(EepromSettings.RXfrequencies[i]);
-    }
-  }
-
-  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if (EepromSettings.RSSIthresholds[i] > MaxThreshold) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -119,7 +109,6 @@ void EepromSettingsStruct::defaults() {
 	}
 	
 	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i){
-		this->RXfrequencies[i] = 5658;
 		this->RSSIthresholds[i] = 150 * 12;
 	}
 	this->eepromVersionNumber = EEPROM_VERSION_NUMBER;
