@@ -17,6 +17,9 @@
 #include "Utils.h"
 #include "RX5808.h"
 
+#include "Filter.h"
+
+
 static Timer ina219Timer = Timer(1000);
 
 static Adafruit_INA219 ina219; // A0+A1=GND
@@ -31,17 +34,16 @@ static unsigned int VbatReadingSmooth;
 static int ADCvalues[MaxNumRecievers];
 static uint16_t adcLoopCounter = 0;
 
-static FilterBeLp2_10HZ Filter_10HZ[6] = {FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ(), FilterBeLp2_10HZ()};
-static FilterBeLp2_20HZ Filter_20HZ[6] = {FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ(), FilterBeLp2_20HZ()};
-static FilterBeLp2_50HZ Filter_50HZ[6] = {FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ(), FilterBeLp2_50HZ()};
-static FilterBeLp2_100HZ Filter_100HZ[6] = {FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ(), FilterBeLp2_100HZ()};
-
 static float VBATcalibration;
 static float mAReadingFloat;
 static float VbatReadingFloat;
 
 static uint8_t active_pilots[MaxNumRecievers];
 static uint8_t current_pilot_num = 0;
+
+#define FILTER_NUM 2
+
+static lowpass_filter_t filter[MaxNumRecievers][FILTER_NUM];
 
 // TODO: change for multiple modules. assign each module a current pilot?
 static uint8_t getNextPilot(uint8_t current_pilot) {
@@ -70,6 +72,29 @@ void ConfigureADC() {
 
   ina219.begin();
   ReadVBAT_INA219();
+  float cutoff = 0;
+  switch (getRXADCfilter()) {
+	case LPF_10Hz:
+		cutoff = 10;
+		break;
+
+	case LPF_20Hz:
+		cutoff = 20;
+		break;
+
+	case LPF_50Hz:
+		cutoff = 50;
+		break;
+
+	case LPF_100Hz:
+		cutoff = 100;
+		break;
+	}
+	for(uint8_t i = 0; i < MaxNumRecievers; ++i) {
+		for(uint8_t j = 0; j < FILTER_NUM; ++j) {
+			filter_init(&filter[i][j], cutoff);
+		}
+	}
 }
 
 void IRAM_ATTR nbADCread( void * pvParameters ) {
@@ -126,28 +151,18 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 				ADCReadingsRAW[current_pilot] = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], 800, 2700); // 800 and 2700 are about average min max raw values
 			} 
 		}
-
-		// TODO: fix filtering
-		/*switch (getRXADCfilter()) {
-
-			case LPF_10Hz:
-				ADCvalues[current_pilot] = Filter_10HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
-				break;
-
-			case LPF_20Hz:
-				ADCvalues[current_pilot] = Filter_20HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
-				break;
-
-			case LPF_50Hz:
-				ADCvalues[current_pilot] = Filter_50HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
-				break;
-
-			case LPF_100Hz:
-				ADCvalues[current_pilot] = Filter_100HZ[current_pilot].step(ADCReadingsRAW[current_pilot]);
-				break;
-		}*/
 		
 		ADCvalues[current_pilot] = ADCReadingsRAW[current_pilot];
+		for(uint8_t j = 0; j < FILTER_NUM; ++j) {
+			filter_add_value(&filter[current_pilot][j], ADCvalues[current_pilot]);
+			ADCvalues[current_pilot] = filter[current_pilot][j].state;
+		}
+		
+		if(current_pilot == 0) {
+			Serial.print(ADCReadingsRAW[current_pilot]);
+			Serial.print("\t");
+			Serial.println(ADCvalues[current_pilot]);
+		}
 
 		switch (getADCVBATmode()) {
 			case ADC_CH5:
@@ -201,7 +216,7 @@ void updatePilotNumbers() {
 	memset(active_pilots, 1, MaxNumRecievers);
 	current_pilot_num = MaxNumRecievers;
 	for(uint8_t i = 0; i < MaxNumRecievers; ++i) {
-		if(RSSIthresholds[i] == 0) {
+		if(RSSIthresholds[i] == 12) { // equals to 1 in the app
 			active_pilots[i] = 0;
 			// Set adc values to 0 for display etc
 			ADCvalues[i] = 0;
