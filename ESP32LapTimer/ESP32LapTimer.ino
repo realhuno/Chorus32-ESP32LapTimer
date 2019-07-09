@@ -65,7 +65,7 @@ void setup() {
   oledSetup();
 #endif
 
-  Serial.begin(115200);
+  Serial.begin(230400);
   Serial.println("Booting....");
   newButtonSetup();
 
