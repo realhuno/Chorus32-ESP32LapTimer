@@ -52,6 +52,7 @@ void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
 }
 
 void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
+  lastUpdate[node] = micros();
   switch (node) {
     case 0:
       rxWrite(addressBits, dataBits, CS1);
@@ -111,6 +112,12 @@ void RXreset(uint8_t NodeAddr) {
   rxWriteNode(NodeAddr, SPI_ADDRESS_STATE, ResetReg);
 }
 
+void RXResetAll() {
+  for (int i = 0; i < getNumReceivers(); i++) {
+    RXreset(i);
+  }
+}
+
 
 void RXPowerDownAll() {
   //for (int i = 0; i < getNumReceivers(); i++) {
@@ -125,7 +132,7 @@ void RXPowerDown(uint8_t NodeAddr) {
   rxWriteNode(NodeAddr, SPI_ADDRESS_POWER, PowerDownState);
 }
 
-void PowerUpAll() {
+void RXPowerUpAll() {
   for (int i = 0; i < getNumReceivers(); i++) {
     rxWrite(SPI_ADDRESS_POWER, DefaultPowerState, i);
   }
