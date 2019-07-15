@@ -130,7 +130,7 @@ static uint32_t lastRssiMonitorReading = 0; // millis when rssi monitor value wa
 // Usage of signed int time adjustment constant from outside:
 // * set to zero means time adjustment procedure was not performed for this node
 // * set to INFINITE_TIME_ADJUSTMENT, means time adjustment was performed, but no need to adjust
-static int32_t timeAdjustment = 0;
+static int32_t timeAdjustment = INFINITE_TIME_ADJUSTMENT;
 
 //----- other globals------------------------------
 static uint8_t raceMode = 0; // 0: race mode is off; 1: lap times are counted relative to last lap end; 2: lap times are relative to the race start (sum of all previous lap times);
