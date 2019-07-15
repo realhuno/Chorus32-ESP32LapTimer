@@ -85,7 +85,7 @@ static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
  */
 static bool setNextPilot(uint8_t adc) {
 	pilot_data_t* new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue);
-	if(new_pilot->state == PILOT_ACTIVE){
+	if(new_pilot && new_pilot->state == PILOT_ACTIVE){
 		// set old pilot to active again
 		if(pilots[receivers[adc].current_pilot].state != PILOT_UNUSED) {
 			pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
@@ -199,11 +199,12 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 	// Only multiplex, if we need to
 	if(current_pilot_num > getNumReceivers()) {
 		if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
-			setNextPilot(current_adc);
-			// TODO: add class between this and rx5808
-			// TODO: add better multiplexing. Maybe based on the last laptime?
-			setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot), getRXBandPilot(receivers[current_adc].current_pilot), current_adc);
-			receivers[current_adc].last_hop = now;
+			if(setNextPilot(current_adc)) {
+				// TODO: add class between this and rx5808
+				// TODO: add better multiplexing. Maybe based on the last laptime?
+				setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot), getRXBandPilot(receivers[current_adc].current_pilot), current_adc);
+				receivers[current_adc].last_hop = now;
+			}
 		}
 	}
 	// go to next adc if vrx is not ready
