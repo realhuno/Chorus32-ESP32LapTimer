@@ -36,7 +36,7 @@ void InitHardwarePins();
 #define MAX_UDP_CLIENTS 5
 
 
-//#define USE_BLUETOOTH // Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
+#define USE_BLUETOOTH // Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
 
 #ifdef USE_DEBUG_OUTPUT
   #define OUTPUT_DEBUG
