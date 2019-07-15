@@ -6,7 +6,7 @@ int queue_empty(queue_t* queue){
 	return queue->curr_size != 0;
 }
 
-void* queue_dequeue(queue_t* queue){
+void* queue_peek(queue_t* queue) {
 	if(queue == NULL){
 		return NULL;
 	}
@@ -14,10 +14,18 @@ void* queue_dequeue(queue_t* queue){
 		return NULL;
 	}
 	void* data = queue->data[0];
-	--queue->curr_size;
-	memmove(queue->data, queue->data + 1, sizeof(void*) * queue->curr_size);
 	return data;
 }
+
+void* queue_dequeue(queue_t* queue){
+	void* data = queue_peek(queue);
+	if(data) {
+		--queue->curr_size;
+		memmove(queue->data, queue->data + 1, sizeof(void*) * queue->curr_size);
+	}
+	return data;
+}
+
 
 int queue_enqueue(queue_t* queue, void* data){
 	if(queue == NULL){
