@@ -82,18 +82,26 @@ static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
  * \returns if a different pilot was found.
  */
 static bool setNextPilot(uint8_t adc) {
-	pilot_data_t* new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue);
-	if(new_pilot && new_pilot->state == PILOT_ACTIVE && (micros() - new_pilot->unused_time) > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US){
-		// set old pilot to active again
-		if(pilots[receivers[adc].current_pilot].state != PILOT_UNUSED) {
-			pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
-			// readd to multiplex queue
-			queue_enqueue(&pilot_queue, pilots + receivers[adc].current_pilot);
-			pilots[receivers[adc].current_pilot].unused_time = micros();
+	pilot_data_t* new_pilot = (pilot_data_t*)queue_peek(&pilot_queue);
+	if(new_pilot) {
+		if(new_pilot->state == PILOT_ACTIVE) {
+			if(micros() - new_pilot->unused_time) > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US){
+				new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue);
+				// set old pilot to active again
+				if(pilots[receivers[adc].current_pilot].state != PILOT_UNUSED) {
+					pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
+					// readd to multiplex queue
+					queue_enqueue(&pilot_queue, pilots + receivers[adc].current_pilot);
+					pilots[receivers[adc].current_pilot].unused_time = micros();
+				}
+				new_pilot->state = PILOT_TAKEN_BY_MODULE;
+				receivers[adc].current_pilot = new_pilot->number;
+				return true;
+			}
 		}
-		new_pilot->state = PILOT_TAKEN_BY_MODULE;
-		receivers[adc].current_pilot = new_pilot->number;
-		return true;
+		else { // pilot went inactive
+			new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue); // Dequeue inactive pilot
+		}
 	}
 	// Do nothing it the pilot is not active
 	return false;
