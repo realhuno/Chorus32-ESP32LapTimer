@@ -19,6 +19,7 @@ typedef struct queue_s{
 int queue_empty(queue_t* queue);
 void* queue_dequeue(queue_t* queue);
 int queue_enqueue(queue_t* queue, void* data);
+void* queue_peek(queue_t* queue);
 
 
 #ifdef __cplusplus
