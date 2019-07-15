@@ -35,6 +35,8 @@ void adc_page_update(void* data);
 void adc_page_init(void* data);
 
 void calib_page_update(void* data);
+void calib_page_input(void* data, uint8_t index, uint8_t type);
+
 void airplane_page_update(void* data);
 void airplane_page_input(void* data, uint8_t index, uint8_t type);
 
