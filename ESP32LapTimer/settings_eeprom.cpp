@@ -109,6 +109,8 @@ void EepromSettingsStruct::defaults() {
 	this->RXADCfilter = LPF_20Hz;
 	this->VBATcalibration = 1;
 	this->NumReceivers = 6;
+	this->WiFiProtocol = 1;
+	this->WiFiChannel = 1;
 
 	this->updateCRC();
 	EEPROM.put(0, *this);
