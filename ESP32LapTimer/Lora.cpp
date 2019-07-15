@@ -1,6 +1,9 @@
 #include "Lora.h"
 
 #include "HardwareConfig.h"
+
+#ifdef USE_LORA
+
 #include "Output.h"
 
 #include <SPI.h>
@@ -44,3 +47,5 @@ void lora_update(void* output) {
 		out->handle_input_callback(packetBuffer, pos);
 	}
 }
+
+#endif // USE_LORA
