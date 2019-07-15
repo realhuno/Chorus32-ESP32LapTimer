@@ -54,6 +54,7 @@ typedef struct pilot_data_s {
 	/// Pilot state 0: unsused, 1: active, 2: taken by a module
 	uint8_t state;
 	uint8_t number;
+	uint32_t unused_time; // used to force a certain stay time. if we allow an instant switch, modules would be constantly switching with e.g. 6 modules and 7 pilots
 } pilot_data_t;
 
 typedef struct receiver_data_s {
@@ -82,12 +83,13 @@ static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
  */
 static bool setNextPilot(uint8_t adc) {
 	pilot_data_t* new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue);
-	if(new_pilot && new_pilot->state == PILOT_ACTIVE){
+	if(new_pilot && new_pilot->state == PILOT_ACTIVE && (micros() - new_pilot->unused_time) > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US){
 		// set old pilot to active again
 		if(pilots[receivers[adc].current_pilot].state != PILOT_UNUSED) {
 			pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
 			// readd to multiplex queue
 			queue_enqueue(&pilot_queue, pilots + receivers[adc].current_pilot);
+			pilots[receivers[adc].current_pilot].unused_time = micros();
 		}
 		new_pilot->state = PILOT_TAKEN_BY_MODULE;
 		receivers[adc].current_pilot = new_pilot->number;
