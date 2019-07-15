@@ -172,7 +172,7 @@ void ConfigureADC() {
 
 adc1_channel_t IRAM_ATTR getADCChannel(uint8_t adc_num) {
 	adc1_channel_t channel = ADC1;
-	switch (current_adc) {
+	switch (adc_num) {
 		case 0:
 			channel = ADC1;
 			break;
@@ -195,9 +195,11 @@ adc1_channel_t IRAM_ATTR getADCChannel(uint8_t adc_num) {
 	return channel;
 }
 
-uint8_t IRAM_ATTR multiplexStep() {
+void IRAM_ATTR nbADCread( void * pvParameters ) {
 	static uint8_t current_adc = 0;
-	current_adc = (current_adc + 1) % getNumReceivers();
+	uint32_t now = micros();
+	LastADCcall = now;
+
 	// Only multiplex, if we need to
 	if(current_pilot_num > getNumReceivers()) {
 		if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
@@ -208,18 +210,7 @@ uint8_t IRAM_ATTR multiplexStep() {
 				receivers[current_adc].last_hop = now;
 			}
 		}
-	} else { // non multiplexing case
-		 // just get to the next module
 	}
-	
-	return current_adc;
-}
-
-void IRAM_ATTR nbADCread( void * pvParameters ) {
-	uint32_t now = micros();
-	LastADCcall = now;
-	
-	uint8_t currrent_adc = multiplexStep();
 
 	// go to next adc if vrx is not ready
 	if(isRxReady(current_adc)) {
@@ -256,6 +247,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		
 		if(current_adc == 0) ++adcLoopCounter;
 	} // end if isRxReady
+	current_adc = (current_adc + 1) % getNumReceivers();
 }
 
 
