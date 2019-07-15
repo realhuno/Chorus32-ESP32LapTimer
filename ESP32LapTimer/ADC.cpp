@@ -171,31 +171,34 @@ void ConfigureADC() {
 	
 }
 
-void IRAM_ATTR nbADCread( void * pvParameters ) {
-	static uint8_t current_adc = 0;
-	uint32_t now = micros();
-	LastADCcall = now;
+adc1_channel_t IRAM_ATTR getADCChannel(uint8_t adc_num) {
 	adc1_channel_t channel = ADC1;
 	switch (current_adc) {
 		case 0:
-		channel = ADC1;
-		break;
+			channel = ADC1;
+			break;
 		case 1:
-		channel = ADC2;
-		break;
+			channel = ADC2;
+			break;
 		case 2:
-		channel = ADC3;
-		break;
+			channel = ADC3;
+			break;
 		case 3:
-		channel = ADC4;
-		break;
+			channel = ADC4;
+			break;
 		case 4:
-		channel = ADC5;
-		break;
+			channel = ADC5;
+			break;
 		case 5:
-		channel = ADC6;
-		break;
+			channel = ADC6;
+			break;
 	}
+	return channel;
+}
+
+uint8_t IRAM_ATTR multiplexStep() {
+	static uint8_t current_adc = 0;
+	current_adc = (current_adc + 1) % getNumReceivers();
 	// Only multiplex, if we need to
 	if(current_pilot_num > getNumReceivers()) {
 		if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
@@ -206,9 +209,22 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 				receivers[current_adc].last_hop = now;
 			}
 		}
+	} else { // non multiplexing case
+		 // just get to the next module
 	}
+	
+	return current_adc;
+}
+
+void IRAM_ATTR nbADCread( void * pvParameters ) {
+	uint32_t now = micros();
+	LastADCcall = now;
+	
+	uint8_t currrent_adc = multiplexStep();
+
 	// go to next adc if vrx is not ready
 	if(isRxReady(current_adc)) {
+		adc1_channel_t channel = getADCChannel(current_adc);
 		pilot_data_t* current_pilot = &pilots[receivers[current_adc].current_pilot];
 		if(LIKELY(isInRaceMode())) {
 			current_pilot->ADCReadingRAW = adc1_get_raw(channel);
@@ -241,7 +257,6 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 		
 		if(current_adc == 0) ++adcLoopCounter;
 	} // end if isRxReady
-	current_adc = (current_adc + 1) % getNumReceivers();
 }
 
 
