@@ -168,7 +168,6 @@ void setRaceMode(uint8_t mode) {
   }
 }
 
-
 void setMinLap(uint8_t mlt) {
   if (mlt >= MIN_MIN_LAP_TIME && mlt <= MAX_MIN_LAP_TIME) {
     setMinLapTime(mlt * 1000);
@@ -814,4 +813,18 @@ void thresholdModeStep() {
 
 bool isInRaceMode() {
   return raceMode;
+}
+
+void startRace() {
+  setRaceMode(1);
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+    SendRaceMode(i);
+  }
+}
+
+void stopRace() {
+  setRaceMode(0);
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+    SendRaceMode(i);
+  }
 }
