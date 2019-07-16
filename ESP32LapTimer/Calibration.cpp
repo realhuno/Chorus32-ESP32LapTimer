@@ -6,12 +6,13 @@
 #include "settings_eeprom.h"
 #include "OLED.h"
 #include "Timer.h"
+#include "Utils.h"
 
 static int calibrationFreqIndex = 0;
 static bool isCurrentlyCalibrating = false;
 static Timer calibrationTimer = Timer(50);
 
-bool isCalibrating() {
+FORCE_INLINE bool isCalibrating() {
   return isCurrentlyCalibrating;
 }
 
