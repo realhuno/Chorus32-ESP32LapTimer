@@ -111,6 +111,7 @@ void EepromSettingsStruct::defaults() {
 	this->NumReceivers = 6;
 	this->WiFiProtocol = 1;
 	this->WiFiChannel = 1;
+	this->min_voltage_module = EEPROM_DEFAULT_MIN_VOLTAGE_MODULE;
 
 	this->updateCRC();
 	EEPROM.put(0, *this);
@@ -162,4 +163,8 @@ int getWiFiProtocol(){
 
 int getNumReceivers() {
 	return EepromSettings.NumReceivers;
+}
+
+uint16_t getMinVoltageModule() {
+  return EepromSettings.min_voltage_module;
 }
