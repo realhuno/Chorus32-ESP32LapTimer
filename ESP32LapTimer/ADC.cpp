@@ -254,11 +254,25 @@ void ReadVBAT_INA219() {
 
 void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t pilot) {
 	uint32_t CurrTime = millis();
+	static uint16_t max_adc = 0;
+	static uint32_t max_time = 0;
 	if ( pilots[pilot].ADCvalue > pilots[pilot].RSSIthreshold) {
 		if (CurrTime > (getMinLapTime() + getLaptime(pilot))) {
-			uint8_t lap_num = addLap(pilot, CurrTime);
-			sendLap(lap_num, pilot);
+			if(pilot == 0) { // enable threshold detection for pilot 0 only for now. makes comparison easier
+				if(pilots[pilot].ADCvalue > max_adc) {
+					max_adc = pilots[pilot].ADCvalue;
+					max_time = CurrTime;
+				}
+			} else {
+				uint8_t lap_num = addLap(pilot, CurrTime);
+				sendLap(lap_num, pilot);
+			}
 		}
+	} else if(pilot == 0 && max_adc && max_time) { // falling edge
+		uint8_t lap_num = addLap(pilot, max_time);
+		sendLap(lap_num, pilot);
+		max_adc = 0;
+		max_time = 0;
 	}
 }
 
