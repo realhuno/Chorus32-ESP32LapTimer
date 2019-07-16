@@ -238,7 +238,7 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 			CheckRSSIthresholdExceeded(receivers[current_adc].current_pilot);
 		}
 		
-		if(current_adc == 0) ++adcLoopCounter;
+		if(current_pilot->number == 0) ++adcLoopCounter;
 	} // end if isRxReady
 	current_adc = (current_adc + 1) % getNumReceivers();
 }
