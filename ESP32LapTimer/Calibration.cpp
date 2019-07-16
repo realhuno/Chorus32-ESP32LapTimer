@@ -12,7 +12,7 @@ static int calibrationFreqIndex = 0;
 static bool isCurrentlyCalibrating = false;
 static Timer calibrationTimer = Timer(50);
 
-FORCE_INLINE bool isCalibrating() {
+bool isCalibrating() {
   return isCurrentlyCalibrating;
 }
 
