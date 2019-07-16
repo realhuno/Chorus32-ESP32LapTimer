@@ -87,7 +87,7 @@ static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
  * Find next free pilot and set them to busy. Marks the old pilot as active. Sets the current pilot for the given module
  * \returns if a different pilot was found.
  */
-static bool setNextPilot(uint8_t adc) {
+static IRAM_ATTR bool setNextPilot(uint8_t adc) {
 	if(!xSemaphoreTake(pilot_queue_lock, 1)) {
 		// failed to obtain mutex, so do nothing
 		return false;
@@ -103,7 +103,7 @@ static bool setNextPilot(uint8_t adc) {
 					receivers[adc].current_pilot->state = PILOT_ACTIVE;
 					receivers[adc].current_pilot->current_rx = NULL;
 					// readd to multiplex queue
-					queue_enqueue(&pilot_queue, receivers[adc].current_pilot););
+					queue_enqueue(&pilot_queue, receivers[adc].current_pilot);
 					receivers[adc].current_pilot->unused_time = micros();
 				}
 				new_pilot->current_rx = &receivers[adc];

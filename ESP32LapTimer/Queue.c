@@ -1,12 +1,13 @@
 #include "Queue.h"
 
+#include <esp_attr.h>
 #include <string.h>
 
 int queue_empty(queue_t* queue){
 	return queue->curr_size != 0;
 }
 
-void* queue_peek(queue_t* queue) {
+void* IRAM_ATTR queue_peek(queue_t* queue) {
 	if(queue == NULL){
 		return NULL;
 	}
@@ -17,7 +18,7 @@ void* queue_peek(queue_t* queue) {
 	return data;
 }
 
-void* queue_dequeue(queue_t* queue){
+void* IRAM_ATTR queue_dequeue(queue_t* queue){
 	void* data = queue_peek(queue);
 	if(data) {
 		--queue->curr_size;
@@ -27,7 +28,7 @@ void* queue_dequeue(queue_t* queue){
 }
 
 
-int queue_enqueue(queue_t* queue, void* data){
+int IRAM_ATTR queue_enqueue(queue_t* queue, void* data){
 	if(queue == NULL){
 		return -1;
 	}
