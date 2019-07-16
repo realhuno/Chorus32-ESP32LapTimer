@@ -818,6 +818,6 @@ void thresholdModeStep() {
   }
 }
 
-bool isInRaceMode() {
+FORCE_INLINE bool isInRaceMode() {
   return raceMode;
 }
