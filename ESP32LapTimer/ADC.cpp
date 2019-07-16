@@ -177,10 +177,13 @@ void ConfigureADC() {
 		}
 	}
 	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF, 0);
-	
-	// By default enable getNumReceivers() pilots
-	for(uint8_t i = 0; i < getNumReceivers() && i < MAX_NUM_PILOTS; ++i)  {
-		setPilotActive(i, true);
+	uint16_t voltage = getVbatFloat(true) * 1000;
+	Serial.printf("Voltage is %d minimum is %d\n", voltage, getMinVoltageModule());
+	if(voltage > getMinVoltageModule()) {
+		// By default enable getNumReceivers() pilots
+		for(uint8_t i = 0; i < getNumReceivers() && i < MAX_NUM_PILOTS; ++i)  {
+			setPilotActive(i, true);
+		}
 	}
 	
 }
@@ -332,9 +335,9 @@ float getMaFloat() {
 	return mAReadingFloat;
 }
 
-float getVbatFloat(){
+float getVbatFloat(bool force_read){
 	static uint32_t last_voltage_update = 0;
-	if((micros() - last_voltage_update) > VOLTAGE_UPDATE_INTERVAL_US) {
+	if((micros() - last_voltage_update) > VOLTAGE_UPDATE_INTERVAL_US || force_read) {
 		switch (getADCVBATmode()) {
 			case ADC_CH5:
 				VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC5), &adc_chars);
