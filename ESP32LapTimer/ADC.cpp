@@ -101,14 +101,12 @@ static bool setNextPilot(uint8_t adc) {
 		if(new_pilot->state == PILOT_ACTIVE) {
 			if((micros() - new_pilot->unused_time) > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US){
 				new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue);
-				Serial.printf("Dequeued pilot %d queue len: %d\n", new_pilot->number, pilot_queue.curr_size);
 				// set old pilot to active again
 				if(receivers[adc].current_pilot && receivers[adc].current_pilot->state != PILOT_UNUSED) {
 					receivers[adc].current_pilot->state = PILOT_ACTIVE;
 					receivers[adc].current_pilot->current_rx = NULL;
 					// readd to multiplex queue
-					queue_enqueue(&pilot_queue, receivers[adc].current_pilot);
-					Serial.printf("Requeued pilot %d queue len: %d\n", receivers[adc].current_pilot->number, pilot_queue.curr_size);
+					queue_enqueue(&pilot_queue, receivers[adc].current_pilot););
 					receivers[adc].current_pilot->unused_time = micros();
 				}
 				new_pilot->current_rx = &receivers[adc];
@@ -117,7 +115,6 @@ static bool setNextPilot(uint8_t adc) {
 			}
 		} else { // pilot went inactive
 			new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue); // Dequeue inactive pilot
-			Serial.printf("Pilot %d is inactive queue len: %d\n", new_pilot->number, pilot_queue.curr_size);
 			if(new_pilot->current_rx) {
 				new_pilot->current_rx->current_pilot = NULL;
 				new_pilot->current_rx = NULL;
@@ -222,8 +219,6 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 			if(setNextPilot(current_adc)) {
 				// TODO: add class between this and rx5808
 				// TODO: add better multiplexing. Maybe based on the last laptime?
-				Serial.printf("Setting rx %d with pilot %d to channel %d and band %d queue size: %d\n", current_adc, receivers[current_adc].current_pilot->number, getRXChannelPilot(receivers[current_adc].current_pilot->number), getRXBandPilot(receivers[current_adc].current_pilot->number), pilot_queue.curr_size);
-				//Serial.printf("ADC 1 pilot: %d ADC 2 pilot: %d\n", receivers[0].current_pilot->number, receivers[1].current_pilot->number);
 				setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot->number), getRXBandPilot(receivers[current_adc].current_pilot->number), current_adc);
 				receivers[current_adc].last_hop = now;
 			}
