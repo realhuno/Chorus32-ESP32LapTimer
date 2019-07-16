@@ -806,3 +806,17 @@ void thresholdModeStep() {
 bool isInRaceMode() {
   return raceMode;
 }
+
+void startRace() {
+  setRaceMode(1);
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+    SendRaceMode(i);
+  }
+}
+
+void stopRace() {
+  setRaceMode(0);
+  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
+    SendRaceMode(i);
+  }
+}
