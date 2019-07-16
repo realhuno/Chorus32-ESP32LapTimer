@@ -4,6 +4,8 @@
 #include "ADC.h"
 #include "RX5808.h"
 #include "Calibration.h"
+#include "Laptime.h"
+#include "Comms.h"
 
 #include <esp_wifi.h>
 #include <DNSServer.h>
@@ -153,8 +155,8 @@ void SendStatusVars() {
 }
 
 void SendStaticVars() {
-
-  String sendSTR = "{\"NumRXs\": " + String(getNumReceivers() - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());
+  // TODO: implement dynamic lap number
+  String sendSTR = "{\"num_pilots\": " + String(getActivePilots()) + ", \"num_laps\": " + String(5) + ", \"NumRXs\": " + String(getNumReceivers() - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());
   sendSTR = sendSTR + ",\"Band\":{";
   for (int i = 0; i < getNumReceivers(); i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
@@ -174,6 +176,26 @@ void SendStaticVars() {
   sendSTR = sendSTR +  "}";
 
   webServer.send(200, "application/json", sendSTR);
+}
+
+void send_laptimes() {
+  // example json: '{"lap_data" : [ {"pilot" : 0, "laps" : [4, 2, 3]}]}'
+  String json_string = "{\"lap_data\" : [";
+  for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
+    if(isPilotActive(i)) {
+      json_string += String("{\"pilot\" : ") + i + ", \"laps\" : [";
+      for(int j = 0; j < getCurrentLap(i); ++j) {
+        json_string += getLaptimeRel(i, j + 1);
+        if(j +1 != getCurrentLap(i)) {
+          json_string += ",";
+        }
+      }
+      json_string += "]},";
+    }
+  }
+  json_string.remove(json_string.length() - 1); // remove last ,
+  json_string += "]}";
+  webServer.send(200, "application/json", json_string);
 }
 
 void ProcessGeneralSettingsUpdate() {
@@ -311,6 +333,19 @@ void ProcessWifiSettings() {
   airplaneModeOff();
 }
 
+void startRace_button() {
+	Serial.println("Starting race...");
+	startRace();
+	webServer.send(200, "text/plain", "");
+}
+
+void stopRace_button() {
+	Serial.println("Stopping race...");
+	stopRace();
+	webServer.send(200, "text/plain", "");
+}
+
+
 void InitWebServer() {
 
 
@@ -362,6 +397,10 @@ void InitWebServer() {
 
   webServer.on("/StatusVars", SendStatusVars);
   webServer.on("/StaticVars", SendStaticVars);
+  
+  webServer.on("/get_laptimes", send_laptimes);
+  webServer.on("/start_race", startRace_button);
+  webServer.on("/stop_race", stopRace_button);
 
   webServer.on("/updateGeneral", ProcessGeneralSettingsUpdate);
   webServer.on("/updateFilters", ProcessADCRXFilterUpdate);
