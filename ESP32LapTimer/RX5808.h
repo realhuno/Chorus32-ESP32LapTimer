@@ -78,5 +78,7 @@ void RXstandBy(uint8_t NodeAddr);
 void RXPowerUpAll();
 void RXPowerDownAll();
 void RXResetAll();
+void rxLowPower(uint8_t node);
+void rxLowPowerAll();
 
 #endif
