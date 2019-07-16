@@ -83,7 +83,7 @@ void setup() {
   ConfigureADC();
 
   InitSPI();
-  //PowerDownAll(); // Powers down all RX5808's
+  RXPowerDownAll(); // Powers down all RX5808's
   delay(250);
 
   InitWifiAP();
