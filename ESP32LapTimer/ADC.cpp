@@ -88,7 +88,7 @@ static bool setNextPilot(uint8_t adc) {
 	pilot_data_t* new_pilot = (pilot_data_t*)queue_peek(&pilot_queue);
 	if(new_pilot) {
 		if(new_pilot->state == PILOT_ACTIVE) {
-			if(micros() - new_pilot->unused_time) > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US){
+			if((micros() - new_pilot->unused_time) > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US){
 				new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue);
 				// set old pilot to active again
 				if(pilots[receivers[adc].current_pilot].state != PILOT_UNUSED) {
@@ -108,23 +108,6 @@ static bool setNextPilot(uint8_t adc) {
 	}
 	// Do nothing it the pilot is not active
 	return false;
-}
-
-static void setOneToOnePilotAssignment() {
-	if(current_pilot_num <= getNumReceivers()) {
-		uint8_t i = 0;
-		for(; i < current_pilot_num; ++i) {
-			setNextPilot(i);
-			// Wait for module to become ready (in case of a previous reset, not needed when multiplexing)
-			while(!isRxReady(i));
-			// We are assuming adcs are always in order without gaps
-			setModuleChannelBand(getRXChannelPilot(receivers[i].current_pilot), getRXBandPilot(receivers[i].current_pilot), i);
-		}
-		// Power down all unused modules
-		for(i = current_pilot_num; i < getNumReceivers(); ++i) {
-			RXPowerDown(i);
-		}
-	}
 }
 
 void ConfigureADC() {
@@ -211,17 +194,16 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 	uint32_t now = micros();
 	LastADCcall = now;
 
-	// Only multiplex, if we need to
-	if(current_pilot_num > getNumReceivers()) {
-		if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
-			if(setNextPilot(current_adc)) {
-				// TODO: add class between this and rx5808
-				// TODO: add better multiplexing. Maybe based on the last laptime?
-				setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot), getRXBandPilot(receivers[current_adc].current_pilot), current_adc);
-				receivers[current_adc].last_hop = now;
-			}
+
+	if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
+		if(setNextPilot(current_adc)) {
+			// TODO: add class between this and rx5808
+			// TODO: add better multiplexing. Maybe based on the last laptime?
+			setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot), getRXBandPilot(receivers[current_adc].current_pilot), current_adc);
+			receivers[current_adc].last_hop = now;
 		}
 	}
+
 
 	// go to next adc if vrx is not ready
 	if(isRxReady(current_adc)) {
@@ -393,8 +375,8 @@ void setPilotActive(uint8_t pilot, bool active) {
 		}
 	}
 
-	if(current_pilot_num <= getNumReceivers()) {
-		Serial.println("Multiplexing disabled.");
-		setOneToOnePilotAssignment();
+	// Power down all unused modules
+	for(uint8_t i = current_pilot_num; i < getNumReceivers(); ++i) {
+		RXPowerDown(i);
 	}
 }
