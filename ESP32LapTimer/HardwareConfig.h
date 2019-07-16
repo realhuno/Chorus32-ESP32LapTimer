@@ -52,4 +52,7 @@
 
 #include "targets/target.h" // Needs to be at the bottom
 
+#ifndef EEPROM_DEFAULT_MIN_VOLTAGE_MODULE
+#define EEPROM_DEFAULT_MIN_VOLTAGE_MODULE 6000
+#endif
 void InitHardwarePins();
