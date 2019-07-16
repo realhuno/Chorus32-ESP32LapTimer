@@ -57,4 +57,7 @@
 #ifndef EEPROM_DEFAULT_MIN_VOLTAGE_MODULE
 #define EEPROM_DEFAULT_MIN_VOLTAGE_MODULE 6000
 #endif
+
+//#define USE_LOW_POWER // this saves about 5-10mA but the tune time of the module is worse
+
 void InitHardwarePins();
