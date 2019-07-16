@@ -30,6 +30,7 @@ struct EepromSettingsStruct {
   uint16_t RxCalibrationMax[MAX_NUM_RECEIVERS];
   uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
   uint8_t WiFiChannel;
+  uint16_t min_voltage_module; // voltage in millivolts where all modules are disabled on startup (use case: powering a fully populated board using usb)
   crc_t crc;
 
 
@@ -53,6 +54,7 @@ void setADCVBATmode(ADCVBATmode_ mode);
 
 int getWiFiChannel();
 int getWiFiProtocol();
+uint16_t getMinVoltageModule();
 
 uint8_t getNumReceivers();
 

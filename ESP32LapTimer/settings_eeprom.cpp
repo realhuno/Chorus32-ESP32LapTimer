@@ -182,3 +182,7 @@ int getWiFiProtocol(){
 uint8_t getNumReceivers() {
   return EepromSettings.NumReceivers;
 }
+
+uint16_t getMinVoltageModule() {
+  return EepromSettings.min_voltage_module;
+}
