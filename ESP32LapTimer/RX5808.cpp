@@ -36,7 +36,7 @@ void InitSPI() {
   delay(30);
 }
 
-bool isRxReady(uint8_t module) {
+bool IRAM_ATTR isRxReady(uint8_t module) {
 	return (micros() - lastUpdate[module]) > MIN_TUNE_TIME_US;
 }
 

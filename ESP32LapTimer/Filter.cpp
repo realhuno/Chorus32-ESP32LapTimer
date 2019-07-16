@@ -10,7 +10,7 @@ void filter_init(lowpass_filter_t* filter, float cutoff, float dt) {
 	filter->RC = 1 / (2 * MATH_PI * cutoff);
 	filter->alpha = dt / (filter->RC + dt);
 }
-float filter_add_value(lowpass_filter_t* filter, float value, bool dynamic_dt) {
+float IRAM_ATTR filter_add_value(lowpass_filter_t* filter, float value, bool dynamic_dt) {
 	if(dynamic_dt) {
 		uint32_t now = micros();
 		float dt = (now - filter->last_call) * 1e-6f;
