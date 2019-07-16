@@ -359,11 +359,16 @@ void setPilotActive(uint8_t pilot, bool active) {
 
 	// adjust the filters for all active pilots
 	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
-		if(pilots[i].state == PILOT_ACTIVE) {
-			uint32_t other_pilot_time_us = ((MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) * current_pilot_num) / getNumReceivers();
-			float on_fraction_inv = other_pilot_time_us / (float)MULTIPLEX_STAY_TIME_US;
+		if(pilots[i].state != PILOT_UNUSED) {
+			uint32_t total_pilot_time_us = ((MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) * current_pilot_num); // Total time for all pilots
+			float on_fraction = MULTIPLEX_STAY_TIME_US / (float)total_pilot_time_us * getNumReceivers(); // on percentage of the pilot
+			// special case for non multiplexing
+			if(current_pilot_num <= getNumReceivers()) {
+				on_fraction = 1/current_pilot_num;
+			}
 			for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
-				filter_adjust_dt(&pilots[i].filter[j], on_fraction_inv * 166 * 1e-6); // inverted fraction eg 70/5 * 166 (6khz -> our sampling rate)
+				filter_adjust_dt(&pilots[i].filter[j], 1.0/(6000.0 * on_fraction)); // set sampling rate
+				// when multiplexing we are using the average sampling rate per pilot as a timebase
 			}
 		}
 	}
