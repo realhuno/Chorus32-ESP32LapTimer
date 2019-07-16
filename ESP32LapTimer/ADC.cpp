@@ -385,7 +385,7 @@ void setPilotActive(uint8_t pilot, bool active) {
 			float on_fraction = MULTIPLEX_STAY_TIME_US / (float)total_pilot_time_us * getNumReceivers(); // on percentage of the pilot
 			// special case for non multiplexing
 			if(current_pilot_num <= getNumReceivers()) {
-				on_fraction = 1/current_pilot_num;
+				on_fraction = 1.0/current_pilot_num;
 			}
 			for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
 				filter_adjust_dt(&pilots[i].filter[j], 1.0/(6000.0 * on_fraction)); // set sampling rate
