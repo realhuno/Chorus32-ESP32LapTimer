@@ -2,6 +2,7 @@
 #include <driver/adc.h>
 #include <driver/timer.h>
 #include <esp_adc_cal.h>
+#include <Arduino.h>
 
 #include <Wire.h>
 #include <Adafruit_INA219.h>
@@ -43,23 +44,25 @@ static lowpass_filter_t adc_voltage_filter;
 enum pilot_state {
 	PILOT_UNUSED,
 	PILOT_ACTIVE,
-	PILOT_TAKEN_BY_MODULE,
 };
+
+typedef struct receiver_data_s receiver_data_t;
 
 typedef struct pilot_data_s {
 	uint16_t RSSIthreshold;
 	uint16_t ADCReadingRAW;
 	uint16_t ADCvalue;
 	lowpass_filter_t filter[PILOT_FILTER_NUM];
-	/// Pilot state 0: unsused, 1: active, 2: taken by a module
+	/// Pilot state 0: unsused, 1: active
 	uint8_t state;
+	receiver_data_t* current_rx;
 	uint8_t number;
 	uint32_t unused_time; // used to force a certain stay time. if we allow an instant switch, modules would be constantly switching with e.g. 6 modules and 7 pilots
 } pilot_data_t;
 
 typedef struct receiver_data_s {
 	uint32_t last_hop;
-	uint8_t current_pilot;
+	pilot_data_t* current_pilot;
 } receiver_data_t;
 
 static pilot_data_t pilots[MAX_NUM_PILOTS];
@@ -68,6 +71,9 @@ static receiver_data_t receivers[MAX_NUM_RECEIVERS];
 // multiplexing queue
 static queue_t pilot_queue;
 static pilot_data_t* pilot_queue_data[MAX_NUM_PILOTS];
+
+SemaphoreHandle_t pilot_queue_lock;
+SemaphoreHandle_t pilots_lock;
 
 static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
   uint32_t val = 0;
@@ -82,32 +88,50 @@ static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
  * \returns if a different pilot was found.
  */
 static bool setNextPilot(uint8_t adc) {
+	if(!xSemaphoreTake(pilot_queue_lock, 1)) {
+		// failed to obtain mutex, so do nothing
+		return false;
+	}
 	pilot_data_t* new_pilot = (pilot_data_t*)queue_peek(&pilot_queue);
+	bool ret_val = false;
 	if(new_pilot) {
 		if(new_pilot->state == PILOT_ACTIVE) {
 			if((micros() - new_pilot->unused_time) > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US){
 				new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue);
+				Serial.printf("Dequeued pilot %d queue len: %d\n", new_pilot->number, pilot_queue.curr_size);
 				// set old pilot to active again
-				if(pilots[receivers[adc].current_pilot].state != PILOT_UNUSED) {
-					pilots[receivers[adc].current_pilot].state = PILOT_ACTIVE;
+				if(receivers[adc].current_pilot && receivers[adc].current_pilot->state != PILOT_UNUSED) {
+					receivers[adc].current_pilot->state = PILOT_ACTIVE;
+					receivers[adc].current_pilot->current_rx = NULL;
 					// readd to multiplex queue
-					queue_enqueue(&pilot_queue, pilots + receivers[adc].current_pilot);
-					pilots[receivers[adc].current_pilot].unused_time = micros();
+					queue_enqueue(&pilot_queue, receivers[adc].current_pilot);
+					Serial.printf("Requeued pilot %d queue len: %d\n", receivers[adc].current_pilot->number, pilot_queue.curr_size);
+					receivers[adc].current_pilot->unused_time = micros();
 				}
-				new_pilot->state = PILOT_TAKEN_BY_MODULE;
-				receivers[adc].current_pilot = new_pilot->number;
-				return true;
+				new_pilot->current_rx = &receivers[adc];
+				receivers[adc].current_pilot = new_pilot;
+				ret_val = true;
+			}
+		} else { // pilot went inactive
+			new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue); // Dequeue inactive pilot
+			Serial.printf("Pilot %d is inactive queue len: %d\n", new_pilot->number, pilot_queue.curr_size);
+			if(new_pilot->current_rx) {
+				new_pilot->current_rx->current_pilot = NULL;
+				new_pilot->current_rx = NULL;
 			}
 		}
-		else { // pilot went inactive
-			new_pilot = (pilot_data_t*)queue_dequeue(&pilot_queue); // Dequeue inactive pilot
-		}
 	}
+	xSemaphoreGive(pilot_queue_lock);
 	// Do nothing it the pilot is not active
-	return false;
+	return ret_val;
 }
 
 void ConfigureADC() {
+	
+	pilot_queue_lock = xSemaphoreCreateMutex();
+	pilots_lock = xSemaphoreCreateMutex();
+
+	
 	memset(pilots, 0, MAX_NUM_PILOTS * sizeof(pilot_data_t));
 	for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
 		pilots[i].number = i;
@@ -190,54 +214,58 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 	static uint8_t current_adc = 0;
 	uint32_t now = micros();
 	LastADCcall = now;
-
-
-	if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) {
-		if(setNextPilot(current_adc)) {
-			// TODO: add class between this and rx5808
-			// TODO: add better multiplexing. Maybe based on the last laptime?
-			setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot), getRXBandPilot(receivers[current_adc].current_pilot), current_adc);
-			receivers[current_adc].last_hop = now;
+	if(xSemaphoreTake(pilots_lock, 1)) { // lock changes to pilots from other cores 
+		if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US && isRxReady(current_adc)) {
+			if(setNextPilot(current_adc)) {
+				// TODO: add class between this and rx5808
+				// TODO: add better multiplexing. Maybe based on the last laptime?
+				Serial.printf("Setting rx %d with pilot %d to channel %d and band %d queue size: %d\n", current_adc, receivers[current_adc].current_pilot->number, getRXChannelPilot(receivers[current_adc].current_pilot->number), getRXBandPilot(receivers[current_adc].current_pilot->number), pilot_queue.curr_size);
+				//Serial.printf("ADC 1 pilot: %d ADC 2 pilot: %d\n", receivers[0].current_pilot->number, receivers[1].current_pilot->number);
+				setModuleChannelBand(getRXChannelPilot(receivers[current_adc].current_pilot->number), getRXBandPilot(receivers[current_adc].current_pilot->number), current_adc);
+				receivers[current_adc].last_hop = now;
+			}
 		}
-	}
+		// go to next adc if vrx is not ready or has no assigned pilot
+		if(isRxReady(current_adc) && receivers[current_adc].current_pilot) {
+			adc1_channel_t channel = getADCChannel(current_adc);
+			pilot_data_t* current_pilot = receivers[current_adc].current_pilot;
+			if(current_pilot) {
+				if(LIKELY(isInRaceMode())) {
+					current_pilot->ADCReadingRAW = adc1_get_raw(channel);
+				} else {
+					// multisample when not in race mode (for threshold calibration etc)
+					current_pilot->ADCReadingRAW = multisample_adc1(channel, 10);
+				}
 
-
-	// go to next adc if vrx is not ready
-	if(isRxReady(current_adc)) {
-		adc1_channel_t channel = getADCChannel(current_adc);
-		pilot_data_t* current_pilot = &pilots[receivers[current_adc].current_pilot];
-		if(LIKELY(isInRaceMode())) {
-			current_pilot->ADCReadingRAW = adc1_get_raw(channel);
-		} else {
-			// multisample when not in race mode (for threshold calibration etc)
-			current_pilot->ADCReadingRAW = multisample_adc1(channel, 10);
-		}
-
-		// Applying calibration
-		if (LIKELY(!isCalibrating())) {
-			uint16_t rawRSSI = constrain(current_pilot->ADCReadingRAW, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
-			current_pilot->ADCReadingRAW = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
-		}
-		
-		current_pilot->ADCvalue = current_pilot->ADCReadingRAW;
-		for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
-			current_pilot->ADCvalue = filter_add_value(&(current_pilot->filter[j]), current_pilot->ADCvalue);
-		}
+				// Applying calibration
+				if (LIKELY(!isCalibrating())) {
+					uint16_t rawRSSI = constrain(current_pilot->ADCReadingRAW, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
+					current_pilot->ADCReadingRAW = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
+				}
+				
+				current_pilot->ADCvalue = current_pilot->ADCReadingRAW;
+				for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
+					current_pilot->ADCvalue = filter_add_value(&(current_pilot->filter[j]), current_pilot->ADCvalue, false);
+				}
 
 #ifdef DEBUG_FILTER
-		if(receivers[current_adc].current_pilot == 0) {
-			Serial.print(current_pilot->ADCReadingRAW);
-			Serial.print("\t");
-			Serial.println(current_pilot->ADCvalue);
-		}
+				if(receivers[current_adc].current_pilot->number == 0) {
+					Serial.print(current_pilot->ADCReadingRAW);
+					Serial.print("\t");
+					Serial.println(current_pilot->ADCvalue);
+				}
 #endif // DEBUG_FILTER
-		if (LIKELY(isInRaceMode() > 0)) {
-			CheckRSSIthresholdExceeded(receivers[current_adc].current_pilot);
-		}
-		
-		if(current_pilot->number == 0) ++adcLoopCounter;
-	} // end if isRxReady
-	current_adc = (current_adc + 1) % getNumReceivers();
+				if (LIKELY(isInRaceMode() > 0)) {
+					CheckRSSIthresholdExceeded(receivers[current_adc].current_pilot->number);
+				}
+				
+				if(current_pilot->number == 0) ++adcLoopCounter;
+			}
+		} // end if isRxReady
+		// use minimum here to ensure the first n receivers are used since the other ones might be offline in case we have more rx than pilots
+		xSemaphoreGive(pilots_lock);
+	}
+	current_adc = (current_adc + 1) % MAX(1, MIN(getNumReceivers(), current_pilot_num));
 }
 
 
@@ -349,12 +377,13 @@ void setPilotActive(uint8_t pilot, bool active) {
 	// There might be a way better solution, but this will have to suffice for now
 	// XXX: We have to reset the module since it won't come online with a simple power up
 	RXResetAll();
+	while(!xSemaphoreTake(pilot_queue_lock, portMAX_DELAY)); // Wait until this is free. this is a non critical section
+	while(!xSemaphoreTake(pilots_lock, portMAX_DELAY));
+	pilot_queue.curr_size = 0; // delete complete queue
 	if(active) {
 		if(pilots[pilot].state == PILOT_UNUSED) {
 			// If the pilot was unused until now, we set them to active and add them to the queue
 			pilots[pilot].state = PILOT_ACTIVE;
-			++current_pilot_num;
-			queue_enqueue(&pilot_queue, pilots + pilot);
 		}
 	} else {
 		if(pilots[pilot].state != PILOT_UNUSED) {
@@ -362,8 +391,20 @@ void setPilotActive(uint8_t pilot, bool active) {
 			// Set adc values to 0 for display etc
 			pilots[pilot].ADCvalue = 0;
 			pilots[pilot].ADCReadingRAW = 0;
-			--current_pilot_num;
 			// Since the pilot state is now unused, it won't get added back to the queue
+		}
+	}
+	current_pilot_num = 0;
+	// rebuild queue and delete all asignments. again this ist non-critical and the safest way to avoid bugs
+	for(int i = 0; i < getNumReceivers(); ++i) {
+		receivers[i].current_pilot = NULL;
+	}
+	for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
+		// first reset all rx assignments
+		pilots[i].current_rx = NULL;
+		if(pilots[i].state == PILOT_ACTIVE) {
+			++current_pilot_num;
+			queue_enqueue(&pilot_queue, &pilots[i]);
 		}
 	}
 
@@ -372,7 +413,8 @@ void setPilotActive(uint8_t pilot, bool active) {
 
 	// adjust the filters for all active pilots
 	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
-		if(pilots[i].state != PILOT_UNUSED) {
+		// check both rx and pilots for 0 to avoid division by 0
+		if(pilots[i].state != PILOT_UNUSED && getNumReceivers() && current_pilot_num) {
 			uint32_t total_pilot_time_us = ((MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) * current_pilot_num); // Total time for all pilots
 			float on_fraction = MULTIPLEX_STAY_TIME_US / (float)total_pilot_time_us * getNumReceivers(); // on percentage of the pilot
 			// special case for non multiplexing
@@ -390,4 +432,6 @@ void setPilotActive(uint8_t pilot, bool active) {
 	for(uint8_t i = current_pilot_num; i < getNumReceivers(); ++i) {
 		RXPowerDown(i);
 	}
+	xSemaphoreGive(pilot_queue_lock);
+	xSemaphoreGive(pilots_lock);
 }
