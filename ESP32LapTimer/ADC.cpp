@@ -21,13 +21,11 @@
 
 #include "Filter.h"
 
-static Adafruit_INA219 ina219; // A0+A1=GND
 
-static uint32_t LastADCcall;
+static Adafruit_INA219 ina219; // A0+A1=GND
 
 static esp_adc_cal_characteristics_t adc_chars;
 
-static unsigned int VbatReadingSmooth;
 static uint16_t adcLoopCounter = 0;
 
 static float VBATcalibration;
@@ -129,11 +127,9 @@ static IRAM_ATTR bool setNextPilot(uint8_t adc) {
 }
 
 void ConfigureADC() {
-	
 	pilot_queue_lock = xSemaphoreCreateMutex();
 	pilots_lock = xSemaphoreCreateMutex();
 
-	
 	memset(pilots, 0, MAX_NUM_PILOTS * sizeof(pilot_data_t));
 	for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
 		pilots[i].number = i;
@@ -201,7 +197,6 @@ adc1_channel_t IRAM_ATTR getADCChannel(uint8_t adc_num) {
 void IRAM_ATTR nbADCread( void * pvParameters ) {
 	static uint8_t current_adc = 0;
 	uint32_t now = micros();
-	LastADCcall = now;
 	if(xSemaphoreTake(pilots_lock, 1)) { // lock changes to pilots from other cores 
 		if(now - receivers[current_adc].last_hop > MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US && isRxReady(current_adc)) {
 			if(setNextPilot(current_adc)) {
@@ -248,9 +243,10 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 				if(current_pilot->number == 0) ++adcLoopCounter;
 			}
 		} // end if isRxReady
-		// use minimum here to ensure the first n receivers are used since the other ones might be offline in case we have more rx than pilots
 		xSemaphoreGive(pilots_lock);
 	}
+	// use minimum here to ensure the first n receivers are used since the other ones might be offline in case we have more rx than pilots
+	// use max to avoid division by 0
 	current_adc = (current_adc + 1) % MAX(1, MIN(getNumReceivers(), current_pilot_num));
 }
 
@@ -366,9 +362,9 @@ void setPilotActive(uint8_t pilot, bool active) {
 	// only reset active modules. a user might have 6 modules installed but only uses 4. using the all function all modules would power up
 	for(int i = 0; i < getNumReceivers(); ++i) {
 		RXreset(i);
-		while(!isRXReady(i));
+		while(!isRxReady(i));
 		rxLowPower(i);
-		while(!isRXReady(i));
+		while(!isRxReady(i));
 	}
 
 	while(!xSemaphoreTake(pilot_queue_lock, portMAX_DELAY)); // Wait until this is free. this is a non critical section
