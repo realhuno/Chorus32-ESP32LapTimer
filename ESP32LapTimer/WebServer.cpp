@@ -185,10 +185,6 @@ void ProcessGeneralSettingsUpdate() {
   String NumRXs = webServer.arg("NumRXs");
   EepromSettings.NumReceivers = (byte)NumRXs.toInt();
 
-  for(int i = 0; i < getNumReceivers(); ++i) {
-
-  }
-
   for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
     String enabled = webServer.arg("pilot_enabled_" + String(i));
     String multiplex_off = webServer.arg("pilot_multuplex_off_" + String(i));
@@ -217,10 +213,10 @@ void ProcessGeneralSettingsUpdate() {
 }
 
 void calibrateRSSI() {
-    rssiCalibration();
+  rssiCalibration();
 }
 void eepromReset(){
-    EepromSettings.defaults();
+  EepromSettings.defaults();
 }
 
 void ProcessVBATModeUpdate() {
@@ -253,7 +249,6 @@ void ProcessADCRXFilterUpdate() {
   (void)sent;
   file.close();
   setSaveRequired();
-
 }
 
 void ProcessWifiSettings() {
