@@ -84,7 +84,7 @@ void setup() {
   resetLaptimes();
 
   EepromSettings.setup();
-  setRXADCfilter(EepromSettings.RXADCfilter);
+  setRXADCfilterCutoff(EepromSettings.RXADCfilterCutoff);
   setADCVBATmode(EepromSettings.ADCVBATmode);
   setVbatCal(EepromSettings.VBATcalibration);
 
