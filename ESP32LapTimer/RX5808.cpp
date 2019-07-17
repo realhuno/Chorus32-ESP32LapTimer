@@ -106,7 +106,9 @@ void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
 }
 
 void rxLowPower(uint8_t node) {
+#ifdef USE_LOW_POWER
 	rxWriteNode(node, SPI_ADDRESS_POWER, LOW_POWER_STATE);
+#endif
 }
 
 
