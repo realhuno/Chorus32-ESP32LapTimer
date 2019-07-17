@@ -362,9 +362,15 @@ void setPilotActive(uint8_t pilot, bool active) {
 	// First we power up all modules. If we have less pilots than modules they get activated at a later stage. As this function will never be called during a race this should be okay
 	// There might be a way better solution, but this will have to suffice for now
 	// XXX: We have to reset the module since it won't come online with a simple power up
-	RXResetAll();
-	delay(30);
-	rxLowPowerAll();
+
+	// only reset active modules. a user might have 6 modules installed but only uses 4. using the all function all modules would power up
+	for(int i = 0; i < getNumReceivers(); ++i) {
+		RXreset(i);
+		while(!isRXReady(i));
+		rxLowPower(i);
+		while(!isRXReady(i));
+	}
+
 	while(!xSemaphoreTake(pilot_queue_lock, portMAX_DELAY)); // Wait until this is free. this is a non critical section
 	while(!xSemaphoreTake(pilots_lock, portMAX_DELAY));
 	pilot_queue.curr_size = 0; // delete complete queue
