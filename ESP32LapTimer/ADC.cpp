@@ -278,7 +278,12 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t pilot) {
 	uint32_t CurrTime = millis();
 	static uint16_t max_adc = 0;
 	static uint32_t max_time = 0;
+	// require a certain amount of samples below threshold to determine the maximum. prevents triggering a lap when one approaches the timer and the rssi fluctuates
+	static uint16_t samples  = 0;
 	if ( pilots[pilot].ADCvalue > pilots[pilot].RSSIthreshold) {
+		if(pilot == 0) {
+			samples = 0;
+		}
 		if (CurrTime > (getMinLapTime() + getLaptime(pilot))) {
 			if(pilot == 0) { // enable threshold detection for pilot 0 only for now. makes comparison easier
 				if(pilots[pilot].ADCvalue > max_adc) {
@@ -290,16 +295,21 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t pilot) {
 			}
 		}
 	} else if(pilot == 0 && max_adc && max_time) { // falling edge
-		addLap(pilot, max_time);
-		max_adc = 0;
-		max_time = 0;
-		#ifdef DEBUG_SIGNAL_LOG
-		// Print out signal at falling edge
-		for(uint32_t i = 0; i < DEBUG_SIGNAL_LOG_SIZE; ++i) {
-			Serial.println(readings[(i + readings_pos) % DEBUG_SIGNAL_LOG_SIZE]);
-			readings_pos = 0;
+
+		++samples;
+		if(samples > 500) {
+			samples = 0;
+			addLap(pilot, max_time);
+			max_adc = 0;
+			max_time = 0;
+			#ifdef DEBUG_SIGNAL_LOG
+			// Print out signal at falling edge
+			for(uint32_t i = 0; i < DEBUG_SIGNAL_LOG_SIZE; ++i) {
+				Serial.println(readings[(i + readings_pos) % DEBUG_SIGNAL_LOG_SIZE]);
+				readings_pos = 0;
+			}
+			#endif
 		}
-		#endif
 	}
 }
 
