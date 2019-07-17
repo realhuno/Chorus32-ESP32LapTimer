@@ -442,3 +442,11 @@ void setPilotActive(uint8_t pilot, bool active) {
 	xSemaphoreGive(pilot_queue_lock);
 	xSemaphoreGive(pilots_lock);
 }
+
+bool isPilotMultiplexOff(uint8_t pilot) {
+	return pilots[pilot].disable_multiplexing;
+}
+
+void setilotMultiplexOff(uint8_t pilot, bool off) {
+	pilots[pilot].disable_multiplexing = off;
+}

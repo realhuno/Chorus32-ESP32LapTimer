@@ -6,6 +6,7 @@
 #include "Calibration.h"
 #include "Laptime.h"
 #include "Comms.h"
+#include "HardwareConfig.h"
 
 #include <esp_wifi.h>
 #include <DNSServer.h>
@@ -156,7 +157,7 @@ void SendStatusVars() {
 
 void SendStaticVars() {
   // TODO: implement dynamic lap number
-  String sendSTR = "{\"num_pilots\": " + String(getActivePilots()) + ", \"num_laps\": " + String(5) + ", \"NumRXs\": " + String(getNumReceivers() - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());
+  String sendSTR = "{\"num_laps\": " + String(5) + ", \"NumRXs\": " + String(getNumReceivers() - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());
   sendSTR = sendSTR + ",\"Band\":{";
   for (int i = 0; i < getNumReceivers(); i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
@@ -173,8 +174,18 @@ void SendStaticVars() {
     }
   }
   sendSTR = sendSTR + "}";
-  sendSTR = sendSTR +  "}";
+  sendSTR += ",\"pilot_data\" : [";
+  for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
+    sendSTR += "{\"number\" : " + String(i);
+    sendSTR += ", \"enabled\" : " + String(isPilotActive(i));
+    sendSTR += ", \"multiplex_off\" : " + String(isPilotMultiplexOff(i));
+    sendSTR += "}";
+    if(i + 1 < MAX_NUM_PILOTS) {
+      sendSTR += ",";
+    }
+  }
 
+  sendSTR = sendSTR +  "]}";
   webServer.send(200, "application/json", sendSTR);
 }
 
@@ -255,6 +266,14 @@ void ProcessGeneralSettingsUpdate() {
     EepromSettings.RSSIthresholds[i] = value;
     setRSSIThreshold(i, value);
   }
+  
+  for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
+    String enabled = webServer.arg("pilot_enabled_" + String(i));
+    String multiplex_off = webServer.arg("pilot_multuplex_off_" + String(i));
+    setPilotActive(i, enabled == "on");
+    setilotMultiplexOff(i, multiplex_off == "on");
+  }
+  
 
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
