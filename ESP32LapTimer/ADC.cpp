@@ -39,6 +39,14 @@ static uint8_t current_pilot_num = 0;
 
 static lowpass_filter_t adc_voltage_filter;
 
+#ifdef DEBUG_SIGNAL_LOG
+// Use the memory we have ;) should be sufficient for around 1sec of full data
+// any more and the web ui won't work anymore due to heavy use of dynamic allocation
+#define DEBUG_SIGNAL_LOG_SIZE 6000
+static uint16_t readings[DEBUG_SIGNAL_LOG_SIZE];
+static uint32_t readings_pos = 0;
+#endif
+
 enum pilot_state {
 	PILOT_UNUSED,
 	PILOT_ACTIVE,
@@ -240,7 +248,13 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
 					CheckRSSIthresholdExceeded(receivers[current_adc].current_pilot->number);
 				}
 				
-				if(current_pilot->number == 0) ++adcLoopCounter;
+				if(current_pilot->number == 0){
+					 ++adcLoopCounter;
+					 #ifdef DEBUG_SIGNAL_LOG
+					 readings[readings_pos] = current_pilot->ADCReadingRAW;
+					 readings_pos = (readings_pos + 1) % DEBUG_SIGNAL_LOG_SIZE;
+					 #endif
+				 }
 			}
 		} // end if isRxReady
 		xSemaphoreGive(pilots_lock);
@@ -275,6 +289,13 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t pilot) {
 		addLap(pilot, max_time);
 		max_adc = 0;
 		max_time = 0;
+		#ifdef DEBUG_SIGNAL_LOG
+		// Print out signal at falling edge
+		for(uint32_t i = 0; i < DEBUG_SIGNAL_LOG_SIZE; ++i) {
+			Serial.println(readings[(i + readings_pos) % DEBUG_SIGNAL_LOG_SIZE]);
+			readings_pos = 0;
+		}
+		#endif
 	}
 }
 
