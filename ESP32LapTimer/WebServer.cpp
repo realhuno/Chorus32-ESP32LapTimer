@@ -141,14 +141,10 @@ void InitWifiAP() {
 }
 
 void updateRx (int band, int channel, int rx) {
-  rx = rx - 1;
-  setModuleChannelBand(band, channel, rx);
-  EepromSettings.RXBand[rx] = band;
   setRXBandPilot(rx, band);
-  EepromSettings.RXChannel[rx] = channel;
+  EepromSettings.RXBand[rx] = getRXBandPilot(rx);
   setRXChannelPilot(rx, channel);
-  uint16_t index = getRXChannelPilot(rx) + (8 * getRXBandPilot(rx));
-  (void) index;
+  EepromSettings.RXChannel[rx] = getRXChannelPilot(rx);
 }
 
 void SendStatusVars() {
@@ -179,6 +175,8 @@ void SendStaticVars() {
     sendSTR += "{\"number\" : " + String(i);
     sendSTR += ", \"enabled\" : " + String(isPilotActive(i));
     sendSTR += ", \"multiplex_off\" : " + String(isPilotMultiplexOff(i));
+    sendSTR += ", \"band\" : " + String(getRXBandPilot(i));
+    sendSTR += ", \"channel\" : " + String(getRXChannelPilot(i));
     sendSTR += "}";
     if(i + 1 < MAX_NUM_PILOTS) {
       sendSTR += ",";
@@ -213,50 +211,9 @@ void send_laptimes() {
 void ProcessGeneralSettingsUpdate() {
   String NumRXs = webServer.arg("NumRXs");
   EepromSettings.NumReceivers = (byte)NumRXs.toInt();
+  
+  for(int i = 0; i < getNumReceivers(); ++i) {
 
-  // getNumReceivers() is always >= 0
-  // TODO: why does getNumReceivers() == 0 equals to 1 rx?
-  String Band1 = webServer.arg("band1");
-  String Channel1 = webServer.arg("channel1");
-  int band1 = (byte)Band1.toInt();
-  int channel1 = (byte)Channel1.toInt();
-  updateRx(band1, channel1, 1);
-
-  if (getNumReceivers() >= 1) {
-    String Band2 = webServer.arg("band2");
-    String Channel2 = webServer.arg("channel2");
-    int band2 = (byte)Band2.toInt();
-    int channel2 = (byte)Channel2.toInt();
-    updateRx(band2, channel2, 2);
-  }
-  if (getNumReceivers() >= 2) {
-    String Band3 = webServer.arg("band3");
-    String Channel3 = webServer.arg("channel3");
-    int band3 = (byte)Band3.toInt();
-    int channel3 = (byte)Channel3.toInt();
-    updateRx(band3, channel3, 3);
-  }
-  if (getNumReceivers() >= 3) {
-    String Band4 = webServer.arg("band4");
-    String Channel4 = webServer.arg("channel4");
-    int band4 = (byte)Band4.toInt();
-    int channel4 = (byte)Channel4.toInt();
-    updateRx(band4, channel4, 4);
-  }
-  if (getNumReceivers() >= 4) {
-    String Band5 = webServer.arg("band5");
-    String Channel5 = webServer.arg("channel5");
-    int band5 = (byte)Band5.toInt();
-    int channel5 = (byte)Channel5.toInt();
-    updateRx(band5, channel5, 5);
-  }
-
-  if (getNumReceivers() >= 5) {
-    String Band6 = webServer.arg("band6");
-    String Channel6 = webServer.arg("channel6");
-    int band6 = (byte)Band6.toInt();
-    int channel6 = (byte)Channel6.toInt();
-    updateRx(band6, channel6, 6);
   }
 
   String Rssi = webServer.arg("RSSIthreshold");
@@ -272,6 +229,12 @@ void ProcessGeneralSettingsUpdate() {
     String multiplex_off = webServer.arg("pilot_multuplex_off_" + String(i));
     setPilotActive(i, enabled == "on");
     setilotMultiplexOff(i, multiplex_off == "on");
+    
+    String Band_str = webServer.arg("band" + String(i));
+    String Channel_str = webServer.arg("channel" + String(i));
+    int band = (uint8_t)Band_str.toInt();
+    int channel = (uint8_t)Channel_str.toInt();
+    updateRx(band, channel, i);
   }
   
 
