@@ -135,6 +135,10 @@ static IRAM_ATTR bool setNextPilot(uint8_t adc) {
 }
 
 void ConfigureADC() {
+	#ifdef DEBUG_SIGNAL_LOG
+	memset(readings, 0, DEBUG_SIGNAL_LOG_SIZE * sizeof(uint16_t));
+	#endif
+	
 	pilot_queue_lock = xSemaphoreCreateMutex();
 	pilots_lock = xSemaphoreCreateMutex();
 
