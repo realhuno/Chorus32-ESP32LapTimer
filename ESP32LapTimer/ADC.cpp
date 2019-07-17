@@ -160,27 +160,10 @@ void ConfigureADC() {
 
   ina219.begin();
   ReadVBAT_INA219();
-  float cutoff = 0;
-  switch (getRXADCfilter()) {
-	case LPF_10Hz:
-		cutoff = 10;
-		break;
-	case LPF_20Hz:
-		cutoff = 20;
-		break;
-	case LPF_50Hz:
-		cutoff = 50;
-		break;
-	case LPF_100Hz:
-		cutoff = 100;
-		break;
-	}
-	
-	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
-		for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
-			filter_init(&pilots[i].filter[j], cutoff, 166 * getNumReceivers() * 1e-6);
-		}
-	}
+  uint16_t cutoff = getRXADCfilterCutoff();
+
+  setPilotFilters(cutoff);
+
 	filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF, 0);
 	uint16_t voltage = getVbatFloat(true) * 1000;
 	Serial.printf("Voltage is %d minimum is %d\n", voltage, getMinVoltageModule());
@@ -457,4 +440,12 @@ bool isPilotMultiplexOff(uint8_t pilot) {
 
 void setilotMultiplexOff(uint8_t pilot, bool off) {
 	pilots[pilot].disable_multiplexing = off;
+}
+
+void setPilotFilters(uint16_t cutoff) {
+  for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
+    for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
+      filter_init(&pilots[i].filter[j], cutoff, 166 * getNumReceivers() * 1e-6);
+    }
+  }
 }

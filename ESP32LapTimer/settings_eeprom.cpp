@@ -32,13 +32,6 @@ bool EepromSettingsStruct::SanityCheck() {
     Serial.println(EepromSettings.NumReceivers);
   }
 
-
-  if (EepromSettings.RXADCfilter > MaxADCFilter) {
-    IsGoodEEPROM = false;
-    Serial.print("Error: Corrupted EEPROM value RXADCfilter: ");
-    Serial.println(EepromSettings.RXADCfilter);
-  }
-
   if (EepromSettings.ADCVBATmode > MaxVbatMode) {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value ADCVBATmode: ");
@@ -106,7 +99,7 @@ void EepromSettingsStruct::defaults() {
 	}
 	this->eepromVersionNumber = EEPROM_VERSION_NUMBER;
 	this->ADCVBATmode = INA219;
-	this->RXADCfilter = LPF_20Hz;
+	this->RXADCfilterCutoff = 20;
 	this->VBATcalibration = 1;
 	this->NumReceivers = 6;
 	this->WiFiProtocol = 1;
@@ -134,16 +127,16 @@ bool EepromSettingsStruct::validateCRC(){
 }
 
 
-RXADCfilter_ getRXADCfilter() {
-	return EepromSettings.RXADCfilter;
+uint16_t getRXADCfilterCutoff() {
+	return EepromSettings.RXADCfilterCutoff;
 }
 
 ADCVBATmode_ getADCVBATmode() {
 	return EepromSettings.ADCVBATmode;
 }
 
-void setRXADCfilter(RXADCfilter_ filter) {
-	EepromSettings.RXADCfilter = filter;
+void setRXADCfilterCutoff(uint16_t cutoff) {
+	EepromSettings.RXADCfilterCutoff = cutoff;
 }
 
 void setADCVBATmode(ADCVBATmode_ mode) {
@@ -167,4 +160,8 @@ int getNumReceivers() {
 
 uint16_t getMinVoltageModule() {
   return EepromSettings.min_voltage_module;
+}
+
+uint16_t getFilterCutoff() {
+  return EepromSettings.RXADCfilterCutoff;
 }
