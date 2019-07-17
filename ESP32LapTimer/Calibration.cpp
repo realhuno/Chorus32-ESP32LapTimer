@@ -25,7 +25,7 @@ void rssiCalibration() {
   isCurrentlyCalibrating = true;
   calibrationFreqIndex = 0;
   setModuleFrequencyAll(channelFreqTable[calibrationFreqIndex]);
-  setRXADCfilter(LPF_10Hz);
+  setRXADCfilterCutoff(10);
   calibrationTimer.reset();
 }
 
@@ -50,7 +50,7 @@ void rssiCalibrationUpdate() {
       isCurrentlyCalibrating = false;
       setSaveRequired();
       setDisplayScreenNumber(0);
-      setRXADCfilter(EepromSettings.RXADCfilter);
+      setRXADCfilterCutoff(EepromSettings.RXADCfilterCutoff);
     }
   }
 }

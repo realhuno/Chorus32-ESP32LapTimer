@@ -31,4 +31,5 @@ bool isPilotActive(uint8_t pilot);
 void setPilotActive(uint8_t pilot, bool active);
 bool isPilotMultiplexOff(uint8_t pilot);
 void setilotMultiplexOff(uint8_t pilot, bool off);
+void setPilotFilters(uint16_t cutoff);
 

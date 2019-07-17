@@ -74,16 +74,6 @@ bool EepromSettingsStruct::SanityCheck() {
   }
 
   for (int i = 0; i < MAX_NUM_PILOTS; i++) {
-    if ((EepromSettings.RXfrequencies[i] > MaxFreq) || (EepromSettings.RXfrequencies[i] < MinFreq)) {
-      IsGoodEEPROM = false;
-      Serial.print("Error: Corrupted EEPROM NODE: ");
-      Serial.print(i);
-      Serial.print(" value RXfrequencies: ");
-      Serial.println(EepromSettings.RXfrequencies[i]);
-    }
-  }
-
-  for (int i = 0; i < MAX_NUM_PILOTS; i++) {
     if (EepromSettings.RSSIthresholds[i] > MaxThreshold) {
       IsGoodEEPROM = false;
       Serial.print("Error: Corrupted EEPROM NODE: ");
@@ -123,11 +113,13 @@ void EepromSettingsStruct::defaults() {
 
   settings.eepromVersionNumber = EEPROM_VERSION_NUMBER;
   settings.ADCVBATmode = INA219;
-  settings.RXADCfilter = LPF_20Hz;
+  settings.RXADCfilterCutoff = 20;
   settings.VBATcalibration = 1;
   settings.NumReceivers = 6;
   settings.WiFiProtocol = 1;
   settings.WiFiChannel = 1;
+  this->min_voltage_module = EEPROM_DEFAULT_MIN_VOLTAGE_MODULE;
+
   settings.updateCRC();
 
   *this = settings;
@@ -152,16 +144,16 @@ bool EepromSettingsStruct::validateCRC(){
 }
 
 
-RXADCfilter_ getRXADCfilter() {
-  return EepromSettings.RXADCfilter;
+uint16_t getRXADCfilterCutoff() {
+  return EepromSettings.RXADCfilterCutoff;
 }
 
 ADCVBATmode_ getADCVBATmode() {
   return EepromSettings.ADCVBATmode;
 }
 
-void setRXADCfilter(RXADCfilter_ filter) {
-  EepromSettings.RXADCfilter = filter;
+void setRXADCfilterCutoff(uint16_t cutoff) {
+  EepromSettings.RXADCfilterCutoff = cutoff;
 }
 
 void setADCVBATmode(ADCVBATmode_ mode) {
@@ -185,4 +177,8 @@ uint8_t getNumReceivers() {
 
 uint16_t getMinVoltageModule() {
   return EepromSettings.min_voltage_module;
+}
+
+uint16_t getFilterCutoff() {
+  return EepromSettings.RXADCfilterCutoff;
 }
