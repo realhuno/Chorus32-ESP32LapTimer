@@ -412,7 +412,8 @@ void setPilotActive(uint8_t pilot, bool active) {
 	Serial.println(current_pilot_num);
 
 	// adjust the filters for all active pilots
-	for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
+	// Turns out just using the sample frequency and completely ignore the down time works the best. Still leaving this here in case this idea isn't so bad after all
+	/*for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
 		// check both rx and pilots for 0 to avoid division by 0
 		if(pilots[i].state != PILOT_UNUSED && getNumReceivers() && current_pilot_num) {
 			uint32_t total_pilot_time_us = ((MULTIPLEX_STAY_TIME_US + MIN_TUNE_TIME_US) * current_pilot_num); // Total time for all pilots
@@ -425,8 +426,9 @@ void setPilotActive(uint8_t pilot, bool active) {
 				filter_adjust_dt(&pilots[i].filter[j], 1.0/(6000.0 * on_fraction)); // set sampling rate
 				// when multiplexing we are using the average sampling rate per pilot as a timebase
 			}
+			Serial.printf("Set filtering cutoff to %f hz\n", (6000.0 * on_fraction));
 		}
-	}
+	}*/
 
 	// Power down all unused modules
 	for(uint8_t i = current_pilot_num; i < getNumReceivers(); ++i) {
