@@ -125,7 +125,7 @@ void SendStatusVars() {
 
 void SendStaticVars() {
   // TODO: implement dynamic lap number
-  String sendSTR = "{\"num_laps\": " + String(5) + ", \"NumRXs\": " + String(getNumReceivers() - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilter\": " + String(getRXADCfilter()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());
+  String sendSTR = "{\"num_laps\": " + String(5) + ", \"NumRXs\": " + String(getNumReceivers() - 1) + ", \"ADCVBATmode\": " + String(getADCVBATmode()) + ", \"RXFilterCutoff\": " + String(getRXADCfilterCutoff()) + ", \"ADCcalibValue\": " + String(getVBATcalibration(), 3) + ", \"RSSIthreshold\": " + String(getRSSIThreshold(0)) + ", \"WiFiChannel\": " + String(getWiFiChannel()) + ", \"WiFiProtocol\": " + String(getWiFiProtocol());
   sendSTR = sendSTR + ",\"Band\":{";
   for (int i = 0; i < getNumReceivers(); i++) {
     sendSTR = sendSTR + "\"" + i + "\":" + EepromSettings.RXBand[i];
@@ -242,9 +242,9 @@ void ProcessVBATModeUpdate() {
 }
 
 void ProcessADCRXFilterUpdate() {
-  String inRXFilter = webServer.arg("RXFilter");
-  setRXADCfilter((RXADCfilter_)(byte)inRXFilter.toInt());
-  EepromSettings.RXADCfilter = getRXADCfilter();
+  String inRXFilter = webServer.arg("RXFilterCutoff");
+  setRXADCfilterCutoff(inRXFilter.toInt());
+  EepromSettings.RXADCfilterCutoff = getRXADCfilterCutoff();
 
   webServer.sendHeader("Connection", "close");
   File file = SPIFFS.open("/redirect.html", "r");                 // Open it
@@ -252,6 +252,7 @@ void ProcessADCRXFilterUpdate() {
   (void)sent;
   file.close();
   setSaveRequired();
+  setPilotFilters(getRXADCfilterCutoff());
 }
 
 void ProcessWifiSettings() {
