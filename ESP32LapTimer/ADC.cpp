@@ -321,14 +321,15 @@ float getMaFloat() {
 float getVbatFloat(bool force_read){
 	static uint32_t last_voltage_update = 0;
 	if((micros() - last_voltage_update) > VOLTAGE_UPDATE_INTERVAL_US || force_read) {
+		int32_t adc_reading = 0;
 		switch (getADCVBATmode()) {
 			case ADC_CH5:
-				uint32_t VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC5), &adc_chars);
-				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
+				adc_reading = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC5), &adc_chars);
+				setVbatFloat(adc_reading / 1000.0 * VBATcalibration);
 				break;
 			case ADC_CH6:
-				uint32_t VbatReadingSmooth = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC6), &adc_chars);
-				setVbatFloat(VbatReadingSmooth / 1000.0 * VBATcalibration);
+				adc_reading = esp_adc_cal_raw_to_voltage(adc1_get_raw(ADC6), &adc_chars);
+				setVbatFloat(adc_reading / 1000.0 * VBATcalibration);
 				break;
 			case INA219:
 				ReadVBAT_INA219();
@@ -369,9 +370,9 @@ void setPilotActive(uint8_t pilot, bool active) {
 	// only reset active modules. a user might have 6 modules installed but only uses 4. using the all function all modules would power up
 	for(int i = 0; i < getNumReceivers(); ++i) {
 		RXreset(i);
-		while(!isRXReady(i));
+		while(!isRxReady(i));
 		rxLowPower(i);
-		while(!isRXReady(i));
+		while(!isRxReady(i));
 	}
 
 	while(!xSemaphoreTake(pilot_queue_lock, portMAX_DELAY)); // Wait until this is free. this is a non critical section
