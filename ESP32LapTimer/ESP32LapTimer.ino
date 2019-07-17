@@ -24,6 +24,7 @@
 #include "Watchdog.h"
 #include "Utils.h"
 #include "Laptime.h"
+#include "Utils.h"
 
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
