@@ -311,10 +311,12 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t pilot) {
 			max_time = 0;
 			#ifdef DEBUG_SIGNAL_LOG
 			// Print out signal at falling edge
-			for(uint32_t i = 0; i < DEBUG_SIGNAL_LOG_SIZE; ++i) {
+			Serial.println("_");
+			for(uint32_t i = DEBUG_SIGNAL_LOG_SIZE; i != 0; --i) {
 				Serial.println(readings[(i + readings_pos) % DEBUG_SIGNAL_LOG_SIZE]);
 				readings_pos = 0;
 			}
+			Serial.println("-");
 			#endif
 		}
 	}
