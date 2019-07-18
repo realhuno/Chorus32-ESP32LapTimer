@@ -74,22 +74,24 @@ void setup() {
   newButtonSetup();
 #endif
   resetLaptimes();
-
   EepromSettings.setup();
   setRXADCfilterCutoff(EepromSettings.RXADCfilterCutoff);
   setADCVBATmode(EepromSettings.ADCVBATmode);
   setVbatCal(EepromSettings.VBATcalibration);
+
+  InitHardwarePins();
+
   for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
     setRXBandPilot(i, EepromSettings.RXBand[i]);
     setRXChannelPilot(i, EepromSettings.RXChannel[i]);
   }
 
   delay(500);
-  InitHardwarePins();
+  RXPowerDownAll(); // Powers down all RX5808's
+  delay(30);
   ConfigureADC();
 
   InitSPI();
-  RXPowerDownAll(); // Powers down all RX5808's
   delay(250);
 
   InitWifiAP();
