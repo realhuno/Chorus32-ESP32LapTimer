@@ -67,6 +67,11 @@ typedef struct pilot_data_s {
 	uint8_t number;
 	uint32_t unused_time; // used to force a certain stay time. if we allow an instant switch, modules would be constantly switching with e.g. 6 modules and 7 pilots
 	bool disable_multiplexing; // don't switch this pilot. scenario: 3 modules installed with 4 pilots. 2 pilots really care about their time and the other 2 just want to see their approximate time. so fix the first two pilots and the remaining module multiplexes the other 2
+	// Used for finding the maximum rssi after reaching the threshold
+	uint16_t max_adc;
+	uint32_t max_time;
+	// require a certain amount of samples below threshold to determine the maximum. prevents triggering a lap when one approaches the timer and the rssi fluctuates
+	uint16_t samples;
 } pilot_data_t;
 
 typedef struct receiver_data_s {
@@ -286,37 +291,32 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t pilot) {
 	// require a certain amount of samples below threshold to determine the maximum. prevents triggering a lap when one approaches the timer and the rssi fluctuates
 	static uint16_t samples  = 0;
 	if ( pilots[pilot].ADCvalue > pilots[pilot].RSSIthreshold) {
-		if(pilot == 0) {
-			samples = 0;
-		}
+		pilots[pilot].samples = 0;
 		if (CurrTime > (getMinLapTime() + getLaptime(pilot))) {
-			if(pilot == 0) { // enable threshold detection for pilot 0 only for now. makes comparison easier
-				if(pilots[pilot].ADCvalue > max_adc) {
-					max_adc = pilots[pilot].ADCvalue;
-					max_time = CurrTime;
-				}
-			} else {
-				uint8_t lap_num = addLap(pilot, CurrTime);
-				sendLap(lap_num, pilot);
+			if(pilots[pilot].ADCvalue > max_adc) {
+				pilots[pilot].max_adc = pilots[pilot].ADCvalue;
+				pilots[pilot].max_time = CurrTime;
 			}
 		}
-	} else if(pilot == 0 && max_adc && max_time) { // falling edge
+	} else if(pilots[pilot].max_adc && pilots[pilot].max_time) { // falling edge and max set
 
-		++samples;
-		if(samples > 500) {
-			samples = 0;
+		++pilots[pilot].samples;
+		if(pilots[pilot].samples > 500) {
+			pilots[pilot].samples = 0;
 			uint8_t lap_num = addLap(pilot, max_time);
 			sendLap(lap_num, pilot);
-			max_adc = 0;
-			max_time = 0;
+			pilots[pilot].max_adc = 0;
+			pilots[pilot].max_time = 0;
 			#ifdef DEBUG_SIGNAL_LOG
 			// Print out signal at falling edge
-			Serial.println("_");
-			for(uint32_t i = 0; i < DEBUG_SIGNAL_LOG_SIZE; ++i) {
-				Serial.println(readings[(i + readings_pos) % DEBUG_SIGNAL_LOG_SIZE]);
+			if(pilot == 0) {
+				Serial.println("_");
+				for(uint32_t i = 0; i < DEBUG_SIGNAL_LOG_SIZE; ++i) {
+					Serial.println(readings[(i + readings_pos) % DEBUG_SIGNAL_LOG_SIZE]);
+				}
+				readings_pos = 0;
+				Serial.println("-");
 			}
-			readings_pos = 0;
-			Serial.println("-");
 			#endif
 		}
 	}
