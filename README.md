@@ -14,7 +14,7 @@ This fork adds (mostly backend):
  * Multiple WiFi/Bluetooth clients
  * Some other changes I don't remember
  * Almost entirely usable without the app. Navigate to http://192.168.4.1/laptimes.html for in browser lap times (still needs to be reloaded if you change the number of pilots and the number of displayed laps is fixed for now)
- * Currently testing new peak detection method (only for pilot 1 for now). See the wiki for some test results
+ * Currently testing new peak detection method. See the wiki for some test results.
    * Compile with "DEBUG_SIGNAL_LOG" enabled, to print out (using USB) the last second of data after a lap has finished (this blocks the esp for a short while, so this is strictly used for data collection)
 
 TODO:
