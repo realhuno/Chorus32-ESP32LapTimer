@@ -230,7 +230,6 @@ uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {
   uint16_t frequency = channelFreqTable[index];
   RXBandModule[NodeAddr] = band;
   RXChannelModule[NodeAddr] = channel;
-  lastUpdate[NodeAddr] = micros();
   return setModuleFrequency(frequency, NodeAddr);
 }
 
