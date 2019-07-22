@@ -4,6 +4,9 @@
 #include "ADC.h"
 #include "RX5808.h"
 #include "Calibration.h"
+#include "Laptime.h"
+#include "Comms.h"
+#include "HardwareConfig.h"
 
 #include <esp_wifi.h>
 #include <DNSServer.h>
@@ -168,23 +171,22 @@ void ProcessGeneralSettingsUpdate(AsyncWebServerRequest* req) {
 
   for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
     String enabled = req->arg("pilot_enabled_" + String(i));
-    String multiplex_off = webServer.arg("pilot_multuplex_off_" + String(i));
+    String multiplex_off = req->arg("pilot_multuplex_off_" + String(i));
     setPilotActive(i, enabled == "on");
     setilotMultiplexOff(i, multiplex_off == "on");
-    
+
     String Band_str = req->arg("band" + String(i));
     String Channel_str = req->arg("channel" + String(i));
     int band = (uint8_t)Band_str.toInt();
     int channel = (uint8_t)Channel_str.toInt();
     updateRx(band, channel, i);
-    
+
     String Rssi = req->arg("RSSIthreshold" + String(i));
     int rssi = (byte)Rssi.toInt();
     int value = rssi * 12;
     EepromSettings.RSSIthresholds[i] = value;
     setRSSIThreshold(i, value);
   }
-  
 
   req->redirect("/redirect.html");
   setSaveRequired();
@@ -216,12 +218,13 @@ void ProcessVBATModeUpdate(AsyncWebServerRequest* req) {
 }
 
 void ProcessADCRXFilterUpdate(AsyncWebServerRequest* req) {
-  String inRXFilter = webServer.arg("RXFilterCutoff");
+  String inRXFilter = req->arg("RXFilterCutoff");
   setRXADCfilterCutoff(inRXFilter.toInt());
   EepromSettings.RXADCfilterCutoff = getRXADCfilterCutoff();
 
   req->redirect("/redirect.html");
   setSaveRequired();
+  setPilotFilters(getRXADCfilterCutoff());
 }
 
 void ProcessWifiSettings(AsyncWebServerRequest* req) {
@@ -298,7 +301,7 @@ void InitWebServer() {
 
   webServer.on("/StatusVars", SendStatusVars);
   webServer.on("/StaticVars", SendStaticVars);
-  
+
   webServer.on("/get_laptimes", send_laptimes);
   webServer.on("/start_race", startRace_button);
   webServer.on("/stop_race", stopRace_button);
