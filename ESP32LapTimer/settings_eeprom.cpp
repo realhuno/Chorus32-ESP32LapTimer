@@ -33,13 +33,6 @@ bool EepromSettingsStruct::SanityCheck() {
     Serial.println(EepromSettings.NumReceivers);
   }
 
-
-  if (EepromSettings.RXADCfilter > MaxADCFilter) {
-    IsGoodEEPROM = false;
-    Serial.print("Error: Corrupted EEPROM value RXADCfilter: ");
-    Serial.println(EepromSettings.RXADCfilter);
-  }
-
   if (EepromSettings.ADCVBATmode > MaxVbatMode) {
     IsGoodEEPROM = false;
     Serial.print("Error: Corrupted EEPROM value ADCVBATmode: ");
@@ -108,7 +101,6 @@ void EepromSettingsStruct::defaults() {
     settings.RSSIthresholds[i] = 2048;
     settings.RXBand[i] = 0;
     settings.RXChannel[i] = i % 8;
-    settings.RXfrequencies[i] = getFrequencyFromBandChannel(settings.RXBand[i], settings.RXChannel[i]);
   }
 
   settings.eepromVersionNumber = EEPROM_VERSION_NUMBER;
