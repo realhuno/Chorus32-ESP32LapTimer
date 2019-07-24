@@ -419,12 +419,12 @@ void IRAM_ATTR SendAllLaps(uint8_t NodeAddr) {
 }
 
 void sendPilotActive(uint8_t pilot) {
-	uint8_t status = isPilotActive(pilot);
-	addToSendQueue('S');
-	addToSendQueue(TO_HEX(pilot));
-	addToSendQueue('A');
-	addToSendQueue(TO_HEX(status));
-	addToSendQueue('\n');
+  uint8_t status = isPilotActive(pilot);
+  addToSendQueue('S');
+  addToSendQueue(TO_HEX(pilot));
+  addToSendQueue('A');
+  addToSendQueue(TO_HEX(status));
+  addToSendQueue('\n');
 }
 
 void SendRSSImonitorInterval(uint8_t NodeAddr) {
@@ -636,10 +636,10 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
     switch (ControlByte) {
 
-		case CONTROL_PILOT_ACTIVE:
-			valueToSet = TO_BYTE(controlData[3]);
-			setPilotActive(NodeAddrByte, valueToSet);
-			break;
+    case CONTROL_PILOT_ACTIVE:
+      valueToSet = TO_BYTE(controlData[3]);
+      setPilotActive(NodeAddrByte, valueToSet);
+      break;
 
       case CONTROL_RACE_MODE:
         valueToSet = TO_BYTE(controlData[3]);

@@ -44,21 +44,21 @@ void IRAM_ATTR adc_read() {
 }
 
 void IRAM_ATTR adc_task(void* args) {
-	watchdog_add_task();
-	
-	while(42) {
-		xSemaphoreTake( adc_semaphore, portMAX_DELAY );
-		nbADCread(NULL);
-		watchdog_feed();
-	}
+  watchdog_add_task();
+  
+  while(42) {
+    xSemaphoreTake( adc_semaphore, portMAX_DELAY );
+    nbADCread(NULL);
+    watchdog_feed();
+  }
 }
 
 void eeprom_task(void* args) {
-	const TickType_t xDelay = EEPROM_COMMIT_DELAY_MS / portTICK_PERIOD_MS;
-	while(42) {
-		EepromSettings.save();
-		vTaskDelay(xDelay);
-	}
+  const TickType_t xDelay = EEPROM_COMMIT_DELAY_MS / portTICK_PERIOD_MS;
+  while(42) {
+    EepromSettings.save();
+    vTaskDelay(xDelay);
+  }
 }
 
 
@@ -114,18 +114,18 @@ void setup() {
     setModuleChannelBand(i % getNumReceivers());
     delayMicroseconds(MIN_TUNE_TIME_US);
   }
-	
-	init_outputs();
-	Serial.println("Starting ADC reading task on core 0");
-	adc_semaphore = xSemaphoreCreateBinary();
+  
+  init_outputs();
+  Serial.println("Starting ADC reading task on core 0");
+  adc_semaphore = xSemaphoreCreateBinary();
 
-	hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
-	timerAttachInterrupt(adc_task_timer, &adc_read, true);
-	timerAlarmWrite(adc_task_timer, 1667, true); // 6khz -> 1khz per adc channel
-	timerAlarmEnable(adc_task_timer);
-	xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, NULL, 0); 
-	
-	xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1);
+  hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
+  timerAttachInterrupt(adc_task_timer, &adc_read, true);
+  timerAlarmWrite(adc_task_timer, 1667, true); // 6khz -> 1khz per adc channel
+  timerAlarmEnable(adc_task_timer);
+  xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, NULL, 0); 
+  
+  xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1);
 }
 
 void loop() {

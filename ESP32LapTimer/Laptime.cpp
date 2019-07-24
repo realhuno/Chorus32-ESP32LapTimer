@@ -16,10 +16,10 @@ static uint8_t count_first_lap = 0; // 0 means start table is before the laptime
 static uint16_t race_num = 0; // number of races
 
 void resetLaptimes() {
-	memset(LapTimes, 0, MAX_NUM_PILOTS * MAX_LAPS_NUM * sizeof(LapTimes[0][0]));
-	memset(lap_counter, 0, MAX_NUM_PILOTS * sizeof(lap_counter[0]));
-	memset(best_lap_num, 0, MAX_NUM_PILOTS * sizeof(best_lap_num[0]));
-	memset(last_lap_sent, 0, MAX_NUM_PILOTS * sizeof(last_lap_sent[0]));
+  memset(LapTimes, 0, MAX_NUM_PILOTS * MAX_LAPS_NUM * sizeof(LapTimes[0][0]));
+  memset(lap_counter, 0, MAX_NUM_PILOTS * sizeof(lap_counter[0]));
+  memset(best_lap_num, 0, MAX_NUM_PILOTS * sizeof(best_lap_num[0]));
+  memset(last_lap_sent, 0, MAX_NUM_PILOTS * sizeof(last_lap_sent[0]));
 }
 
 void sendNewLaps() {
@@ -35,75 +35,75 @@ void sendNewLaps() {
 }
 
 uint32_t getLaptime(uint8_t receiver, uint8_t lap) {
-	if(receiver < MAX_NUM_PILOTS && lap < MAX_LAPS_NUM) {
-		return LapTimes[receiver][lap];
-	}
-	return 0;
+  if(receiver < MAX_NUM_PILOTS && lap < MAX_LAPS_NUM) {
+    return LapTimes[receiver][lap];
+  }
+  return 0;
 }
 
 uint32_t getLaptimeRel(uint8_t receiver, uint8_t lap) {
-	if(lap == 1) {
-		return getLaptime(receiver, lap) - start_time;
-	} else if(lap == 0) {
-		return 0;
-	}
-	return getLaptime(receiver, lap) - getLaptime(receiver, lap - 1);
+  if(lap == 1) {
+    return getLaptime(receiver, lap) - start_time;
+  } else if(lap == 0) {
+    return 0;
+  }
+  return getLaptime(receiver, lap) - getLaptime(receiver, lap - 1);
 }
 
 uint32_t getLaptimeRelToStart(uint8_t receiver, uint8_t lap) {
-	return getLaptime(receiver, lap) - start_time;
+  return getLaptime(receiver, lap) - start_time;
 }
 
 uint32_t getLaptimeRel(uint8_t receiver) {
-	return getLaptimeRel(receiver, lap_counter[receiver]);
+  return getLaptimeRel(receiver, lap_counter[receiver]);
 }
 
 uint32_t getLaptime(uint8_t receiver) {
-	return getLaptime(receiver, lap_counter[receiver]);
+  return getLaptime(receiver, lap_counter[receiver]);
 }
 
 uint8_t addLap(uint8_t receiver, uint32_t time) {
-	++lap_counter[receiver];
-	LapTimes[receiver][lap_counter[receiver]] = time;
-	if((getLaptimeRel(receiver) < getLaptimeRel(receiver, best_lap_num[receiver]) || getLaptimeRel(receiver, best_lap_num[receiver]) == 0)) {
-		// skip best time if we skip the first lap
-		if(!(lap_counter[receiver] == 1 && !count_first_lap)) {
-			best_lap_num[receiver] = lap_counter[receiver];
-		}
-	}
-	return lap_counter[receiver];
+  ++lap_counter[receiver];
+  LapTimes[receiver][lap_counter[receiver]] = time;
+  if((getLaptimeRel(receiver) < getLaptimeRel(receiver, best_lap_num[receiver]) || getLaptimeRel(receiver, best_lap_num[receiver]) == 0)) {
+    // skip best time if we skip the first lap
+    if(!(lap_counter[receiver] == 1 && !count_first_lap)) {
+      best_lap_num[receiver] = lap_counter[receiver];
+    }
+  }
+  return lap_counter[receiver];
 }
 
 uint8_t getBestLap(uint8_t pilot) {
-	return best_lap_num[pilot];
+  return best_lap_num[pilot];
 }
 
 uint32_t getMinLapTime() {
-	return MinLapTime;
+  return MinLapTime;
 }
 
 void setMinLapTime(uint32_t time) {
-	MinLapTime = time;
+  MinLapTime = time;
 }
 
 uint8_t getCurrentLap(uint8_t receiver) {
-	return lap_counter[receiver];
+  return lap_counter[receiver];
 }
 
 void startRaceLap() {
-	resetLaptimes();
-	start_time = millis();
-	++race_num;
+  resetLaptimes();
+  start_time = millis();
+  ++race_num;
 }
 
 void setCountFirstLap(uint8_t shouldWaitForFirstLap) {
-	count_first_lap = shouldWaitForFirstLap;
+  count_first_lap = shouldWaitForFirstLap;
 }
 
 uint8_t getCountFirstLap() {
-	return count_first_lap;
+  return count_first_lap;
 }
 
 uint16_t getRaceNum() {
-	return race_num;
+  return race_num;
 }
