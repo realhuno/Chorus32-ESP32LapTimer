@@ -62,5 +62,5 @@ void rssiCalibrationUpdate() {
 }
 
 int getcalibrationFreqIndex() {
-	return calibrationFreqIndex;
+  return calibrationFreqIndex;
 }
