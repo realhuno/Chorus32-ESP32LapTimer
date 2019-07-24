@@ -67,7 +67,7 @@ void InitSPI() {
 }
 
 bool IRAM_ATTR isRxReady(uint8_t module) {
-	return (micros() - lastUpdate[module]) > MIN_TUNE_TIME_US;
+  return (micros() - lastUpdate[module]) > MIN_TUNE_TIME_US;
 }
 
 void rxWrite(uint8_t addressBits, uint32_t dataBits, uint8_t CSpin) {
@@ -107,7 +107,7 @@ void rxWriteNode(uint8_t node, uint8_t addressBits, uint32_t dataBits) {
 
 void rxLowPower(uint8_t node) {
 #ifdef USE_LOW_POWER
-	rxWriteNode(node, SPI_ADDRESS_POWER, LOW_POWER_STATE);
+  rxWriteNode(node, SPI_ADDRESS_POWER, LOW_POWER_STATE);
 #endif
 }
 
@@ -155,9 +155,9 @@ void RXResetAll() {
 }
 
 void rxLowPowerAll() {
-	for (int i = 0; i < getNumReceivers(); i++) {
-		rxLowPower(i);
-	}
+  for (int i = 0; i < getNumReceivers(); i++) {
+    rxLowPower(i);
+  }
 }
 
 
@@ -222,7 +222,7 @@ void setBand(uint8_t band, uint8_t NodeAddr) {
 }
 
 uint16_t setModuleChannelBand(uint8_t NodeAddr) {
-	return setModuleChannelBand(RXChannelModule[NodeAddr], RXBandModule[NodeAddr], NodeAddr);
+  return setModuleChannelBand(RXChannelModule[NodeAddr], RXBandModule[NodeAddr], NodeAddr);
 }
 
 uint16_t setModuleChannelBand(uint8_t channel, uint8_t band, uint8_t NodeAddr) {  
@@ -276,31 +276,31 @@ String getBandLabel(int band) {
 }
 
 void setRXBandPilot(uint8_t pilot, uint8_t band) {
-	RXBandPilot[pilot] = band;
+  RXBandPilot[pilot] = band;
 }
 uint8_t getRXBandPilot(uint8_t pilot) {
-	return RXBandPilot[pilot];
+  return RXBandPilot[pilot];
 }
 
 void setRXChannelPilot(uint8_t pilot, uint8_t channel) {
-	if(pilot < MAX_NUM_PILOTS) {
-		RXChannelPilot[pilot] = channel;
-	}
+  if(pilot < MAX_NUM_PILOTS) {
+    RXChannelPilot[pilot] = channel;
+  }
 }
 uint8_t getRXChannelPilot(uint8_t pilot) {
-	return RXChannelPilot[pilot];
+  return RXChannelPilot[pilot];
 }
 
 void setRXBandModule(uint8_t module, uint8_t band) {
-	RXBandModule[module] = band;
+  RXBandModule[module] = band;
 }
 uint8_t getRXBandModule(uint8_t module) {
-	return RXBandModule[module];
+  return RXBandModule[module];
 }
 
 void setRXChannelModule(uint8_t module, uint8_t channel) {
-	RXChannelModule[module] = channel;
+  RXChannelModule[module] = channel;
 }
 uint8_t getRXChannelModule(uint8_t module) {
-	return RXChannelModule[module];
+  return RXChannelModule[module];
 }

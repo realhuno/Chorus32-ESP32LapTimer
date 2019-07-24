@@ -276,15 +276,15 @@ void ProcessWifiSettings() {
 }
 
 void startRace_button() {
-	Serial.println("Starting race...");
-	startRace();
-	webServer.send(200, "text/plain", "");
+  Serial.println("Starting race...");
+  startRace();
+  webServer.send(200, "text/plain", "");
 }
 
 void stopRace_button() {
-	Serial.println("Stopping race...");
-	stopRace();
-	webServer.send(200, "text/plain", "");
+  Serial.println("Stopping race...");
+  stopRace();
+  webServer.send(200, "text/plain", "");
 }
 
 

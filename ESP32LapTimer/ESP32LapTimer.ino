@@ -113,10 +113,10 @@ void setup() {
     setModuleChannelBand(i % getNumReceivers());
     delayMicroseconds(MIN_TUNE_TIME_US);
   }
-	
-	init_outputs();
-	Serial.println("Starting ADC reading task on core 0");
-	adc_semaphore = xSemaphoreCreateBinary();
+  
+  init_outputs();
+  Serial.println("Starting ADC reading task on core 0");
+  adc_semaphore = xSemaphoreCreateBinary();
 
   xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, &adc_task_handle, 0);
   hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
@@ -124,7 +124,7 @@ void setup() {
   timerAlarmWrite(adc_task_timer, 1667, true); // 6khz -> 1khz per adc channel
   timerAlarmEnable(adc_task_timer);
 
-  xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1); 
+  xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1);
 }
 
 void loop() {

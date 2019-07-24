@@ -31,7 +31,7 @@ static output_t outputs[] = {
   {NULL, bluetooth_init, bluetooth_send_packet, bluetooth_update, output_input_callback},
 #endif // USE_BLUETOOTH
 #ifdef USE_LORA
-	{NULL, lora_init, lora_send_packet, lora_update, output_input_callback},
+  {NULL, lora_init, lora_send_packet, lora_update, output_input_callback},
 #endif // USE_LORA
 };
 
