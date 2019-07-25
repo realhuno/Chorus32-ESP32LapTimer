@@ -32,11 +32,13 @@ void rssiCalibration() {
 void rssiCalibrationUpdate() {
   if (UNLIKELY(isCurrentlyCalibrating && calibrationTimer.hasTicked())) {
     for (uint8_t i = 0; i < getNumReceivers(); i++) {
-      if (getRSSI(i) < EepromSettings.RxCalibrationMin[i])
-        EepromSettings.RxCalibrationMin[i] = getRSSI(i);
+      adc1_channel_t channel = getADCChannel(i);
+      uint16_t value = adc1_get_raw(channel);
+      if (value < EepromSettings.RxCalibrationMin[i])
+        EepromSettings.RxCalibrationMin[i] = value;
 
-      if (getRSSI(i) > EepromSettings.RxCalibrationMax[i])
-        EepromSettings.RxCalibrationMax[i] = getRSSI(i);
+      if (value > EepromSettings.RxCalibrationMax[i])
+        EepromSettings.RxCalibrationMax[i] = value;
     }
     calibrationFreqIndex++;
     if (calibrationFreqIndex < 8*8) { // 8*8 = 8 bands * 8 channels = total number of freq in channelFreqTable.
