@@ -87,7 +87,7 @@ static pilot_data_t* pilot_queue_data[MAX_NUM_PILOTS];
 SemaphoreHandle_t pilot_queue_lock;
 SemaphoreHandle_t pilots_lock;
 
-static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
+uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
   uint32_t val = 0;
   for(uint8_t i = 0; i < samples; ++i) {
     val += adc1_get_raw(channel);
