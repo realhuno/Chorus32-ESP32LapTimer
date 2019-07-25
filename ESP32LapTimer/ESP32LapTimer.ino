@@ -48,7 +48,11 @@ void IRAM_ATTR adc_task(void* args) {
   
   while(42) {
     xSemaphoreTake( adc_semaphore, portMAX_DELAY );
-    nbADCread(NULL);
+    if(LIKELY(!isCalibrating())) {
+      nbADCread(NULL);
+    } else {
+      rssiCalibrationUpdate();
+    }
     watchdog_feed();
   }
 }
@@ -129,7 +133,6 @@ void setup() {
 }
 
 void loop() {
-  rssiCalibrationUpdate();
 #ifdef USE_BUTTONS
   newButtonUpdate();
 #endif

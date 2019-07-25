@@ -236,10 +236,8 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
         }
 
         // Applying calibration
-        if (LIKELY(!isCalibrating())) {
-          uint16_t rawRSSI = constrain(current_pilot->ADCReadingRAW, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
-          current_pilot->ADCReadingRAW = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
-        }
+        uint16_t rawRSSI = constrain(current_pilot->ADCReadingRAW, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
+        current_pilot->ADCReadingRAW = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
         
         current_pilot->ADCvalue = current_pilot->ADCReadingRAW;
         for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
