@@ -96,10 +96,8 @@ void InitWifiAP() {
 }
 
 void updateRx (int band, int channel, int rx) {
-  setRXBandPilot(rx, band);
-  EepromSettings.RXBand[rx] = getRXBandPilot(rx);
-  setRXChannelPilot(rx, channel);
-  EepromSettings.RXChannel[rx] = getRXChannelPilot(rx);
+  setPilotBand(rx, band);
+  setPilotChannel(rx, channel);
 }
 
 void SendStatusVars(AsyncWebServerRequest* req) {
