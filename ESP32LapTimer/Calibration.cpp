@@ -26,6 +26,7 @@ void rssiCalibration() {
   calibrationFreqIndex = 0;
   setModuleFrequencyAll(channelFreqTable[calibrationFreqIndex]);
   calibrationTimer.reset();
+  setDisplayScreenNumber(3);
 }
 
 void rssiCalibrationUpdate() {
