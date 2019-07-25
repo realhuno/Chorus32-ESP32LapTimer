@@ -661,6 +661,9 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
       case CONTROL_BAND:
 
         setRXBandPilot(NodeAddrByte, TO_BYTE(controlData[3]));
+        // TODO: this a workaround to force the new freq to apply
+        setPilotActive(NodeAddrByte, false);
+        setPilotActive(NodeAddrByte, true);
         SendVRxBand(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
@@ -670,6 +673,9 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
 
       case CONTROL_CHANNEL:
         setRXChannelPilot(NodeAddrByte, TO_BYTE(controlData[3]));
+        // TODO: this a workaround to force the new freq to apply
+        setPilotActive(NodeAddrByte, false);
+        setPilotActive(NodeAddrByte, true);
         SendVRxChannel(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
