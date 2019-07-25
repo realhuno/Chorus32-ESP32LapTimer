@@ -659,28 +659,17 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         break;
 
       case CONTROL_BAND:
-
-        setRXBandPilot(NodeAddrByte, TO_BYTE(controlData[3]));
-        // TODO: this a workaround to force the new freq to apply
-        setPilotActive(NodeAddrByte, false);
-        setPilotActive(NodeAddrByte, true);
+        setPilotBand(NodeAddrByte, TO_BYTE(controlData[3]));
         SendVRxBand(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
-        EepromSettings.RXBand[NodeAddrByte] = getRXBandPilot(NodeAddrByte);
-        setSaveRequired();
         break;
 
       case CONTROL_CHANNEL:
-        setRXChannelPilot(NodeAddrByte, TO_BYTE(controlData[3]));
-        // TODO: this a workaround to force the new freq to apply
-        setPilotActive(NodeAddrByte, false);
-        setPilotActive(NodeAddrByte, true);
+        setPilotChannel(NodeAddrByte, TO_BYTE(controlData[3]));
         SendVRxChannel(NodeAddrByte);
         SendVRxFreq(NodeAddrByte);
         isConfigured = 1;
-        EepromSettings.RXChannel[NodeAddrByte] = getRXChannelPilot(NodeAddrByte);
-        setSaveRequired();
         break;
 
       case CONTROL_FREQUENCY:
