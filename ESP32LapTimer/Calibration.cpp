@@ -25,15 +25,15 @@ void rssiCalibration() {
   isCurrentlyCalibrating = true;
   calibrationFreqIndex = 0;
   setModuleFrequencyAll(channelFreqTable[calibrationFreqIndex]);
-  setRXADCfilterCutoff(10);
   calibrationTimer.reset();
 }
 
 void rssiCalibrationUpdate() {
   if (UNLIKELY(isCurrentlyCalibrating && calibrationTimer.hasTicked())) {
     for (uint8_t i = 0; i < getNumReceivers(); i++) {
+      while(!isRxReady(i)); // Wait for rx to become ready
       adc1_channel_t channel = getADCChannel(i);
-      uint16_t value = adc1_get_raw(channel);
+      uint16_t value = multisample_adc1(channel, 10);
       if (value < EepromSettings.RxCalibrationMin[i])
         EepromSettings.RxCalibrationMin[i] = value;
 
@@ -52,7 +52,6 @@ void rssiCalibrationUpdate() {
       isCurrentlyCalibrating = false;
       setSaveRequired();
       setDisplayScreenNumber(0);
-      setRXADCfilterCutoff(EepromSettings.RXADCfilterCutoff);
     }
   }
 }
