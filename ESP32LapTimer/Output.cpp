@@ -14,7 +14,7 @@
 
 #include <freertos/semphr.h>
 
-#define MAX_OUTPUT_BUFFER_SIZE 1500
+#define MAX_OUTPUT_BUFFER_SIZE 2000
 
 static uint8_t output_buffer[MAX_OUTPUT_BUFFER_SIZE];
 static int output_buffer_pos = 0; //Keep track of where we are in the Queue
@@ -70,8 +70,9 @@ void update_outputs() {
   if(xSemaphoreTake(queue_semaphore, portMAX_DELAY)) {
     if(output_buffer_pos > 0) {
 #ifdef OUTPUT_DEBUG
-      Serial.print("Output packet: ");
-      Serial.write(output_buffer, output_buffer_pos);
+  Serial.println("Output packet: ");
+  Serial.write(output_buffer, output_buffer_pos);
+  Serial.println("######");
 #endif
       // Send current buffer to all configured outputs
       for(int i = 0; i < OUTPUT_SIZE; ++i) {
@@ -98,8 +99,9 @@ void output_input_callback(uint8_t* buf, uint32_t size) {
   uint8_t ControlPacket = buf[0];
   uint8_t NodeAddr = buf[1];
 #ifdef INPUT_DEBUG
-  Serial.print("Input packet: ");
+  Serial.println("Input packet: ");
   Serial.write(buf, size);
+  Serial.println("######");
 #endif
   handleSerialControlInput((char*)buf, ControlPacket, NodeAddr, size);
 }
