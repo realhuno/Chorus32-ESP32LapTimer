@@ -46,7 +46,11 @@ void IRAM_ATTR adc_task(void* args) {
   watchdog_add_task();
   while(42) {
     ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-    nbADCread(NULL);
+    if(LIKELY(!isCalibrating())) {
+      nbADCread(NULL);
+    } else {
+      rssiCalibrationUpdate();
+    }
     watchdog_feed();
   }
 }
@@ -114,11 +118,9 @@ void setup() {
   timerAttachInterrupt(adc_task_timer, &adc_read, true);
   timerAlarmWrite(adc_task_timer, 1667, true); // 6khz -> 1khz per adc channel
   timerAlarmEnable(adc_task_timer);
-
 }
 
 void loop() {
-  rssiCalibrationUpdate();
 #ifdef USE_BUTTONS
   newButtonUpdate();
 #endif

@@ -74,7 +74,7 @@ static pilot_data_t* pilot_queue_data[MAX_NUM_PILOTS];
 SemaphoreHandle_t pilot_queue_lock;
 SemaphoreHandle_t pilots_lock;
 
-static uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
+uint16_t multisample_adc1(adc1_channel_t channel, uint8_t samples) {
   uint32_t val = 0;
   for(uint8_t i = 0; i < samples; ++i) {
     val += adc1_get_raw(channel);
@@ -224,10 +224,8 @@ void IRAM_ATTR nbADCread( void * pvParameters ) {
         }
 
         // Applying calibration
-        if (LIKELY(!isCalibrating())) {
-          uint16_t rawRSSI = constrain(current_pilot->ADCReadingRAW, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
-          current_pilot->ADCReadingRAW = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
-        }
+        uint16_t rawRSSI = constrain(current_pilot->ADCReadingRAW, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc]);
+        current_pilot->ADCReadingRAW = map(rawRSSI, EepromSettings.RxCalibrationMin[current_adc], EepromSettings.RxCalibrationMax[current_adc], RSSI_ADC_READING_MIN, RSSI_ADC_READING_MAX);
         
         current_pilot->ADCvalue = current_pilot->ADCReadingRAW;
         for(uint8_t j = 0; j < PILOT_FILTER_NUM; ++j) {
