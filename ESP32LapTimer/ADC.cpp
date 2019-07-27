@@ -487,9 +487,11 @@ void setPilotChannel(uint8_t pilot, uint8_t channel) {
   setRXChannelPilot(pilot, channel);
   EepromSettings.RXChannel[pilot] = channel;
   setSaveRequired();
-  // Toggle pilot to force new channel
-  setPilotActive(pilot, false);
-  setPilotActive(pilot, true);
+  if(isPilotActive(pilot)) {
+    // Toggle pilot to force new channel
+    setPilotActive(pilot, false);
+    setPilotActive(pilot, true);
+  }
 }
 
 
@@ -497,7 +499,9 @@ void setPilotBand(uint8_t pilot, uint8_t band) {
   setRXBandPilot(pilot, band);
   EepromSettings.RXBand[pilot] = band;
   setSaveRequired();
-  // Toggle pilot to force new band
-  setPilotActive(pilot, false);
-  setPilotActive(pilot, true);
+  if(isPilotActive(pilot)) {
+    // Toggle pilot to force new band
+    setPilotActive(pilot, false);
+    setPilotActive(pilot, true);
+  }
 }
