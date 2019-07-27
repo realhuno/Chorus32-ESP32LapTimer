@@ -351,7 +351,7 @@ float getMaFloat() {
 
 float getVbatFloat(bool force_read){
   static uint32_t last_voltage_update = 0;
-  if((millis() - last_voltage_update) > VOLTAGE_UPDATE_INTERVAL_US || force_read) {
+  if((millis() - last_voltage_update) > VOLTAGE_UPDATE_INTERVAL_MS || force_read) {
     int32_t adc_reading = 0;
     switch (getADCVBATmode()) {
       case ADC_CH5:

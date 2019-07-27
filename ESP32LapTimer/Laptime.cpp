@@ -4,6 +4,7 @@
 
 #include "HardwareConfig.h"
 #include "settings_eeprom.h"
+#include "Comms.h"
 
 static uint32_t LapTimes[MAX_NUM_PILOTS][MAX_LAPS_NUM];
 static uint8_t lap_counter[MAX_NUM_PILOTS]; //Keep track of what lap we are up too
