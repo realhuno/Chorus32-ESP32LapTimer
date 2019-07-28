@@ -7,7 +7,7 @@
 #include <lwip/sockets.h>
 #include <lwip/netdb.h>
 
-static int udp_server;
+static int udp_server = -1;
 
 #define UDP_BUF_LEN 1500
 static uint8_t packetBuffer[UDP_BUF_LEN];
@@ -37,6 +37,8 @@ void udp_init(void* output) {
 
   int yes = 1;
   if (setsockopt(udp_server,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(yes)) < 0) {
+      close(udp_server);
+      udp_server = -1;
       return;
   }
 
@@ -46,6 +48,8 @@ void udp_init(void* output) {
   addr.sin_port = htons(9000);
   addr.sin_addr.s_addr = INADDR_ANY;
   if(bind(udp_server , (struct sockaddr*)&addr, sizeof(addr)) == -1){
+    close(udp_server);
+    udp_server = -1;
     return;
   }
   fcntl(udp_server, F_SETFL, O_NONBLOCK);  
@@ -53,6 +57,7 @@ void udp_init(void* output) {
 }
 
 void IRAM_ATTR udp_send_packet(void* output, uint8_t* buf, uint32_t size) {
+  if(udp_server < 0) return;
   if (buf != NULL && size != 0) {
     for(int i = 0; i < MAX_UDP_CLIENTS; ++i) {
       if(udpClients[i].addr != 0) {
@@ -60,18 +65,30 @@ void IRAM_ATTR udp_send_packet(void* output, uint8_t* buf, uint32_t size) {
         recipient.sin_addr.s_addr = (uint32_t)udpClients[i].addr;
         recipient.sin_family = AF_INET;
         recipient.sin_port = udpClients[i].port;
-        sendto(udp_server, buf, size, 0, (struct sockaddr*) &recipient, sizeof(recipient));
+        int len = sendto(udp_server, buf, size, 0, (struct sockaddr*) &recipient, sizeof(recipient));
+        Serial.print("Sent ");
+        Serial.print(len);
+        Serial.print(" to ");
+        Serial.print(udpClients[i].addr);
+        Serial.print(":");
+        Serial.print(udpClients[i].port);
+        Serial.print(" out of ");
+        Serial.print(size);
+        Serial.print(" content: ");
+        Serial.println((char*)buf);
       }
     }
   }
 }
 
 void IRAM_ATTR udp_update(void* output) {
+  if(udp_server < 0) return;
   struct sockaddr_in si_other;
   int slen = sizeof(si_other) , len;
   if ((len = recvfrom(udp_server, packetBuffer, UDP_BUF_LEN - 1, MSG_DONTWAIT, (struct sockaddr *) &si_other, (socklen_t *)&slen)) < 1){
     return;
   }
+  Serial.println("Got data!");
   add_ip_port(si_other.sin_addr.s_addr, si_other.sin_port);
   packetBuffer[len] = 0;
   output_t* out = (output_t*)output;

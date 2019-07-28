@@ -32,11 +32,11 @@ void InitHardwarePins();
 
 #define OLED //uncomment this to enable OLED support
 
-#define MAX_UDP_CLIENTS 5
+#define MAX_UDP_CLIENTS 2
 #define MAX_LAPS_NUM 100 // Maximum number of supported laps per pilot
 
 #define USE_BLUETOOTH // Disabled by default. If you enable it you might need to change the partition scheme to "Huge APP"
-#define USE_SERIAL_OUTPUT
+//#define USE_SERIAL_OUTPUT
 
 // 800 and 2700 are about average min max raw values
 #define RSSI_ADC_READING_MAX 2700
@@ -48,7 +48,7 @@ void InitHardwarePins();
 #endif
 
 //#define DEBUG_FILTER // uncomment to constantly print out the raw and filtered data of pilot 1
-//#define DEBUG_SIGNAL_LOG // uncomment to print out raw adc data from pilot 1 when finishing a lap. debug only!! about 1 secs of 6khz data
+#define DEBUG_SIGNAL_LOG // uncomment to print out raw adc data from pilot 1 when finishing a lap. debug only!! about 1 secs of 6khz data
 
 // Use the memory we have ;) should be sufficient for around 1sec of full data
 // any more and the web ui won't work anymore due to heavy use of dynamic allocation
