@@ -13,20 +13,19 @@ static int udp_server = -1;
 static uint8_t packetBuffer[UDP_BUF_LEN];
 
 static struct udp_source_s {
-  IPAddress addr;
+  uint32_t addr;
   uint16_t port;
 } udpClients[MAX_UDP_CLIENTS];
 
 void add_ip_port(uint32_t addr, uint16_t port) {
-  IPAddress remoteIp = IPAddress(addr);
   // if current ip is already known move it to the front. or if on the last entry delete it to make room
   for(int i = 0; i < MAX_UDP_CLIENTS; ++i) {
-    if((udpClients[i].addr == remoteIp && udpClients[i].port == port) || (i+1 == MAX_UDP_CLIENTS)) {
+    if((udpClients[i].addr == addr && udpClients[i].port == port) || (i+1 == MAX_UDP_CLIENTS)) {
       memmove(udpClients + 1, udpClients, i * sizeof(udpClients[0]));
       break;
     }
   }
-  udpClients[0].addr = remoteIp;
+  udpClients[0].addr = addr;
   udpClients[0].port = port;
 }
 
@@ -62,20 +61,13 @@ void IRAM_ATTR udp_send_packet(void* output, uint8_t* buf, uint32_t size) {
     for(int i = 0; i < MAX_UDP_CLIENTS; ++i) {
       if(udpClients[i].addr != 0) {
         struct sockaddr_in recipient;
-        recipient.sin_addr.s_addr = (uint32_t)udpClients[i].addr;
+        recipient.sin_addr.s_addr = udpClients[i].addr;
         recipient.sin_family = AF_INET;
         recipient.sin_port = udpClients[i].port;
         int len = sendto(udp_server, buf, size, 0, (struct sockaddr*) &recipient, sizeof(recipient));
-        Serial.print("Sent ");
-        Serial.print(len);
-        Serial.print(" to ");
-        Serial.print(udpClients[i].addr);
-        Serial.print(":");
-        Serial.print(udpClients[i].port);
-        Serial.print(" out of ");
-        Serial.print(size);
-        Serial.print(" content: ");
-        Serial.println((char*)buf);
+		if(len < 0) {
+			udpClients[i].addr = 0; 
+		}
       }
     }
   }
