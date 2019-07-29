@@ -110,6 +110,7 @@ void EepromSettingsStruct::defaults() {
   settings.NumReceivers = 6;
   settings.WiFiProtocol = 1;
   settings.WiFiChannel = 1;
+  settings.screen_timeout_ms = 2000;
   this->min_voltage_module = EEPROM_DEFAULT_MIN_VOLTAGE_MODULE;
 
   settings.updateCRC();
@@ -173,4 +174,8 @@ uint16_t getMinVoltageModule() {
 
 uint16_t getFilterCutoff() {
   return EepromSettings.RXADCfilterCutoff;
+}
+
+uint32_t getScreenTimeout() {
+  return EepromSettings.screen_timeout_ms;
 }

@@ -29,6 +29,7 @@ struct EepromSettingsStruct {
   uint8_t WiFiProtocol; // 0 is b only, 1 is bgn
   uint8_t WiFiChannel;
   uint16_t min_voltage_module; // voltage in millivolts where all modules are disabled on startup (use case: powering a fully populated board using usb)
+  uint32_t screen_timeout_ms;
   crc_t crc;
 
 
@@ -55,5 +56,7 @@ int getWiFiProtocol();
 uint16_t getMinVoltageModule();
 
 uint8_t getNumReceivers();
+
+uint32_t getScreenTimeout();
 
 void setSaveRequired();
