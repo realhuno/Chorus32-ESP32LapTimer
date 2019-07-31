@@ -1934,4 +1934,58 @@ Text Notes 8500 3300 0    50   ~ 0
 Filtering for rx5808\n
 Text Notes 7850 5200 0    20   ~ 0
 Not sure if this pin is able to take >6V. \nThe datasheet isn't clear about this
+$Comp
+L power:+3.3V #PWR022
+U 1 1 5D4229A1
+P 4100 1200
+F 0 "#PWR022" H 4100 1050 50  0001 C CNN
+F 1 "+3.3V" H 4115 1373 50  0000 C CNN
+F 2 "" H 4100 1200 50  0001 C CNN
+F 3 "" H 4100 1200 50  0001 C CNN
+	1    4100 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C23
+U 1 1 5D422E98
+P 3800 1500
+F 0 "C23" V 3650 1500 50  0000 C CNN
+F 1 "10µF" V 3950 1600 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 3838 1350 50  0001 C CNN
+F 3 "~" H 3800 1500 50  0001 C CNN
+	1    3800 1500
+	-1   0    0    1   
+$EndComp
+$Comp
+L Device:C C24
+U 1 1 5D423338
+P 4100 1500
+F 0 "C24" V 3950 1500 50  0000 C CNN
+F 1 "10µF" V 4250 1600 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0805_2012Metric" H 4138 1350 50  0001 C CNN
+F 3 "~" H 4100 1500 50  0001 C CNN
+	1    4100 1500
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:GND #PWR023
+U 1 1 5D4239EF
+P 4100 1850
+F 0 "#PWR023" H 4100 1600 50  0001 C CNN
+F 1 "GND" H 4105 1677 50  0000 C CNN
+F 2 "" H 4100 1850 50  0001 C CNN
+F 3 "" H 4100 1850 50  0001 C CNN
+	1    4100 1850
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3800 1650 4100 1650
+Connection ~ 4100 1650
+Wire Wire Line
+	4100 1350 3800 1350
+Connection ~ 4100 1350
+Wire Wire Line
+	4100 1200 4100 1350
+Wire Wire Line
+	4100 1650 4100 1850
 $EndSCHEMATC
