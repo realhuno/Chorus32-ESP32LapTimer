@@ -77,8 +77,8 @@ void setup() {
 
   Serial.begin(230400);
   Serial.println("Booting....");
-  
-  bool all_modules_off = true;
+
+  bool all_modules_off = false;
   if(rtc_get_reset_reason(0) == 15 || rtc_get_reset_reason(1) == 15) {
     all_modules_off = true;
     Serial.println("Rebooted from brownout...disabling all modules...");
