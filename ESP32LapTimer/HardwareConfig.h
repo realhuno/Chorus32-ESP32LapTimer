@@ -4,12 +4,13 @@
 #define BOARD_DEFAULT 1
 #define BOARD_OLD 2
 #define BOARD_TTGO_LORA 3
+#define BOARD_DEV_BOARD 4
 
 ///Define the board used here
 ///For jye's PCB v2.x the value doesn't need to be changed
 ///If you are using v1 of jye's PCB or used the wiring diagram you'll need to change this to "BOARD_OLD"
 ///To define your own custom board take a look at the "targets" directory
-#define BOARD BOARD_DEFAULT
+#define BOARD BOARD_DEV_BOARD
 
 /// If your setup doesn't use an OLED remove or comment the following line
 #define OLED
@@ -22,6 +23,7 @@
 //#define USE_BLUETOOTH
 /// Outputs all messages on the serial port. Used to use Livetime via USB
 #define USE_SERIAL_OUTPUT
+#define USE_TCP
 
 // Enable TCP support. Currently this needs a special version of the app: https://github.com/Smeat/Chorus-RF-Laptimer/releases/tag/tcp_support
 //#define USE_TCP
