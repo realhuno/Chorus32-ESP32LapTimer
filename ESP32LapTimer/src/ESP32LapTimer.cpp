@@ -122,7 +122,10 @@ void loop() {
   newButtonUpdate();
 #endif
 #ifdef OLED
-  OLED_CheckIfUpdateReq();
+  // We need to pause the OLED during update otherwise we crash due to I2C
+  if(!isUpdating()) {
+    OLED_CheckIfUpdateReq();
+  }
 #endif
   sendNewLaps();
   update_outputs();
