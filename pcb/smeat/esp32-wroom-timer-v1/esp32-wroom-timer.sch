@@ -124,8 +124,6 @@ Text Label 3500 4000 2    50   ~ 0
 ADC3
 Text Label 3500 4100 2    50   ~ 0
 ADC4
-Text Label 1700 2000 0    50   ~ 0
-ADC5
 $Comp
 L power:GND #PWR02
 U 1 1 5D3D13E5
@@ -687,7 +685,7 @@ Wire Wire Line
 Wire Wire Line
 	3200 5550 3300 5550
 Text Label 3300 5950 1    50   ~ 0
-ADC6
+ADC5
 Wire Wire Line
 	3300 5950 3300 5550
 Connection ~ 3300 5550
@@ -1395,7 +1393,7 @@ U 1 1 5D462577
 P 2450 7050
 F 0 "D2" H 2450 6834 50  0000 C CNN
 F 1 "D" H 2450 6925 50  0000 C CNN
-F 2 "Diode_SMD:D_SOD-123" H 2450 7050 50  0001 C CNN
+F 2 "Diode_SMD:D_SMA" H 2450 7050 50  0001 C CNN
 F 3 "~" H 2450 7050 50  0001 C CNN
 	1    2450 7050
 	-1   0    0    1   
@@ -1809,8 +1807,6 @@ F 3 "~" H 1600 7550 50  0001 C CNN
 	1    1600 7550
 	-1   0    0    1   
 $EndComp
-Text Label 1700 2100 0    50   ~ 0
-ADC6
 Wire Wire Line
 	3100 3800 3500 3800
 $Comp
@@ -1851,8 +1847,6 @@ Wire Wire Line
 	10850 3950 10600 3950
 Wire Wire Line
 	10900 3850 10600 3850
-Text Label 10900 3750 2    50   ~ 0
-ADC6
 Wire Wire Line
 	10900 3750 10600 3750
 NoConn ~ 9750 4150
@@ -2235,4 +2229,10 @@ F 3 "~" H 4100 1650 50  0001 C CNN
 	1    4100 1650
 	1    0    0    -1  
 $EndComp
+Text Label 10900 3750 2    50   ~ 0
+ADC6
+Text Label 1700 2100 0    50   ~ 0
+ADC6
+Text Label 1700 2000 0    50   ~ 0
+ADC5
 $EndSCHEMATC
