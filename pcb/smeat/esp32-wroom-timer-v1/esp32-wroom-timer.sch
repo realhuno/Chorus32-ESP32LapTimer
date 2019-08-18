@@ -120,9 +120,9 @@ Text Label 3500 3800 2    50   ~ 0
 ADC2
 Wire Wire Line
 	1700 2100 1900 2100
-Text Label 3500 4000 2    50   ~ 0
-ADC3
 Text Label 3500 4100 2    50   ~ 0
+ADC3
+Text Label 3500 4000 2    50   ~ 0
 ADC4
 $Comp
 L power:GND #PWR02
@@ -1662,30 +1662,6 @@ F 3 "" H 6250 6900 50  0001 C CNN
 	1    6250 6900
 	1    0    0    -1  
 $EndComp
-$Comp
-L power:+28V #PWR0112
-U 1 1 5D4CF0E1
-P 5550 7450
-F 0 "#PWR0112" H 5550 7300 50  0001 C CNN
-F 1 "+28V" V 5565 7578 50  0000 L CNN
-F 2 "" H 5800 7500 50  0001 C CNN
-F 3 "" H 5800 7500 50  0001 C CNN
-	1    5550 7450
-	-1   0    0    1   
-$EndComp
-$Comp
-L power:+BATT #PWR0113
-U 1 1 5D4DE0AD
-P 5550 6950
-F 0 "#PWR0113" H 5550 6800 50  0001 C CNN
-F 1 "+BATT" V 5565 7077 50  0000 L CNN
-F 2 "" H 5550 6950 50  0001 C CNN
-F 3 "" H 5550 6950 50  0001 C CNN
-	1    5550 6950
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	5700 7150 6050 7150
 Wire Wire Line
 	5550 7450 5550 7350
 $Comp
@@ -1713,17 +1689,17 @@ F 3 "" H 5950 7250 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	5950 7250 6050 7250
+	5950 7250 6000 7250
 $Comp
 L power:+3.3V #PWR0136
 U 1 1 5D56B678
-P 6000 7400
-F 0 "#PWR0136" H 6000 7250 50  0001 C CNN
-F 1 "+3.3V" V 6015 7528 50  0000 L CNN
-F 2 "" H 6000 7400 50  0001 C CNN
-F 3 "" H 6000 7400 50  0001 C CNN
-	1    6000 7400
-	-1   0    0    1   
+P 5950 7750
+F 0 "#PWR0136" H 5950 7600 50  0001 C CNN
+F 1 "+3.3V" V 5965 7878 50  0000 L CNN
+F 2 "" H 5950 7750 50  0001 C CNN
+F 3 "" H 5950 7750 50  0001 C CNN
+	1    5950 7750
+	0    -1   -1   0   
 $EndComp
 Wire Wire Line
 	6000 7350 6050 7350
@@ -1957,8 +1933,6 @@ F 3 "~" H 5550 7200 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5550 7050 6050 7050
-Wire Wire Line
 	5700 7350 5550 7350
 Wire Wire Line
 	5700 7150 5700 7350
@@ -1994,7 +1968,7 @@ Wire Wire Line
 Wire Wire Line
 	4450 7100 4250 7100
 Wire Wire Line
-	3850 7400 3850 7500
+	3850 7400 3850 7450
 NoConn ~ 3450 6900
 Wire Wire Line
 	3850 6400 3850 6250
@@ -2059,7 +2033,7 @@ Text Notes 5700 5150 0    50   ~ 0
 Probably not populated
 Text Notes 6100 3400 0    50   ~ 0
 Footprints are here just in case. \nProbably not populated
-Text Notes 3300 7550 0    50   ~ 0
+Text Notes 3150 7650 0    50   ~ 0
 Optional temperature sensor for fan output
 Text Notes 700  7100 0    50   ~ 0
 KiCad stuff
@@ -2088,8 +2062,6 @@ Wire Notes Line
 	5000 6550 7800 6550
 Text Notes 5800 6650 0    50   ~ 0
 Current and voltage sense
-Wire Wire Line
-	6000 7400 6000 7350
 Wire Wire Line
 	8050 5450 8050 5500
 $Comp
@@ -2287,4 +2259,84 @@ Wire Wire Line
 Connection ~ 4800 4000
 Text Notes 4050 3600 0    50   ~ 0
 Safety pullups for I2C\nProbably unpopulated
+$Comp
+L power:+28V #PWR0112
+U 1 1 5D4CF0E1
+P 5550 7450
+F 0 "#PWR0112" H 5550 7300 50  0001 C CNN
+F 1 "+28V" V 5565 7578 50  0000 L CNN
+F 2 "" H 5800 7500 50  0001 C CNN
+F 3 "" H 5800 7500 50  0001 C CNN
+	1    5550 7450
+	-1   0    0    1   
+$EndComp
+$Comp
+L power:+BATT #PWR0113
+U 1 1 5D4DE0AD
+P 5550 6950
+F 0 "#PWR0113" H 5550 6800 50  0001 C CNN
+F 1 "+BATT" V 5565 7077 50  0000 L CNN
+F 2 "" H 5550 6950 50  0001 C CNN
+F 3 "" H 5550 6950 50  0001 C CNN
+	1    5550 6950
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5700 7150 6050 7150
+Wire Wire Line
+	5550 7050 6050 7050
+$Comp
+L Device:C C14
+U 1 1 5D6BD659
+P 5850 7450
+F 0 "C14" V 5800 7350 50  0000 C CNN
+F 1 "0.1µF" V 5950 7550 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 5888 7300 50  0001 C CNN
+F 3 "~" H 5850 7450 50  0001 C CNN
+	1    5850 7450
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	6000 7750 5950 7750
+Wire Wire Line
+	6000 7350 6000 7600
+Wire Wire Line
+	5850 7600 6000 7600
+Connection ~ 6000 7600
+Wire Wire Line
+	6000 7600 6000 7750
+Wire Wire Line
+	5850 7300 6000 7300
+Wire Wire Line
+	6000 7300 6000 7250
+Connection ~ 6000 7250
+Wire Wire Line
+	6000 7250 6050 7250
+$Comp
+L Device:C C15
+U 1 1 5D6FAB65
+P 4100 7450
+F 0 "C15" V 4050 7350 50  0000 C CNN
+F 1 "0.1µF" V 4200 7550 50  0000 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 4138 7300 50  0001 C CNN
+F 3 "~" H 4100 7450 50  0001 C CNN
+	1    4100 7450
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	3850 7450 3950 7450
+Connection ~ 3850 7450
+Wire Wire Line
+	3850 7450 3850 7500
+$Comp
+L power:GND #PWR016
+U 1 1 5D70E7CA
+P 4250 7450
+F 0 "#PWR016" H 4250 7200 50  0001 C CNN
+F 1 "GND" H 4255 7277 50  0000 C CNN
+F 2 "" H 4250 7450 50  0001 C CNN
+F 3 "" H 4250 7450 50  0001 C CNN
+	1    4250 7450
+	0    -1   -1   0   
+$EndComp
 $EndSCHEMATC
