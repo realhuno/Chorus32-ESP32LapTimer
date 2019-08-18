@@ -8,6 +8,7 @@
 #include "Comms.h"
 #include "HardwareConfig.h"
 #include "Wireless.h"
+#include "Output.h"
 #include "CrashDetection.h"
 
 #include <esp_wifi.h>
@@ -16,7 +17,13 @@
 #include <Update.h>
 #include <ESPAsyncWebServer.h>
 
+#define WEBSOCKET_BUF_SIZE 1500
+static uint8_t websocket_buffer[WEBSOCKET_BUF_SIZE];
+static int websocket_buffer_pos = 0;
+SemaphoreHandle_t websocket_lock;
+
 AsyncWebServer webServer(80);
+AsyncWebSocket ws("/ws");
 
 //flag to use from web update to reboot the ESP
 //static bool shouldReboot = false;
@@ -231,7 +238,10 @@ void stopRace_button(AsyncWebServerRequest* req) {
 
 void InitWebServer() {
   HasSPIFFsBegun = SPIFFS.begin();
-  //delay(1000);
+  // attach AsyncWebSocket
+  ws.onEvent(onWebsocketEvent);
+  webServer.addHandler(&ws);
+  websocket_lock = xSemaphoreCreateMutex();
   webServer.on("/recovery.html", HTTP_GET, [](AsyncWebServerRequest* req) {
       req->send(200, "text/html", NOSPIFFS);
     });
