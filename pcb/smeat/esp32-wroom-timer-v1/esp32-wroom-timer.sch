@@ -2235,4 +2235,56 @@ Text Label 1700 2100 0    50   ~ 0
 ADC6
 Text Label 1700 2000 0    50   ~ 0
 ADC5
+$Comp
+L Device:R R19
+U 1 1 5D5C2BE1
+P 4400 4150
+F 0 "R19" H 4330 4104 50  0000 R CNN
+F 1 "4K7" V 4400 4200 50  0000 R CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 4330 4150 50  0001 C CNN
+F 3 "~" H 4400 4150 50  0001 C CNN
+	1    4400 4150
+	0    1    1    0   
+$EndComp
+$Comp
+L Device:R R18
+U 1 1 5D5C3405
+P 4400 3850
+F 0 "R18" H 4330 3804 50  0000 R CNN
+F 1 "4K7" V 4400 3900 50  0000 R CNN
+F 2 "Resistor_SMD:R_0805_2012Metric" V 4330 3850 50  0001 C CNN
+F 3 "~" H 4400 3850 50  0001 C CNN
+	1    4400 3850
+	0    1    1    0   
+$EndComp
+Text Label 4050 4150 0    50   ~ 0
+SDA
+Text Label 4050 3850 0    50   ~ 0
+SCL
+Wire Wire Line
+	4050 3850 4250 3850
+Wire Wire Line
+	4050 4150 4250 4150
+$Comp
+L power:+3.3V #PWR015
+U 1 1 5D5F5D25
+P 4800 4000
+F 0 "#PWR015" H 4800 3850 50  0001 C CNN
+F 1 "+3.3V" H 4815 4173 50  0000 C CNN
+F 2 "" H 4800 4000 50  0001 C CNN
+F 3 "" H 4800 4000 50  0001 C CNN
+	1    4800 4000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4550 3850 4800 3850
+Wire Wire Line
+	4800 3850 4800 4000
+Wire Wire Line
+	4550 4150 4800 4150
+Wire Wire Line
+	4800 4150 4800 4000
+Connection ~ 4800 4000
+Text Notes 4050 3600 0    50   ~ 0
+Safety pullups for I2C\nProbably unpopulated
 $EndSCHEMATC
