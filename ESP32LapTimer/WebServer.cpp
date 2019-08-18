@@ -7,6 +7,7 @@
 #include "Laptime.h"
 #include "Comms.h"
 #include "HardwareConfig.h"
+#include "Output.h"
 
 #include <esp_wifi.h>
 #include <DNSServer.h>
@@ -22,7 +23,14 @@
 static const byte DNS_PORT = 53;
 static IPAddress apIP(192, 168, 4, 1);
 static DNSServer dnsServer;
+
+#define WEBSOCKET_BUF_SIZE 1500
+static uint8_t websocket_buffer[WEBSOCKET_BUF_SIZE];
+static int websocket_buffer_pos = 0;
+SemaphoreHandle_t websocket_lock;
+
 AsyncWebServer webServer(80);
+AsyncWebSocket ws("/ws");
 
 //flag to use from web update to reboot the ESP
 //static bool shouldReboot = false;
@@ -260,10 +268,49 @@ void stopRace_button(AsyncWebServerRequest* req) {
   req->send(200, "text/plain", "");
 }
 
+void onWebsocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
+  Serial.print("Got websocket message: ");
+  Serial.write(data, len);
+  Serial.println("");
+  if(xSemaphoreTake(websocket_lock, portMAX_DELAY)){
+    //Handle WebSocket event
+    if(type == WS_EVT_DATA){
+      //data packet
+      AwsFrameInfo * info = (AwsFrameInfo*)arg;
+      if(info->final && info->index == 0 && info->len == len){
+        //the whole message is in a single frame and we got all of it's data
+        // we'll ignore fragmented messages for now
+        if(websocket_buffer_pos + len < WEBSOCKET_BUF_SIZE) {
+          memcpy(websocket_buffer + websocket_buffer_pos, data, len);
+          websocket_buffer_pos += len;
+        }
+      }
+    }
+    xSemaphoreGive(websocket_lock);
+  }
+}
+
+void read_websocket(void* output) {
+  if(xSemaphoreTake(websocket_lock, 1)){
+    if(websocket_buffer_pos > 0) {
+      output_t* out = (output_t*)output;
+      out->handle_input_callback(websocket_buffer, websocket_buffer_pos);
+      websocket_buffer_pos = 0;
+    }
+    xSemaphoreGive(websocket_lock);
+  }
+}
+
+void send_websocket(void* output, uint8_t* data, size_t len) {
+  ws.textAll(data, len);
+}
 
 void InitWebServer() {
   HasSPIFFsBegun = SPIFFS.begin();
-  //delay(1000);
+  // attach AsyncWebSocket
+  ws.onEvent(onWebsocketEvent);
+  webServer.addHandler(&ws);
+  websocket_lock = xSemaphoreCreateMutex();
 
   if (!SPIFFS.exists("/index.html")) {
     Serial.println("SPIFFS filesystem was not found");
@@ -277,7 +324,6 @@ void InitWebServer() {
 
     webServer.begin();                           // Actually start the server
     Serial.println("HTTP server started");
-    //client.setNoDelay(true);
     return;
   }
 
