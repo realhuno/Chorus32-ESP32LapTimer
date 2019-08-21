@@ -100,6 +100,7 @@
 #define EXTENDED_WIFI_CHANNEL 'W'
 #define EXTENDED_WIFI_PROTOCOL 'w'
 #define EXTENDED_FILTER_CUTOFF 'F'
+#define EXTENDED_MULTIPLEX_OFF 'm'
 
 // send item byte constants
 // Must correspond to sequence of numbers used in "send data" switch statement
@@ -687,9 +688,11 @@ void sendAllExtendedSettings() {
   sendExtendedCommandInt('S', '*', EXTENDED_VOLTAGE_CALIB, EepromSettings.VBATcalibration * 1000);
   sendExtendedCommandInt('S', '*', EXTENDED_DISPLAY_TIMEOUT, EepromSettings.display_timeout_ms / 1000);
   sendExtendedCommandInt('S', '*', EXTENDED_FILTER_CUTOFF, EepromSettings.RXADCfilterCutoff);
+  sendExtendedCommandHalfByte('S', '*', EXTENDED_NUM_MODULES, EepromSettings.NumReceivers);
   for(int i = 0; i < MAX_NUM_PILOTS; ++i) {
     if(i < getNumReceivers()) sendExtendedCommandInt('S', i, EXTENDED_CALIB_MIN, EepromSettings.RxCalibrationMin[i]);
     if(i < getNumReceivers()) sendExtendedCommandInt('S', i, EXTENDED_CALIB_MAX, EepromSettings.RxCalibrationMax[i]);
+    sendExtendedCommandHalfByte('S', i, EXTENDED_MULTIPLEX_OFF, isPilotMultiplexOff(i));
   }
 }
 
@@ -698,6 +701,7 @@ void handleExtendedCommands(uint8_t* data, uint8_t length) {
   uint8_t node_addr = TO_BYTE(data[1]);
   uint8_t control_byte = data[2];
   //set commands
+  // TODO: remove length > 4 here to reduce duplicate code
   if(length > 4) {
     switch(control_byte) {
       case EXTENDED_VOLTAGE_TYPE:
@@ -729,6 +733,15 @@ void handleExtendedCommands(uint8_t* data, uint8_t length) {
         EepromSettings.RXADCfilterCutoff = HEX_TO_UINT16(data + 3);
         sendExtendedCommandInt('S', '*', control_byte, EepromSettings.RXADCfilterCutoff);
         setSaveRequired();
+        break;
+      case EXTENDED_NUM_MODULES:
+        EepromSettings.NumReceivers = TO_BYTE(data[3]);
+        sendExtendedCommandHalfByte('S', '*', control_byte, EepromSettings.NumReceivers);
+        setSaveRequired();
+        break;
+      case EXTENDED_MULTIPLEX_OFF:
+        setPilotMultiplexOff(node_addr, TO_BYTE(data[3]));
+        sendExtendedCommandHalfByte('S', node_addr, control_byte, isPilotMultiplexOff(node_addr));
         break;
     }
 
