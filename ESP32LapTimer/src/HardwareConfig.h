@@ -25,11 +25,10 @@
 //#define USE_BLUETOOTH
 /// Outputs all messages on the serial port. Used to use Livetime via USB
 #define USE_SERIAL_OUTPUT
-#define USE_TCP
 #define USE_WEBSOCKET_OUTPUT
 
 // Enable TCP support. Currently this needs a special version of the app: https://github.com/Smeat/Chorus-RF-Laptimer/releases/tag/tcp_support
-//#define USE_TCP
+#define USE_TCP
 
 // BELOW ARE THE ADVANCED SETTINGS! ONLY CHANGE THEM IF YOU KNOW WHAT YOUR ARE DOING!
 
