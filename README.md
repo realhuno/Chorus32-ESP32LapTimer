@@ -93,14 +93,36 @@ The Chorus32 Lap timer was compared to the $600USD ImmersionRC LapRF 8-Way at a 
 ![alt text](img/Comparison1.png)
 ![alt text](img/Comparison2.png)
 
-Compiling the Project:
------
-~~Due to the fact that both the Bluetooth and Wifi stack are used quite alot of program memory is required. To compile the project you must choose 'Partition Scheme' -> Minimal SPIFFS in the Arduino IDE. Board should be selected as 'ESP32 Dev Module' in most cases.~~
+# Compiling the Project:
 
-As we are not supoorting bluetooth for now and are using the SPIFFS partition leave the Partition Scheme as 'default'
+## Add esp32 to the Arduino IDE:
+
+Navigate to "File -> Preferences" and add "https://dl.espressif.com/dl/package_esp32_index.json" to "Additional Boards Manager URLs". If there is already an entry, just separate them with a ",".
+Now navigate to "Tools -> Board -> Boards Manager..." search for "esp32" and click install.
+
+## Data Upload
+
+To upload the files for the webpage you'll need to download https://github.com/me-no-dev/arduino-esp32fs-plugin/releases/ and extract it in "<Your Arduino install folder>/tools/". So that you end up with a folder called "ESP32FS" which has a folder "tool" inside of it.
+  
+## Libraries
+
+First head to "Sketch -> Include Library -> Manage Libraries" and search for "adafruit ina219" and "ssd1306 esp32" and install them both.
+Now head to https://github.com/me-no-dev/ESPAsyncWebServer and https://github.com/me-no-dev/AsyncTCP and click on "Clone or download -> Download ZIP".
+In the Arduino IDE nagivate to "Sketch -> Include Library -> Add .ZIP Library" and add them both.
+
+## Flashing
+
+Due to the fact that both the Bluetooth and Wifi stack are used quite alot of program memory is required. To compile the project you must choose 'Partition Scheme' -> Minimal SPIFFS in the Arduino IDE. Board should be selected as 'ESP32 Dev Module' in most cases.
+
+Open the file "HardwareConfig.h" for some advanced configuration.
+
+##### For this branch you'll also need to change the default board in HardwareConfig.h to "BOARD_DEFAULT"
+
 
 Library requirements:
 -----
 Adafruit_INA219 https://github.com/adafruit/Adafruit_INA219
 
 ESP8266 AND ESP32 OLED DRIVER FOR SSD1306 DISPLAY https://github.com/ThingPulse/esp8266-oled-ssd1306
+
+Async Webserver  https://github.com/me-no-dev/ESPAsyncWebServer and https://github.com/me-no-dev/AsyncTCP 
