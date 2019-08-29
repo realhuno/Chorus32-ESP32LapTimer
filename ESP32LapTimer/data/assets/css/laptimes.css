@@ -26,3 +26,13 @@ td, th {
 .best_lap {
 	background: lightgreen;
 }
+
+
+#settings_window {
+	position: absolute;
+	top: 50px;
+	left: 400px;
+	z-index: 999999;
+	background-color: #fafafa;
+
+}

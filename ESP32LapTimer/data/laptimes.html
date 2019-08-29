@@ -46,6 +46,17 @@
 				</tr>
 				<tr>
 					<th>
+						Active group
+					</th>
+					<th>
+						<select id="group select"> </select>
+					</th>
+					<th>
+						<button id="button_group_manage">Manage groups</button>
+					</th>
+				</tr>
+				<tr>
+					<th>
 						Race Mode: <span id="race_mode">Finished</span>
 					</th>
 					<th>
@@ -66,6 +77,24 @@
 		</div>
 	</section>
 
+<div id="settings_window">
+	<header>
+		Pilot goup management
+		<button>X</button>
+	</header>
+	<!-- TODO: add tabs for groups -->
+	<table style="width:100%" id="settings_pilot_table">
+		<tr>
+			<th>Pilot number</th>
+			<th>Band</th>
+			<th>Channel</th>
+			<th>RSSI Threshold</th>
+			<th>Enable</th>
+			<th>Disable multiplexing</th>
+		</tr>
+	</table>
+
+</div>
 
 <div style="display:none">
 <table style="width:100%" id="lap_table_default">

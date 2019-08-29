@@ -4,7 +4,7 @@ var num_pilots = 8;
 var count_first = 0;
 var max_laps = 4;
 
-var pilot_active = [];
+var pilot_groups = [[]];
 
 const cells_before_lap = 2;
 function speak_lap(pilot, lap_number, time) {
@@ -281,6 +281,59 @@ function on_websocket_event(event) {
 	}
 }
 
+function get_pilot_in_group(object) {
+
+}
+
+function create_pilots(id) {
+	for(var i = 0; i < 8; ++i) {
+		var table = document.getElementById('settings_pilot_table');
+		var row = table.insertRow(-1);
+		row.insertCell(-1).innerText = (i+1);
+		var cell;
+		var input_html = "";
+		// band selection
+		cell = row.insertCell(-1);
+		input_html = `<select class="band_select" name="band${i}" id="band${id}_${i}">`;
+		input_html += "<option selected=\"\" value=\"0\">R</option><option value=\"1\">A</option><option value=\"2\">B</option><option value=\"3\">E</option><option value=\"4\">F</option><option value=\"5\">D</option><option value=\"6\">Connex</option><option value=\"7\">Connex2</option></select>";
+		cell.innerHTML = input_html;
+		cell.lastChild.onclick = function () {
+			get_pilot_in_group(this).band = parseInt(this.value*1);
+		}
+		// channel selection
+		cell = row.insertCell(-1);
+		input_html = `<select name="channel${i}" id="channel${id}_${i}"`;
+		input_html += "class=\"channel_select\"><option value=\"0\">1</option><option value=\"1\">2</option><option value=\"2\">3</option><option value=\"3\">4</option><option value=\"4\">5</option><option value=\"5\">6</option><option value=\"6\">7</option><option value=\"7\">8</option></select>";
+		cell.innerHTML = input_html;
+		cell.lastChild.onclick = function () {
+			get_pilot_in_group(this).channel = parseInt(this.value*1);
+		}
+
+		// RSSI threshold
+		cell = row.insertCell(-1);
+		input_html = `<input type="number" id="RSSIthreshold${id}_${i}" min="0" max="342" step="1" class="rssi_select">`;
+		cell.innerHTML = input_html;
+		cell.lastChild.onclick = function () {
+			get_pilot_in_group(this).threshold = parseInt(this.value*1);
+		}
+		// Enabled checkbox
+		cell = row.insertCell(-1);
+		input_html= `<input type="checkbox" id="pilot_enabled_${id}_${i}">`;
+		cell.innerHTML = input_html;
+		cell.lastChild.onclick = function () {
+			get_pilot_in_group(this).enabled = this.checked;
+		}
+
+		// multiplex checkbox
+		cell = row.insertCell(-1);
+		input_html = `<input type="checkbox" id="pilot_multuplex_off_${id}_${i}">`;
+		cell.innerHTML = input_html;
+		cell.lastChild.onclick = function () {
+			get_pilot_in_group(this).multiplex_off = this.checked;
+		}
+	}
+}
+
 startWebsocket("ws://192.168.4.1/ws");
 document.getElementById("start_race_button").onclick = function () {
 	current_race += 1;
@@ -291,6 +344,12 @@ document.getElementById("start_race_button").onclick = function () {
 document.getElementById("stop_race_button").onclick = function () {
 	ws.send("R*R0\n");
 }
+
+document.getElementById("button_group_manage").onclick = function () {
+	// TODO: open pilot group management screen
+}
+
+create_pilots();
 
 function load_voices() {
 	const voiceSelect = document.getElementById('voices');
