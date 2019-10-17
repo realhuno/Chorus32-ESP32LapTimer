@@ -155,6 +155,7 @@ void stopRace_button(AsyncWebServerRequest* req) {
 }
 
 void onWebsocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
+  if(isHTTPUpdating) return; // ignore all incoming messages during update
   Serial.print("Got websocket message: ");
   Serial.write(data, len);
   Serial.println("");
@@ -177,6 +178,7 @@ void onWebsocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, Aw
 }
 
 void read_websocket(void* output) {
+  if(isHTTPUpdating) return; // ignore all incoming messages during update
   if(xSemaphoreTake(websocket_lock, 1)){
     if(websocket_buffer_pos > 0) {
       output_t* out = (output_t*)output;
