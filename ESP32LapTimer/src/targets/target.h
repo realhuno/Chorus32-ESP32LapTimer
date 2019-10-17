@@ -26,3 +26,11 @@
 #ifndef VRX_MISO
 #define VRX_MISO -1
 #endif
+
+#ifndef I2C_SDA
+#define I2C_SDA SDA
+#endif
+
+#ifndef I2C_SCL
+#define I2C_SCL SCL
+#endif
