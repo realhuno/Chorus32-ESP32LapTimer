@@ -27,6 +27,8 @@
 #include "Laptime.h"
 #include "Utils.h"
 
+#include <ArduinoOTA.h>
+
 //#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
 
 //
@@ -132,9 +134,12 @@ void setup() {
   timerAlarmEnable(adc_task_timer);
 
   xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1); 
+  
+  ArduinoOTA.begin();
 }
 
 void loop() {
+	ArduinoOTA.handle();
 #ifdef USE_BUTTONS
   newButtonUpdate();
 #endif
