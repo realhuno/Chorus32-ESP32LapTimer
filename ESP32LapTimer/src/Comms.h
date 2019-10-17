@@ -18,5 +18,6 @@ void startRace();
 void stopRace();
 bool isExperimentalModeOn();
 void sendCalibrationFinished();
+void sendUpdateProgress(uint8_t progress);
 
 #endif // __COMMS_H__
