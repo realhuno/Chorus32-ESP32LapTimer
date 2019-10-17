@@ -254,8 +254,9 @@ void InitWebServer() {
   }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
     isHTTPUpdating = true;
     if(!index) {
-      Serial.printf("Update Start: %s\n", filename.c_str());
-      if (!Update.begin()) { //start with max available size
+      int partition = data[0] == 0xE9 ? U_FLASH : U_SPIFFS;
+      Serial.printf("Update Start: %s on Parition %d\n", filename.c_str(), partition);
+      if (!Update.begin(UPDATE_SIZE_UNKNOWN, partition)) { //start with max available size
         Update.printError(Serial);
         isHTTPUpdating = false;
       }
