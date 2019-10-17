@@ -11,5 +11,5 @@
 
 # Bugs
  - Wrong SMA footprint (still fits though)
- - Buzzer fottprint is a little bit too small for my buzzers
+ - Buzzer footprint is a little bit too small for my buzzers
  - A vertically mounted XT60 might be better
