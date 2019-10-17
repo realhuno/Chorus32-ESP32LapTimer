@@ -13,3 +13,9 @@
  - Wrong SMA footprint (still fits though)
  - Buzzer footprint is a little bit too small for my buzzers
  - A vertically mounted XT60 might be better
+
+# Images
+
+![PCB Side 1](img/pic_1.jpg)
+
+![PCB Side 2](img/pic_2.jpg)
