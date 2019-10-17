@@ -257,6 +257,13 @@ void InitWebServer() {
     isHTTPUpdating = true;
     if(!index) {
       int partition = data[0] == 0xE9 ? U_FLASH : U_SPIFFS;
+      
+      if(partition == U_SPIFFS) {
+        // Since we don't have a magic number, we are checking the filename for "spiffs"
+        if(strstr(filename.c_str(), "spiffs") == NULL) {
+          partition = -1; // set partition to an invalid value
+        }
+      }
       Serial.printf("Update Start: %s on Parition %d\n", filename.c_str(), partition);
       if (!Update.begin(UPDATE_SIZE_UNKNOWN, partition)) { //start with max available size
         Update.printError(Serial);
