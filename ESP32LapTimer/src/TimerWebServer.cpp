@@ -247,7 +247,7 @@ void InitWebServer() {
   });
 
   webServer.on("/update", HTTP_POST, [](AsyncWebServerRequest* req) {
-    AsyncWebServerResponse *response = req->beginResponse(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK, module rebooting");
+    AsyncWebServerResponse *response = req->beginResponse((Update.hasError()) ? 400 : 200, "text/plain", (Update.hasError()) ? "FAIL" : "OK, module rebooting");
     response->addHeader("Connection", "close");
     req->send(response);
     Serial.println("off-updating");
@@ -263,7 +263,7 @@ void InitWebServer() {
           partition = -1; // set partition to an invalid value
         }
       }
-      Serial.printf("Update Start: %s on Parition %d\n", filename.c_str(), partition);
+      Serial.printf("Update Start: %s on partition %d\n", filename.c_str(), partition);
       if (!Update.begin(UPDATE_SIZE_UNKNOWN, partition)) { //start with max available size
         Update.printError(Serial);
         isHTTPUpdating = false;
@@ -274,8 +274,9 @@ void InitWebServer() {
         Update.printError(Serial);
         isHTTPUpdating = false;
       }
-      uint8_t progress = (Update.progress() / Update.size()) * 100;
-      sendUpdateProgress(progress);
+      // needs a mechanism to limit the amount of messages sent. probably it's just better to do it on the client side
+      //uint8_t progress = (Update.progress() / (float)Update.size()) * 100;
+      //sendUpdateProgress(progress);
     }
     if(final){
       if(Update.end(true)){
