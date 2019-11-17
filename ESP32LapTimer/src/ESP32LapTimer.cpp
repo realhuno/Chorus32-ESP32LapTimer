@@ -167,7 +167,7 @@ void loop() {
 #endif
   sendNewLaps();
   update_outputs();
-  SendCurrRSSIloop();
+  update_comms();
 
 #ifdef WIFI_MODE_ACCESSPOINT
   handleDNSRequests();
