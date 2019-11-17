@@ -152,7 +152,7 @@ void loop() {
 #endif
   sendNewLaps();
   update_outputs();
-  SendCurrRSSIloop();
+  update_comms();
   updateWifi();
 
   beeperUpdate();
