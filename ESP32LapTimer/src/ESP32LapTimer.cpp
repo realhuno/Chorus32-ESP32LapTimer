@@ -124,7 +124,7 @@ void setup() {
     setModuleChannelBand(i % getNumReceivers());
     delayMicroseconds(MIN_TUNE_TIME_US);
   }
-  
+
   init_outputs();
   Serial.println("Starting ADC reading task on core 0");
 
@@ -135,7 +135,7 @@ void setup() {
   timerAlarmEnable(adc_task_timer);
 
   xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1);
-  
+
   ArduinoOTA.begin();
 }
 
