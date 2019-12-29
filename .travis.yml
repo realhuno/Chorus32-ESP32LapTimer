@@ -4,6 +4,8 @@ sudo: false
 cache:
     directories:
         - "~/.platformio"
+env:
+    - PLATFORMIO_CI_SRC=ESP32LapTimer
 install:
     - pip install -U platformio
     - pio update
