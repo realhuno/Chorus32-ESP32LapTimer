@@ -1,0 +1,13 @@
+language: python
+
+sudo: false
+cache:
+    directories:
+        - "~/.platformio"
+install:
+    - pip install -U platformio
+    - pio update
+script:
+    - pio ci --project-conf=ESP32LapTimer/platformio.ini
+    - ls *
+    - pwd
