@@ -19,6 +19,7 @@ before_deploy:
 deploy:
     provider: releases
     file_glob: true
+    api_key: $GH_TOKEN
     file: /tmp/esp32timer_firmware/*
     skip_cleanup: true
     on:
