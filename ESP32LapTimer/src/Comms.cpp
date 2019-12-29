@@ -1085,10 +1085,6 @@ bool isExperimentalModeOn() {
   return use_experimental;
 }
 
-void sendUpdateProgress(uint8_t progress) {
-  sendExtendedCommandHalfByte('S', '*', EXTENDED_UPDATE_PROGRESS, progress);
-}
-
 void update_comms() {
   SendCurrRSSIloop();
   ExtendedRSSILoop();
