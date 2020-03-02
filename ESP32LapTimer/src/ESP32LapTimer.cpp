@@ -77,7 +77,7 @@ void setup() {
   oledSetup();
 #endif
 
-  Serial.begin(230400);
+  Serial.begin(SERIAL_BAUD_RATE);
   Serial.println("Booting....");
 
   bool all_modules_off = false;
