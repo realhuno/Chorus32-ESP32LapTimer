@@ -26,6 +26,7 @@
 #include "Utils.h"
 #include "Laptime.h"
 #include "Utils.h"
+#include "Logging.h"
 
 #include <ArduinoOTA.h>
 
