@@ -8,6 +8,7 @@
 #include "Comms.h"
 #include "HardwareConfig.h"
 #include "Output.h"
+#include "CrashDetection.h"
 
 #include <esp_wifi.h>
 #include <DNSServer.h>
@@ -224,7 +225,7 @@ void InitWebServer() {
     response->addHeader("Connection", "close");
     req->send(response);
     Serial.println("off-updating");
-    ESP.restart();
+    restart_esp();
   }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
     isHTTPUpdating = true;
     if(!index) {

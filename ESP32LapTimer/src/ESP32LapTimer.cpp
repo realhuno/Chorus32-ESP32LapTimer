@@ -27,6 +27,7 @@
 #include "Laptime.h"
 #include "Utils.h"
 #include "Logging.h"
+#include "CrashDetection.h"
 
 #include <ArduinoOTA.h>
 
@@ -70,6 +71,17 @@ void eeprom_task(void* args) {
 
 
 void setup() {
+  init_crash_detection();
+  Serial.begin(SERIAL_BAUD_RATE);
+  Serial.printf("Booting with crash count: %d....", get_crash_count());
+  // We are probably stuck in a bootloop
+  // Start only the bare minimum to enable flashing via ArduinoOTA
+  if(is_crash_mode()) {
+    log_e("Detected crashing. Starting ArduinoOTA only!");
+    InitWifiAP();
+    ArduinoOTA.begin();
+    return;
+  }
   InitSPI();
   InitHardwarePins();
   RXPowerDownAll(); // Powers down all RX5808's
@@ -77,9 +89,6 @@ void setup() {
 #ifdef OLED
   oledSetup();
 #endif
-
-  Serial.begin(SERIAL_BAUD_RATE);
-  Serial.println("Booting....");
 
   bool all_modules_off = false;
   if(rtc_get_reset_reason(0) == 15 || rtc_get_reset_reason(1) == 15) {
@@ -142,6 +151,7 @@ void setup() {
 
 void loop() {
 	ArduinoOTA.handle();
+  if(is_crash_mode()) return;
 #ifdef USE_BUTTONS
   newButtonUpdate();
 #endif
