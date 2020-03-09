@@ -4,19 +4,13 @@ sudo: false
 cache:
     directories:
         - "~/.platformio"
-env:
-    - PLATFORMIO_CI_SRC=ESP32LapTimer
 install:
     - pip install -U platformio
     - pio update
-    # This is a dirty hack to make our custom partition table work with the ci command
-    #    - mkdir -p ~/.platformio/packages/framework-arduinoespressif32/tools/partitions
-    #- cp ESP32LapTimer/timer_partitions.csv ~/.platformio/packages/framework-arduinoespressif32/tools/partitions/timer_partitions.csv
 script:
-    #- pio ci --project-conf=ESP32LapTimer/platformio.ini --build-dir=/tmp/esp32timer_build --keep-build-dir
     - pushd ESP32LapTimer && pio run && pio run -t buildfs && popd
 before_deploy:
-    - ./gather_releases.sh /tmp/esp32timer_build /tmp/esp32timer_firmware firmware.bin
+    - ./gather_releases.sh ./ESP32LapTimer/.pio/build /tmp/esp32timer_firmware firmware.bin
     - ./gather_releases.sh ./ESP32LapTimer/.pio/build /tmp/esp32timer_firmware spiffs.bin
 deploy:
     provider: releases
