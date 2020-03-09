@@ -31,12 +31,6 @@
 
 #include <ArduinoOTA.h>
 
-//#define BluetoothEnabled //uncomment this to use bluetooth (experimental, ble + wifi appears to cause issues)
-
-//
-#define MAX_SRV_CLIENTS 5
-WiFiClient serverClients[MAX_SRV_CLIENTS];
-
 static TaskHandle_t adc_task_handle = NULL;
 
 void IRAM_ATTR adc_read() {
