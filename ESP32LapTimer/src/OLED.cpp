@@ -76,7 +76,7 @@ void oledSetup(void) {
   display.drawFastImage(0, 0, 128, 64, ChorusLaptimerLogo_Screensaver);
   display.display();
   display.setFont(Dialog_plain_9);
-  
+
   for(uint8_t i = 0; i < NUM_OLED_PAGES; ++i) {
     if(oled_pages[i].init) {
       oled_pages[i].init(oled_pages[i].data);
@@ -194,7 +194,7 @@ void summary_page_input(void* data, uint8_t index, uint8_t type) {
       my_data->first_pilot = 0;
     } else {
       my_data->first_pilot += MIN(SUMMARY_PILOTS_PER_PAGE, getActivePilots() - SUMMARY_PILOTS_PER_PAGE);
-    }    
+    }
   }
   else {
     next_page_input(data, index, type);
@@ -261,7 +261,7 @@ void race_page_update(void* data) {
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   uint8_t skipped = 0;
   for(uint8_t i = 0; i < MAX_NUM_PILOTS; ++i) {
-    if(isPilotActive(i)) {      
+    if(isPilotActive(i)) {
       uint32_t last_lap = getLaptimeRel(i);
       uint32_t best_lap = getLaptimeRel(i, getBestLap(i));
       char last_lap_str[12];
@@ -282,7 +282,7 @@ void race_page_update(void* data) {
 
 void adc_page_init(void* data) {
   adcPageData_s* my_data = (adcPageData_s*)data;
-  filter_init(&my_data->filter, 1, oledRefreshTime/1000.0); 
+  filter_init(&my_data->filter, 1, oledRefreshTime/1000.0);
 }
 
 void adc_page_update(void* data) {
@@ -300,7 +300,7 @@ void calib_page_update(void* data) {
     display.drawString(0, 0, "Calibrating - " + String(getcalibrationFreqIndex()) + "/" + String(8*(MAX_BAND+1)));
   } else {
     display.drawString(0, 0, "Frequency - " + String(channelFreqTable[getcalibrationFreqIndex()]) + "Hz");
-  }  
+  }
   display.drawString(0,  9, "Min = " + String(EepromSettings.RxCalibrationMin[0]) + ", Max = " + String(EepromSettings.RxCalibrationMax[0]));
   display.drawString(0, 18, "Min = " + String(EepromSettings.RxCalibrationMin[1]) + ", Max = " + String(EepromSettings.RxCalibrationMax[1]));
   display.drawString(0, 27, "Min = " + String(EepromSettings.RxCalibrationMin[2]) + ", Max = " + String(EepromSettings.RxCalibrationMax[2]));
@@ -312,7 +312,7 @@ void calib_page_update(void* data) {
 void calib_page_input(void* data, uint8_t index, uint8_t type) {
   (void)data;
   if(index == 1 && type == BUTTON_SHORT) {
-    rssiCalibration();  
+    rssiCalibration();
   }
   else {
     next_page_input(data, index, type);

@@ -8,7 +8,7 @@
   #include "config_dev_board.h"
 #elif BOARD==BOARD_WROOM
   #include "config_wroom.h"
-#else 
+#else
   #error "Unknown board!"
 #endif
 
@@ -35,8 +35,10 @@
 #define I2C_SCL SCL
 #endif
 
-#if (!defined(OLED_SCL) || !defined(OLED_SDA)) && defined(OLED)
+#if (!defined(OLED_SCL) || !defined(OLED_SDA))
 #undef OLED
+#define OLED_SCL -1
+#define OLED_SDA -1
 #endif
 
 #if !defined(WIFI_MODE_CLIENT) && !defined(WIFI_MODE_ACCESSPOINT)
