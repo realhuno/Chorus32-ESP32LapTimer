@@ -91,13 +91,16 @@ void OLED_CheckIfUpdateReq() {
       if(!display_standby_status) {
         display.displayOff(); // going in standby
         display_standby_status = true;
+        Serial.println("Going in standby");
       }
     } else if(display_standby_status) {
         display.displayOn();
         display_standby_status = false;
+        Serial.println("Leaving standby");
     }
     if(!display_standby_status) {
       if(oled_pages[current_page].draw_page) {
+        Serial.println("Drawing page");
         display.clear();
         oled_pages[current_page].draw_page(oled_pages[current_page].data);
         display.display();
