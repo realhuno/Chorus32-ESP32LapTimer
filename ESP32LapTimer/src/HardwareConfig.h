@@ -15,9 +15,6 @@
 #define BOARD BOARD_WROOM
 #endif
 
-/// If your setup doesn't use an OLED remove or comment the following line
-#define OLED
-
 ///  Sets the WiFi acces point name
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 #define BLUETOOTH_NAME WIFI_AP_NAME
