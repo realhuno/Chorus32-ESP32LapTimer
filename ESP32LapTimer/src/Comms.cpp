@@ -746,12 +746,9 @@ void SendAllSettings(uint8_t NodeAddr) {
   SendAllLaps(NodeAddr);
   sendAPIversion();
   sendThresholdMode(NodeAddr);
-  SendXdone(NodeAddr);
   sendPilotActive(NodeAddr);
   sendExperimentalMode(NodeAddr);
-
-  // flush outputs after this long message
-  update_outputs();
+  SendXdone(NodeAddr);
 
   update_outputs(); // Flush output after each node to prevent lost messages
 }
