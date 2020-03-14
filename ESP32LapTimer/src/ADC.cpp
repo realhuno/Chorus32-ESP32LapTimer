@@ -176,7 +176,7 @@ void ConfigureADC(bool disable_all_modules) {
 
   filter_init(&adc_voltage_filter, ADC_VOLTAGE_CUTOFF, VOLTAGE_UPDATE_INTERVAL_MS/1000.0);
   uint16_t voltage = getVbatFloat(true) * 1000;
-  Serial.printf("Voltage is %d minimum is %d\n", voltage, getMinVoltageModule());
+  log_d("Voltage is %d minimum is %d\n", voltage, getMinVoltageModule());
   if(voltage >= getMinVoltageModule() && !disable_all_modules) {
     // By default enable getNumReceivers() pilots
     for(uint8_t i = 0; i < getNumReceivers() && i < MAX_NUM_PILOTS; ++i)  {
@@ -297,13 +297,13 @@ void IRAM_ATTR CheckRSSIthresholdExceeded(uint8_t pilot) {
       #ifdef DEBUG_SIGNAL_LOG
       // Print out signal at falling edge
       if(pilot < DEBUG_SIGNAL_LOG_NUM) {
-        Serial.print("_");
-        Serial.println(pilot);
+        log_d("_");
+        log_d(pilot);
         for(uint32_t i = 0; i < DEBUG_SIGNAL_LOG_SIZE; ++i) {
-          Serial.println(readings[pilot][(i + readings_pos[pilot]) % DEBUG_SIGNAL_LOG_SIZE]);
+          log_d(readings[pilot][(i + readings_pos[pilot]) % DEBUG_SIGNAL_LOG_SIZE]);
         }
         readings_pos[pilot] = 0;
-        Serial.println("-");
+        log_d("-");
       }
       #endif
     }
@@ -427,8 +427,8 @@ void setPilotActive(uint8_t pilot, bool active) {
     }
   }
 
-  Serial.print("New pilot num: ");
-  Serial.println(current_pilot_num);
+  log_d("New pilot num: ");
+  log_d(current_pilot_num);
 
   // only reset active modules. a user might have 6 modules installed but only uses 4. using the all function all modules would power up
   for(int i = 0; i < MIN(current_pilot_num, getNumReceivers()); ++i) {
@@ -453,7 +453,7 @@ void setPilotActive(uint8_t pilot, bool active) {
         filter_adjust_dt(&pilots[i].filter[j], 1.0/(6000.0 * on_fraction)); // set sampling rate
         // when multiplexing we are using the average sampling rate per pilot as a timebase
       }
-      Serial.printf("Set filtering cutoff to %f hz\n", (6000.0 * on_fraction));
+      log_d("Set filtering cutoff to %f hz\n", (6000.0 * on_fraction));
     }
   }*/
 

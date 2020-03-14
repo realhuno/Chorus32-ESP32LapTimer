@@ -334,11 +334,11 @@ void SendXdone(uint8_t NodeAddr) {
 }
 
 void SetThresholdValue(uint16_t threshold, uint8_t NodeAddr) {
-  Serial.print("Setting Threshold Value: ");
-  Serial.println(threshold);
+  log_d("Setting Threshold Value: ");
+  log_d(threshold);
   if (threshold > 340) {
     threshold = 340;
-    Serial.println("Threshold was attempted to be set out of range");
+    log_d("Threshold was attempted to be set out of range");
   }
   // stop the "setting threshold algorithm" to avoid overwriting the explicitly set value
   if (thresholdSetupMode[NodeAddr]) {
@@ -521,7 +521,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
   uint32_t RequestedLap = 0;
 
   if (Lap == 0) {
-    Serial.println("Lap == 0 and sendlap was called");
+    log_d("Lap == 0 and sendlap was called");
     return;
   }
 
@@ -530,7 +530,7 @@ void IRAM_ATTR sendLap(uint8_t Lap, uint8_t NodeAddr) {
   } else if (raceMode == 2) {
     RequestedLap = getLaptimeRelToStart(NodeAddr, Lap);  //absolute mode
   } else {
-    Serial.println("Error: Invalid RaceMode Set");
+    log_d("Error: Invalid RaceMode Set");
     return;
   }
 
@@ -896,7 +896,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   uint8_t valueToSet;
   uint8_t NodeAddrByte = TO_BYTE(NodeAddr); // convert ASCII to real byte values
 
-  //Serial.println(length);
+  //log_d(length);
 
   if (ControlByte == CONTROL_NUM_RECIEVERS) {
     SendNumberOfnodes(NodeAddrByte);
@@ -915,7 +915,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
   }
 
   if (controlData[2] == CONTROL_GET_TIME) {
-    //Serial.println("Sending Time.....");
+    //log_d("Sending Time.....");
     SendMillis();
   }
 
@@ -1079,7 +1079,7 @@ void handleSerialControlInput(char *controlData, uint8_t  ControlByte, uint8_t N
         SendThresholdValue(NodeAddrByte);
         break;
       case CONTROL_GET_RSSI: // get current RSSI value
-        //Serial.println("sending current RSSI");
+        //log_d("sending current RSSI");
         for (int i = 0; i < MAX_NUM_PILOTS; i++) {
           SendCurrRSSI(i);
         }

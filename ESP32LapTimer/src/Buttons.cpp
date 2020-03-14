@@ -94,7 +94,7 @@ void newButtonUpdate() {
       buttonTimer1 = millis();
     }
     if ((millis() - buttonTimer1 > buttonLongPressTime) && (longPressActive1 == false)) {
-      Serial.println("Button 1 Long Press.");
+      log_d("Button 1 Long Press.");
       // vvv BUTTON 1 LONG press between these comments vvv
       oledInjectInput(0, BUTTON_LONG);
       // ^^^ BUTTON 1 LONG press between these comments ^^^
@@ -105,7 +105,7 @@ void newButtonUpdate() {
       if (longPressActive1 == true) {
         longPressActive1 = false;
       } else {
-        Serial.println("Button 1 Short press.");
+        log_d("Button 1 Short press.");
         // vvv BUTTON 1 SHORT press between these comments vvv
         oledInjectInput(0, BUTTON_SHORT);
         // ^^^ BUTTON 1 SHORT press between these comments ^^^
@@ -121,7 +121,7 @@ void newButtonUpdate() {
       buttonTimer2 = millis();
     }
     if ((millis() - buttonTimer2 > buttonLongPressTime) && (longPressActive2 == false)) {
-      Serial.println("Button 2 Long Press.");
+      log_d("Button 2 Long Press.");
       // vvv BUTTON 2 LONG press between these comments vvv
 
      oledInjectInput(1, BUTTON_LONG);
@@ -134,7 +134,7 @@ void newButtonUpdate() {
       if (longPressActive2 == true) {
         longPressActive2 = false;
       } else {
-        Serial.println("Button 2 Short press.");
+        log_d("Button 2 Short press.");
         // vvv BUTTON 2 SHORT press between these comments vvv
         oledInjectInput(1, BUTTON_SHORT);
         // ^^^ BUTTON 2 SHORT press between these comments ^^^
@@ -148,7 +148,7 @@ void newButtonUpdate() {
     delay(200);
     beeper_add_to_queue(&BEEP_CHIRPS);
     delay(1000);
-    Serial.println("RESET");
+    log_d("RESET");
     beeper_add_to_queue(&BEEP_FIVE);
     EepromSettings.defaults();
     delay(100);

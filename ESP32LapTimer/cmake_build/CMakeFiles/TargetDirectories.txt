@@ -1,0 +1,14 @@
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/edit_cache.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/ESP32LapTimer.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/rebuild_cache.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_MONITOR.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_BUILD_VERBOSE.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_CLEAN.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_PROGRAM.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_UPLOAD.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_BUILD.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_TEST.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_UPLOADFS.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_REBUILD_PROJECT_INDEX.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_UPDATE_ALL.dir
+/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build/CMakeFiles/PLATFORMIO_DEVICE_LIST.dir

@@ -53,8 +53,8 @@ String getMacAddress() {
       cMac += "-";
   }
   cMac.toUpperCase();
-  Serial.print("Mac Addr:");
-  Serial.println(cMac);
+  log_d("Mac Addr:");
+  log_d(cMac);
   return cMac;
 }
 
@@ -96,10 +96,10 @@ void InitWifiAP() {
   if(channel < 1 || channel > 13) {
     channel = 1;
   }
-  Serial.print("Starting wifi \"" WIFI_AP_NAME "\" on channel ");
-  Serial.print(channel);
-  Serial.print(" and mode ");
-  Serial.println(protocol ? "bgn" : "b");
+  log_d("Starting wifi \"" WIFI_AP_NAME "\" on channel ");
+  log_d(channel);
+  log_d(" and mode ");
+  log_d(protocol ? "bgn" : "b");
   WiFi.softAP(WIFI_AP_NAME, NULL, channel);
   // if DNSServer is started with "*" for domain name, it will reply with
   // provided IP to all DNS request
@@ -118,22 +118,19 @@ void calibrateRSSI(AsyncWebServerRequest* req) {
 }
 
 void startRace_button(AsyncWebServerRequest* req) {
-  Serial.println("Starting race...");
+  log_d("Starting race...");
   startRace();
   req->send(200, "text/plain", "");
 }
 
 void stopRace_button(AsyncWebServerRequest* req) {
-  Serial.println("Stopping race...");
+  log_d("Stopping race...");
   stopRace();
   req->send(200, "text/plain", "");
 }
 
 void onWebsocketEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
   if(isHTTPUpdating) return; // ignore all incoming messages during update
-  Serial.print("Got websocket message: ");
-  Serial.write(data, len);
-  Serial.println("");
   if(xSemaphoreTake(websocket_lock, portMAX_DELAY)){
     //Handle WebSocket event
     if(type == WS_EVT_DATA){
@@ -175,7 +172,7 @@ void InitWebServer() {
   websocket_lock = xSemaphoreCreateMutex();
 
   if (!SPIFFS.exists("/index.html")) {
-    Serial.println("SPIFFS filesystem was not found");
+    log_d("SPIFFS filesystem was not found");
     webServer.on("/", HTTP_GET, [](AsyncWebServerRequest* req) {
       req->send(200, "text/html", NOSPIFFS);
     });
@@ -185,7 +182,7 @@ void InitWebServer() {
     });
 
     webServer.begin();                           // Actually start the server
-    Serial.println("HTTP server started");
+    log_d("HTTP server started");
     return;
   }
 
@@ -224,7 +221,7 @@ void InitWebServer() {
     AsyncWebServerResponse *response = req->beginResponse((Update.hasError()) ? 400 : 200, "text/plain", (Update.hasError()) ? "FAIL" : "OK, module rebooting");
     response->addHeader("Connection", "close");
     req->send(response);
-    Serial.println("off-updating");
+    log_d("off-updating");
     restart_esp();
   }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
     isHTTPUpdating = true;
@@ -236,7 +233,7 @@ void InitWebServer() {
           partition = -1; // set partition to an invalid value
         }
       }
-      Serial.printf("Update Start: %s on partition %d\n", filename.c_str(), partition);
+      log_d("Update Start: %s on partition %d\n", filename.c_str(), partition);
       if (!Update.begin(UPDATE_SIZE_UNKNOWN, partition)) { //start with max available size
         Update.printError(Serial);
         isHTTPUpdating = false;
@@ -250,7 +247,7 @@ void InitWebServer() {
     }
     if(final){
       if(Update.end(true)){
-        Serial.printf("Update Success: %uB\n", index+len);
+        log_d("Update Success: %uB\n", index+len);
       } else {
         Update.printError(Serial);
       }
@@ -259,7 +256,7 @@ void InitWebServer() {
   });
 
   webServer.begin();                           // Actually start the server
-  Serial.println("HTTP server started");
+  log_d("HTTP server started");
   delay(1000);
 }
 
@@ -269,14 +266,14 @@ void updateWifi() {
 
 void airplaneModeOn() {
   // Enable Airplane Mode (WiFi Off)
-  Serial.println("Airplane Mode On");
+  log_d("Airplane Mode On");
   WiFi.mode(WIFI_OFF);
   airplaneMode = true;
 }
 
 void airplaneModeOff() {
   // Disable Airplane Mode (WiFi On)
-  Serial.println("Airplane Mode OFF");
+  log_d("Airplane Mode OFF");
   InitWifiAP();
   InitWebServer();
   airplaneMode = false;

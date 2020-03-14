@@ -1,0 +1,232 @@
+[
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/Adafruit_INA219/Adafruit_INA219.cpp.o -c \"/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/Adafruit INA219/Adafruit_INA219.cpp\"",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/Adafruit INA219/Adafruit_INA219.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/AsyncTCP_ID1826/src/AsyncTCP.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/AsyncTCP_ID1826/src/AsyncTCP.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/AsyncTCP_ID1826/src/AsyncTCP.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP_Async_WebServer/src/AsyncEventSource.cpp.o -c \"/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/AsyncEventSource.cpp\"",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/AsyncEventSource.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP_Async_WebServer/src/AsyncWebSocket.cpp.o -c \"/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/AsyncWebSocket.cpp\"",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/AsyncWebSocket.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP_Async_WebServer/src/SPIFFSEditor.cpp.o -c \"/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/SPIFFSEditor.cpp\"",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/SPIFFSEditor.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP_Async_WebServer/src/WebAuthentication.cpp.o -c \"/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebAuthentication.cpp\"",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebAuthentication.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP_Async_WebServer/src/WebHandlers.cpp.o -c \"/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebHandlers.cpp\"",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebHandlers.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP_Async_WebServer/src/WebRequest.cpp.o -c \"/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebRequest.cpp\"",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebRequest.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP_Async_WebServer/src/WebResponses.cpp.o -c \"/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebResponses.cpp\"",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebResponses.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP_Async_WebServer/src/WebServer.cpp.o -c \"/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebServer.cpp\"",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP Async WebServer/src/WebServer.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP8266_SSD1306/src/OLEDDisplay.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP8266_SSD1306/src/OLEDDisplay.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP8266_SSD1306/src/OLEDDisplay.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESP8266_SSD1306/src/OLEDDisplayUi.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP8266_SSD1306/src/OLEDDisplayUi.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESP8266_SSD1306/src/OLEDDisplayUi.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/AsyncPrinter.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/AsyncPrinter.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/AsyncPrinter.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/ESPAsyncTCP.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/ESPAsyncTCP.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/ESPAsyncTCP.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/ESPAsyncTCPbuffer.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/ESPAsyncTCPbuffer.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/ESPAsyncTCPbuffer.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/SyncClient.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/SyncClient.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/SyncClient.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc     -std=gnu99 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/tcp_axtls.c.o   -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/tcp_axtls.c",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP/src/tcp_axtls.c"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/AsyncPrinter.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/AsyncPrinter.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/AsyncPrinter.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/ESPAsyncTCP.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/ESPAsyncTCP.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/ESPAsyncTCP.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/ESPAsyncTCPbuffer.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/ESPAsyncTCPbuffer.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/ESPAsyncTCPbuffer.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/SyncClient.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/SyncClient.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/SyncClient.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc     -std=gnu99 -o CMakeFiles/ESP32LapTimer.dir/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/tcp_axtls.c.o   -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/tcp_axtls.c",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/.pio/libdeps/BOARD_DEFAULT/ESPAsyncTCP_ID305/src/tcp_axtls.c"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/ADC.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/ADC.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/ADC.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Beeper.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Beeper.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Beeper.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Bluetooth.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Bluetooth.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Bluetooth.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Buttons.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Buttons.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Buttons.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Calibration.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Calibration.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Calibration.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Comms.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Comms.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Comms.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/ESP32LapTimer.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/ESP32LapTimer.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/ESP32LapTimer.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Filter.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Filter.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Filter.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/HardwareConfig.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/HardwareConfig.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/HardwareConfig.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Laptime.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Laptime.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Laptime.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Lora.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Lora.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Lora.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/OLED.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/OLED.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/OLED.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Output.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Output.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Output.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc     -std=gnu99 -o CMakeFiles/ESP32LapTimer.dir/src/Queue.c.o   -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Queue.c",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Queue.c"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/RX5808.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/RX5808.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/RX5808.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Serial.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Serial.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Serial.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/TCP.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/TCP.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/TCP.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Timer.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Timer.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Timer.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/TimerWebServer.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/TimerWebServer.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/TimerWebServer.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/UDP.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/UDP.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/UDP.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/Utils.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Utils.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Utils.cpp"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc     -std=gnu99 -o CMakeFiles/ESP32LapTimer.dir/src/Watchdog.c.o   -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Watchdog.c",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/Watchdog.c"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-gcc     -std=gnu99 -o CMakeFiles/ESP32LapTimer.dir/src/crc.c.o   -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/crc.c",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/crc.c"
+},
+{
+  "directory": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/cmake_build",
+  "command": "/home/kevin/.platformio/packages/toolchain-xtensa32/bin/xtensa-esp32-elf-g++      -std=gnu++11 -o CMakeFiles/ESP32LapTimer.dir/src/settings_eeprom.cpp.o -c /home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/settings_eeprom.cpp",
+  "file": "/home/kevin/Dokumente/Projekte/Github/Chorus32-ESP32LapTimer/ESP32LapTimer/src/settings_eeprom.cpp"
+}
+]

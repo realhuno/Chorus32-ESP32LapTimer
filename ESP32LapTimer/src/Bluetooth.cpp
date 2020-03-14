@@ -19,7 +19,7 @@ void bluetooth_init(void* output) {
 void bluetooth_update(void* output) {
   if (SerialBT.available()) {
     if(BluetootBuffInPointer >= BLUETOOTH_BUFFER_SIZE - 1) {
-      Serial.println("Bluetooth input buffer full! Reseting...");
+      log_d("Bluetooth input buffer full! Reseting...");
       BluetootBuffInPointer = 0;
     }
     BluetootBuffIn[BluetootBuffInPointer] = SerialBT.read();

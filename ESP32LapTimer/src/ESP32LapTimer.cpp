@@ -67,7 +67,7 @@ void eeprom_task(void* args) {
 void setup() {
   init_crash_detection();
   Serial.begin(SERIAL_BAUD_RATE);
-  Serial.printf("Booting with crash count: %d....", get_crash_count());
+  log_d("Booting with crash count: %d....", get_crash_count());
   // We are probably stuck in a bootloop
   // Start only the bare minimum to enable flashing via ArduinoOTA
   if(is_crash_mode()) {
@@ -87,7 +87,7 @@ void setup() {
   bool all_modules_off = false;
   if(rtc_get_reset_reason(0) == 15 || rtc_get_reset_reason(1) == 15) {
     all_modules_off = true;
-    Serial.println("Rebooted from brownout...disabling all modules...");
+    log_d("Rebooted from brownout...disabling all modules...");
   }
 #ifdef USE_BUTTONS
   newButtonSetup();
@@ -114,7 +114,7 @@ void setup() {
 
   if (!EepromSettings.SanityCheck()) {
     EepromSettings.defaults();
-    Serial.println("Detected That EEPROM corruption has occured.... \n Resetting EEPROM to Defaults....");
+    log_d("Detected That EEPROM corruption has occured.... \n Resetting EEPROM to Defaults....");
   }
 
   commsSetup();
@@ -130,7 +130,7 @@ void setup() {
   }
 
   init_outputs();
-  Serial.println("Starting ADC reading task on core 0");
+  log_d("Starting ADC reading task on core 0");
 
   xTaskCreatePinnedToCore(adc_task, "ADCreader", 4096, NULL, 1, &adc_task_handle, 0);
   hw_timer_t* adc_task_timer = timerBegin(0, 8, true);
