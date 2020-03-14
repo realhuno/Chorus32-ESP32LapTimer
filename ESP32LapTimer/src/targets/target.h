@@ -34,3 +34,7 @@
 #ifndef I2C_SCL
 #define I2C_SCL SCL
 #endif
+
+#if (!defined(OLED_SCL) || !defined(OLED_SDA)) && defined(OLED)
+#undef OLED
+#endif
