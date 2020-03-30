@@ -68,9 +68,7 @@ void eeprom_task(void* args) {
 
 void setup() {
   init_crash_detection();
-
-
-  Serial.begin(115200);
+  Serial.begin(SERIAL_BAUD_RATE);
   Serial.println("Booting....");
 #ifdef USE_ARDUINO_OTA
   if(is_crash_mode()) {
@@ -133,7 +131,7 @@ void setup() {
     setModuleChannelBand(i % getNumReceivers());
     delayMicroseconds(MIN_TUNE_TIME_US);
   }
-  
+
   init_outputs();
   Serial.println("Starting ADC reading task on core 0");
 
@@ -154,7 +152,6 @@ void loop() {
   if(millis() > CRASH_COUNT_RESET_TIME_MS) {
     reset_crash_count();
   }
-  rssiCalibrationUpdate();
 #ifdef USE_BUTTONS
   newButtonUpdate();
 #endif
@@ -171,8 +168,6 @@ void loop() {
 #ifdef WIFI_MODE_ACCESSPOINT
   handleDNSRequests();
 #endif
-
-  handleNewHTTPClients();
 
   beeperUpdate();
   if(UNLIKELY(!isInRaceMode())) {
