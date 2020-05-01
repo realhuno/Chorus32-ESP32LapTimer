@@ -33,7 +33,37 @@
 #include <ArduinoOTA.h>
 #endif
 
+//Telemetry Frsky
+#include <SPort.h>                  //Include the SPort library
+
+SPortHub hub(0x12, 2);     //adress and telemetry pin
+SimpleSPortSensor lapsensor0(0x1AEB);   //Sensor with ID 0x5900
+SimpleSPortSensor lapsensor1(0x1AEC);   //Sensor with ID 0x5900
+SimpleSPortSensor lapsensor2(0x1AED);   //Sensor with ID 0x5900
+SimpleSPortSensor lapsensor3(0x1AEE);   //Sensor with ID 0x5900
+SimpleSPortSensor sensor(0x5900);    
+
 static TaskHandle_t adc_task_handle = NULL;
+
+// -----------------------------LUA Telemetry Callback
+
+void handleCommand(int prim, int applicationId, int value) {
+  hub.sendCommand(0x19, applicationId, value + 1);    //Send a command back to lua, with 0x32 as reply and the value + 1
+  
+  if(value==35){
+    //+
+   incrementRxFrequency(0);
+  }
+  
+  if(value==36){
+    //-
+  incrementRxBand(0);
+  }
+
+  if(value>50){
+    startRace();
+  }
+}
 
 void IRAM_ATTR adc_read() {
   BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -142,6 +172,18 @@ void setup() {
   timerAlarmEnable(adc_task_timer);
 
   xTaskCreatePinnedToCore(eeprom_task, "eepromSave", 4096, NULL, tskIDLE_PRIORITY, NULL, 1);
+
+//Telemetry Frsky init
+  hub.commandId = 0x1B;                               //Listen to data send to thist physical ID
+  hub.commandReceived = handleCommand;          
+  hub.registerSensor(lapsensor0);       //Add sensor to the hub
+  hub.registerSensor(lapsensor1);       //Add sensor to the hub
+  hub.registerSensor(lapsensor2);       //Add sensor to the hub
+  hub.registerSensor(lapsensor3);       //Add sensor to the hub
+  hub.registerSensor(sensor);       //Add sensor to the hub
+  
+  hub.begin();
+
 }
 
 void loop() {
@@ -173,4 +215,12 @@ void loop() {
   if(UNLIKELY(!isInRaceMode())) {
     thresholdModeStep();
   }
+
+  lapsensor0.value = getLaptimeRel(0);
+  lapsensor1.value = isInRaceMode();
+  lapsensor2.value = getRSSI(0);
+  lapsensor3.value = getRXChannelModule(0);
+  hub.handle();
+
+
 }
