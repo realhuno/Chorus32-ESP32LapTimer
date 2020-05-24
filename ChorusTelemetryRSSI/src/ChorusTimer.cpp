@@ -9,14 +9,6 @@
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
 
-//WEB
-#include <WebServer.h>
- 
-#include "index.h"  //Web page header file
- 
-WebServer server(80);
-
-
 
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 
@@ -27,7 +19,7 @@ WebServer server(80);
 #define PROXY_CONNECTION_STATUS 'c'
 #define PROXY_WIFI_STATUS 'w'
 #define PROXY_WIFI_RSSI 't'
-#define PROXY_WIFI_IP 'i'
+
 
 WiFiClient client;
 WiFiMulti wifiMulti;
@@ -36,48 +28,6 @@ WiFiMulti wifiMulti;
 char buf[MAX_BUF];
 uint32_t buf_pos = 0;
 int real_rssi=0;
-
-//===============================================================
-// This routine is executed when you open its IP in browser
-//===============================================================
-void handleRoot() {
- String s = MAIN_page; //Read HTML contents
- server.send(200, "text/html", s); //Send web page
-}
- 
-void handleADC() {
- 
- //String adcValue = String(WiFi.localIP());
- 
- //server.send(200, "text/plane", adcValue); //Send ADC value only to client ajax request
-}
-
- 
-void handleLED() {
-
- String t_state = server.arg("LEDstate"); //Refer  xhttp.open("GET", "setLED?LEDstate="+led, true);
- Serial1.println(t_state);
- Serial.println(t_state);
-
- server.send(200, "text/plane", t_state); //Send web page
-}
-
-void handleTime() {
-
- //int t_state = server.arg("time").toInt(); //Refer  xhttp.open("GET", "setLED?LEDstate="+led, true);
- int timems=server.arg("time").toInt();
-
- 
-
-
- String stringOne =  String(timems, HEX); 
- 
- Serial1.println("S1L01000"+stringOne);
-
-
- //server.send(200, "text/plane", t_state); //Send web page
-}
-
 void chorus_connect() {
 	if(WiFi.isConnected()) {
         
@@ -157,25 +107,12 @@ void setup() {
       else if (error == OTA_END_ERROR) Serial.println("End Failed");
     });
 
-//----------------------------------------------------------------
- 
-  server.on("/", handleRoot);      //This is display page
-  server.on("/readADC", handleADC);//To get update of ADC Value only
-  server.on("/setLED", handleLED);
-  server.on("/setTime", handleTime);
- 
-  server.begin();                  //Start server
-  Serial.println("HTTP server started");
-
-
   ArduinoOTA.begin();
 }
 
 void loop() {
 	ArduinoOTA.handle();
 	real_rssi=WiFi.RSSI();
-	server.handleClient();
-	delay(1);
     if(wifiMulti.run() != WL_CONNECTED) {
         Serial.println("WiFi not connected!");
         delay(1000);
@@ -192,7 +129,7 @@ void loop() {
 			Serial.printf("Forwarding to taranis: %s\n", line.c_str());
 		//}
 	}
-    IPAddress myip = WiFi.localIP();
+
 	while(Serial1.available()) {
 		if(buf_pos >= MAX_BUF -1 ) {
 			buf_pos = 0; // clear buffer when full
@@ -210,11 +147,6 @@ void loop() {
 						Serial1.printf("%cS*%c%2x\n", PROXY_PREFIX, PROXY_WIFI_RSSI, abs(real_rssi*-1));
 						Serial.println(real_rssi);
 						break;
-					case PROXY_WIFI_IP:
-                        
-						Serial1.printf("%cS*%c%1x\n", PROXY_PREFIX, PROXY_WIFI_IP, 1);
-						Serial.println(real_rssi);
-						break;
 					case PROXY_CONNECTION_STATUS:
 						Serial1.printf("%cS*%c%1x\n", PROXY_PREFIX, PROXY_CONNECTION_STATUS, client.connected());
 						break;
@@ -224,10 +156,6 @@ void loop() {
 				Serial.print("Forwarding to chorus: ");
 				Serial.write((uint8_t*)buf, buf_pos);
 				client.write(buf, buf_pos);
-				//int a = analogRead(A0);
-                String adcValue = String(buf);
-                 server.send(200, "text/plane", adcValue); //Send ADC value only to client ajax request
-               
 			}
 			buf_pos = 0;
 		}
