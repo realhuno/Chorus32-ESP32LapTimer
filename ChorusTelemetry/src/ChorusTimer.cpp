@@ -11,7 +11,7 @@
 
 //WEB
 #include <WebServer.h>
- 
+#include <HTTPClient.h>
 #include "index.h"  //Web page header file
  
 WebServer server(80);
@@ -36,6 +36,10 @@ WiFiMulti wifiMulti;
 char buf[MAX_BUF];
 uint32_t buf_pos = 0;
 int real_rssi=0;
+
+//Rapidfire Station
+String serverName = "http://radio0/setLED?LEDstate";
+
 
 //===============================================================
 // This routine is executed when you open its IP in browser
@@ -108,7 +112,9 @@ void setup() {
 	Serial.begin(115200);
 	Serial1.begin(115200, SERIAL_8N1, UART_RX, UART_TX, true);
 	//WiFi.begin(WIFI_AP_NAME);
-	
+	 
+  
+
 	wifiMulti.addAP("Chorus32 LapTimer", "");
     wifiMulti.addAP("Laptimer", "laptimer");
     wifiMulti.addAP("A1-7FB051", "hainz2015");
@@ -118,7 +124,9 @@ void setup() {
         Serial.println("");
         Serial.println("WiFi connected");
         Serial.println("IP address: ");
+		MDNS.begin("radio0");
         Serial.println(WiFi.localIP());
+		  
     }
 	
 
@@ -210,11 +218,6 @@ void loop() {
 						Serial1.printf("%cS*%c%2x\n", PROXY_PREFIX, PROXY_WIFI_RSSI, abs(real_rssi*-1));
 						Serial.println(real_rssi);
 						break;
-					case PROXY_WIFI_IP:
-                        
-						Serial1.printf("%cS*%c%1x\n", PROXY_PREFIX, PROXY_WIFI_IP, 1);
-						Serial.println(real_rssi);
-						break;
 					case PROXY_CONNECTION_STATUS:
 						Serial1.printf("%cS*%c%1x\n", PROXY_PREFIX, PROXY_CONNECTION_STATUS, client.connected());
 						break;
@@ -225,10 +228,21 @@ void loop() {
 				Serial.write((uint8_t*)buf, buf_pos);
 				client.write(buf, buf_pos);
 				//int a = analogRead(A0);
-                String adcValue = String(buf);
-                 server.send(200, "text/plane", adcValue); //Send ADC value only to client ajax request
+             
                
 			}
+			String adcValue = String(buf);
+		  if(buf[0] == 'C') {
+	      HTTPClient http;
+          
+          String serverPath = serverName + "=C=" + (buf[1]-47);
+          // Your Domain name with URL path or IP address with path
+          http.begin(serverPath.c_str());
+           // Send HTTP GET request
+           int httpResponseCode = http.GET();
+
+		  }
+		    server.send(200, "text/plane", adcValue); //Send ADC value only to client ajax request
 			buf_pos = 0;
 		}
 	}
