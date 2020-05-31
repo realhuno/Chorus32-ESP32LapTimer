@@ -51,9 +51,9 @@ void handleRoot() {
  
 void handleADC() {
  
- //String adcValue = String(WiFi.localIP());
+ String adcValue = server.arg("LEDstate");
  
- //server.send(200, "text/plane", adcValue); //Send ADC value only to client ajax request
+ server.send(200, "text/plane", adcValue); //Send ADC value only to client ajax request
 }
 
  
@@ -176,8 +176,11 @@ void setup() {
   Serial.println("HTTP server started");
 
 
+
   ArduinoOTA.begin();
 }
+
+
 
 void loop() {
 	ArduinoOTA.handle();
@@ -254,10 +257,6 @@ void loop() {
 		Serial.println(WiFi.SSID());
 		chorus_connect();
 	}
-
-
-
-
 
 
 
