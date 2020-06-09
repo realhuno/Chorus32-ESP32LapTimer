@@ -9,6 +9,8 @@ const char MAIN_page[] PROGMEM = R"=====(
 	<button type="button" onclick="sendData('29000')">Simulate Lap2</button><BR>
   <button type="button" onclick="sendesp32('R*R1')">R*R1</button>
 	<button type="button" onclick="sendesp32('R*R0')">R*R0</button><BR>
+     <input type="text" id="ip" value="10.0.0.81">
+   <button type="button" onclick="reconnect('true')">MQTT Connect!!</button>
   <input type="text" id="valuein">
   	<button type="button" onclick="sendesp32(valuein.value)">Send</button><BR>
 </div>
@@ -41,6 +43,23 @@ function sendData(led) {
   };
 
   xhttp.open("GET", "setLED?LEDstate=S1L01000"+led, true);
+  xhttp.send();
+}
+
+function reconnect(led) {
+ 
+
+  
+  console.log(led);
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("LEDState").innerHTML =
+      this.responseText;
+    }
+  };
+let msg = document.querySelector("#ip").value;
+  xhttp.open("GET", "reconnect?ip="+msg, true);
   xhttp.send();
 }
 
