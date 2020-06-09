@@ -472,6 +472,7 @@ void setup() {
   server.on("/setLED", handleLED);
   server.on("/setTime", handleTime);
   server.on("/reconnect", reconnect);
+  server.on("/reconnect2", chorus_connect);
  
   server.begin();                  //Start server
   Serial.println("HTTP server started");
@@ -568,7 +569,7 @@ if(mqtt==1){ // Connected.
   }
 
 
-
+/*
 	if(!client.connected()) {
 		delay(1000);
 		Serial.println("Lost tcp connection! Trying to reconnect");
@@ -576,7 +577,7 @@ if(mqtt==1){ // Connected.
 		Serial.println(WiFi.SSID());
 		chorus_connect();
 	}
-
+*/
 
 
 
