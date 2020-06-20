@@ -29,7 +29,7 @@ WebServer server(80);
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 
 #define UART_TX 15
-#define UART_RX 14    //4 normal esp32         14 esp32-cam
+#define UART_RX 4
 
 #define PROXY_PREFIX 'P' // used to configure any proxy (i.e. this device ;))
 #define PROXY_CONNECTION_STATUS 'c'
@@ -49,7 +49,6 @@ String mqttserver;
 const char* mqtt_server = "10.0.0.81";
 String ipa="10.0.0.50";
 int mqttid=2; //Change THIS .... MQTTID!!
-
 
 
 
@@ -83,9 +82,9 @@ void handleADC() {
  
 void callback(char* topic, byte* message, unsigned int length) {             //MQTT Callback
 
-  //Serial.print("Message arrived on topic: ");
-  //Serial.print(topic);
-  //Serial.print(". Message: ");
+   Serial.print("Message arrived on topic: ");
+  Serial.print(topic);
+  Serial.print(". Message: ");
  String line;
  String rxvid=WiFi.macAddress();
  String topicmsg;
@@ -93,14 +92,14 @@ void callback(char* topic, byte* message, unsigned int length) {             //M
  rxvid.replace(":", ""); //remove : from mac
 
   for (int i = 0; i < length; i++) {
-    //Serial.print((char)message[i]);
+    Serial.print((char)message[i]);
     line += (char)message[i];   
   }
   global=global+line+"<br>";
-  //Serial.println("Topic:");
+  Serial.println("Topic:");
 
-   //Serial.println(String(topic));
-   //Serial.println(line);
+   Serial.println(String(topic));
+   Serial.println(line);
   
      //Rotorhazard send \n first 
      //   ->                    29UML1:Callsign 2 L1: 0:06.451%
@@ -168,7 +167,7 @@ void callback(char* topic, byte* message, unsigned int length) {             //M
                            //rx/cv1/cmd_esp_target/CV_00000001  
 
      if(line.charAt(0) == '0' && line.charAt(1) == '9' && line.charAt(2) == 'U') {             //09UMFinish%
-     //Serial.println("Send text mqtt");
+     Serial.println("Send text mqtt");
      String stringOne;
      stringOne="T="+line.substring(4,line.lastIndexOf('%')+3); //8
      //stringOne="T="+line; //8
@@ -185,7 +184,7 @@ void callback(char* topic, byte* message, unsigned int length) {             //M
      }
      
      if(line.charAt(0) == '2' || line.charAt(0) == '0' && line.charAt(1) == '9' && line.charAt(2) == 'U') {           //Push in laptimes
-     //Serial.println("Send text mqtt");
+     Serial.println("Send text mqtt");
      String stringOne;
 
      stringOne="T="+line.substring(5,line.lastIndexOf('%')+3); //8
@@ -272,32 +271,25 @@ void callback(char* topic, byte* message, unsigned int length) {             //M
      }
 
      //Rapidfire CMD
-  if(line.charAt(0) == 'P') {
-  String stringOne;
-  stringOne=line.substring(2,line.length()); 
-  Serial1.println(stringOne);
-  global=global+"Forwarding Taranis"+stringOne+"<br>";
-  }
-
-
+       
   if(line.charAt(0) == 'S') {
   //buzzer();
-  //Serial.println("BUZZER");
+  Serial.println("BUZZER");
   global=global+"MQTTBUZZER"+"<br>";
   }
   if(line.charAt(0) == 'O') {
   //osdmode(line.charAt(2));
-  //Serial.println("OSD");
+  Serial.println("OSD");
 
   }
   if(line.charAt(0) == 'C') {
   //channel(line.charAt(2));
-  //Serial.println("Channel");
+  Serial.println("Channel");
 
   }     
   if(line.charAt(0) == 'B') {
   //band(line.charAt(2));
-  //Serial.println("Band");
+  Serial.println("Band");
   } 
      
 
@@ -306,7 +298,6 @@ void callback(char* topic, byte* message, unsigned int length) {             //M
 
 boolean reconnect() {                                       //MQTT Connect and Reconnect
   // Loop until we're reconnected
-  mqttid=EEPROM.read(0);
  mqtt=1;
  ipa=server.arg("ip");
  String rxvid=WiFi.macAddress();
@@ -314,41 +305,23 @@ boolean reconnect() {                                       //MQTT Connect and R
  rxvid.replace(":", ""); //remove : from mac
  global=global+rxvid+"<br>";
    if(ipa.length()>=5){
-    //Serial.print("New MQTT connection...");
+    Serial.print("New MQTT connection...");
     mqttserver=ipa;
    }else{
-
-        if(WiFi.SSID()=="Chorus32 LapTimer"){
-    mqttserver="192.168.4.1";
-        global=global+"try mqttconnect to 192.168.4.1<br>";
-    }
-
-
-    if(WiFi.SSID()=="Laptimer"){
-    mqttserver="192.168.0.141";
-    global=global+"try mqttconnect to 192.168.0.141<br>";
-    }
-
-    if(WiFi.SSID()=="A1-7FB051"){
-    mqttserver="10.0.0.50";
-        global=global+"try mqttconnect to 10.0.0.50<br>";
-
-    }
-
-    //Serial.print("MQTT reconnect...");
+    Serial.print("MQTT reconnect...");
    }
    
    
   client2.setServer(mqttserver.c_str(), 1883);
   client2.setCallback(callback);
   
-    //Serial.print("Attempting MQTT connection...");
-    //Serial.println(mqttserver.c_str());
+    Serial.print("Attempting MQTT connection...");
+    Serial.println(mqttserver.c_str());
     // Attempt to connect
     topic = "rapidfire_"+rxvid;
     if (client2.connect(topic.c_str())) {
       
-      //Serial.println("connected");
+      Serial.println("connected");
       // Subscribe
       //client2.subscribe("esp32/output");
       //client2.subscribe("rx/cv1/cmd_esp_all");
@@ -377,8 +350,8 @@ StaticJsonBuffer<300> JSONbuffer;
  
   char JSONmessageBuffer[100];
   JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-  //Serial.println("Sending message to MQTT topic..");
-  //Serial.println(JSONmessageBuffer);
+  Serial.println("Sending message to MQTT topic..");
+  Serial.println(JSONmessageBuffer);
  
  
 
@@ -390,44 +363,20 @@ StaticJsonBuffer<300> JSONbuffer;
      client2.publish(topic.c_str(), JSONmessageBuffer);
   char JSONmessageBuffer2[100];
   JSONencoder.printTo(JSONmessageBuffer2, sizeof(JSONmessageBuffer2));
-  //Serial.println("Sending message to MQTT topic..");
-  //Serial.println(JSONmessageBuffer2);
+  Serial.println("Sending message to MQTT topic..");
+  Serial.println(JSONmessageBuffer2);
     delay(500);
      topic = "status_variable/CV_" + rxvid;
      
      client2.publish(topic.c_str(), JSONmessageBuffer2);
 //rx/cv1/cmd_node/1
-     
-     String topicmsg;
-      client2.unsubscribe("rx/cv1/cmd_node/0");
-      client2.unsubscribe("rx/cv1/cmd_node/1");
-      client2.unsubscribe("rx/cv1/cmd_node/2");
-      client2.unsubscribe("rx/cv1/cmd_node/3");
-      client2.unsubscribe("rx/cv1/cmd_node/4");
-      client2.unsubscribe("rx/cv1/cmd_node/5");
-      client2.unsubscribe("rx/cv1/cmd_node/6");
-      client2.unsubscribe("rx/cv1/cmd_node/7");
-      client2.unsubscribe("rx/cv1/cmd_node/8");
-      topicmsg = "rx/cv1/cmd_node/"+String(mqttid);                                            
-        global=global+"TOPIC: "+String(topicmsg)+"<br>";
-  
-                       
-      client2.subscribe(topicmsg.c_str());
-     JSONencoder["node_number"] = mqttid;  //         mqttid );<<<<<<<<<<<<<<<
-
-     JSONencoder.printTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-     
-     
-     topicmsg="status_variable/CV_"+rxvid;
-        global=global+"TOPIC: "+String(topicmsg)+"<br>";
-  
-     client2.publish(topicmsg.c_str(), JSONmessageBuffer);
+ 
     } else {
-      mqtt=0;
-      //Serial.print("failed, rc=");
-      //Serial.print(client2.state());
+      mqtt=1;
+      Serial.print("failed, rc=");
+      Serial.print(client2.state());
       global=global+"MQTT not Connected"+"<br>";
-      //Serial.println(" try again in 5 seconds");
+      Serial.println(" try again in 5 seconds");
       // Wait 5 seconds before retrying
       delay(500);
     }
@@ -439,9 +388,8 @@ void handleLED() {
 
  String t_state = server.arg("LEDstate"); //Refer  xhttp.open("GET", "setLED?LEDstate="+led, true);
  Serial1.println(t_state);
- //Serial.println(t_state);
+ Serial.println(t_state);
 
- global=global+t_state+"<br>";
  server.send(200, "text/plane", t_state); //Send web page
 }
 
@@ -467,20 +415,20 @@ void chorus_connect() {
 
 		if(WiFi.SSID()=="Chorus32 LapTimer"){
            if(client.connect("192.168.4.1", 9000)) {
-			//Serial.println("Connected to chorus via tcp 192.168.4.1");
+			Serial.println("Connected to chorus via tcp 192.168.4.1");
 		}
 		}
 
 
 		if(WiFi.SSID()=="Laptimer"){
            if(client.connect("192.168.0.141", 9000)) {
-			//Serial.println("Connected to chorus via tcp 192.168.0.141");
+			Serial.println("Connected to chorus via tcp 192.168.0.141");
 		}
 		}
 
 		if(WiFi.SSID()=="A1-7FB051"){
            if(client.connect("10.0.0.50", 9000)) {
-			//Serial.println("Connected to chorus via tcp 10.0.0.50");
+			Serial.println("Connected to chorus via tcp 10.0.0.50");
 		}
 		}
 
@@ -490,8 +438,7 @@ void chorus_connect() {
 void setup() {
   EEPROM.begin(EEPROM_SIZE);
   mqttid=EEPROM.read(0);
-	//Serial.begin(115200);
-  Serial.begin(115200);
+	Serial.begin(115200);
 	Serial1.begin(115200, SERIAL_8N1, UART_RX, UART_TX, true);
 	//WiFi.begin(WIFI_AP_NAME);
 	 
@@ -501,9 +448,9 @@ void setup() {
     wifiMulti.addAP("Laptimer", "laptimer");
     wifiMulti.addAP("A1-7FB051", "hainz2015");
 
-    //Serial.println("Connecting Wifi...");
+    Serial.println("Connecting Wifi...");
     if(wifiMulti.run() == WL_CONNECTED) {
-        //Serial.println("");
+        Serial.println("");
         Serial.println("WiFi connected");
         Serial.println("IP address: ");
 		MDNS.begin("radio0");
@@ -528,15 +475,11 @@ void setup() {
   server.on("/reconnect2", chorus_connect);
  
   server.begin();                  //Start server
-  //Serial.println("HTTP server started");
+  Serial.println("HTTP server started");
 
 
 
   ArduinoOTA.begin();
-   global=global+"node_number: "+mqttid+"<br>";
- global=global+"Try boot up mqtt connect...<br>";
- 
- reconnect();
 }
 
 
@@ -547,7 +490,7 @@ void loop() {
 	server.handleClient();
 	delay(1);
     if(wifiMulti.run() != WL_CONNECTED) {
-        //Serial.println("WiFi not connected!");
+        Serial.println("WiFi not connected!");
         delay(1000);
     }
 
@@ -559,8 +502,7 @@ void loop() {
 		// Only forward specific messages for now
 		//if(line[2] == 'L') {
 			Serial1.println(line);
-     
-			//Serial.printf("Forwarding to taranis: %s\n", line.c_str());
+			Serial.printf("Forwarding to taranis: %s\n", line.c_str());
 		//}
 	}
     IPAddress myip = WiFi.localIP();
@@ -579,7 +521,7 @@ void loop() {
 						break;
                     case PROXY_WIFI_RSSI:
 						Serial1.printf("%cS*%c%2x\n", PROXY_PREFIX, PROXY_WIFI_RSSI, abs(real_rssi*-1));
-						//Serial.println(real_rssi);
+						Serial.println(real_rssi);
 						break;
 					case PROXY_CONNECTION_STATUS:
 						Serial1.printf("%cS*%c%1x\n", PROXY_PREFIX, PROXY_CONNECTION_STATUS, client.connected());
@@ -587,7 +529,7 @@ void loop() {
 				}
 			}
 			else if((buf[0] == 'E' && (buf[1] == 'S' || buf[1] == 'R')) || buf[0] == 'S' || buf[0] == 'R') {
-				//Serial.print("Forwarding to chorus: ");
+				Serial.print("Forwarding to chorus: ");
 				Serial.write((uint8_t*)buf, buf_pos);
 				client.write(buf, buf_pos);
 				//int a = analogRead(A0);
@@ -609,17 +551,17 @@ void loop() {
 			buf_pos = 0;
 		}
 	}
-    mqtt=1;
+    
 if (!client2.connected() && mqtt==1) {
     long now = millis();
-    if (now - lastReconnectAttempt > 10000) { // Try to reconnect.
+    if (now - lastReconnectAttempt > 5000) { // Try to reconnect.
       lastReconnectAttempt = now;
       if (reconnect()) { // Attempt to reconnect.
         lastReconnectAttempt = 0;
       }
     }
-  } else{
-    mqtt==1; // Connected.
+  } 
+if(mqtt==1){ // Connected.
     client2.loop();
     //client.publish(channelName,"Hello world!"); // Publish message.
     //Serial.println(mqtt);
