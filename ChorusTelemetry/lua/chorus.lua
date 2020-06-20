@@ -1,10 +1,47 @@
 SCRIPT_HOME = "/SCRIPTS/BF"
-protocol = assert(loadScript(SCRIPT_HOME.."/protocols.lua"))()
+--protocol = assert(loadScript(SCRIPT_HOME.."/protocols.lua"))()
+
+-- copied from betaflight, since they changed how scripts are loaded
+local supportedProtocols =
+{
+    smartPort =
+    {
+        transport       = SCRIPT_HOME.."/MSP/sp.lua",
+        rssi            = function() return getValue("RSSI") end,
+        stateSensor     = "Tmp1",
+        push            = sportTelemetryPush,
+        maxTxBufferSize = 6,
+        maxRxBufferSize = 6,
+        saveMaxRetries  = 2,
+        saveTimeout     = 500
+    },
+    crsf =
+    {
+        transport       = SCRIPT_HOME.."/MSP/crsf.lua",
+        rssi            = function() return getValue("TQly") end,
+        stateSensor     = "1RSS",
+        push            = crossfireTelemetryPush,
+        maxTxBufferSize = 8,
+        maxRxBufferSize = 58,
+        saveMaxRetries  = 2,
+        saveTimeout     = 150
+    }
+}
+
+local function getProtocol()
+    if supportedProtocols.smartPort.push() ~= nil then
+        return supportedProtocols.smartPort
+    elseif supportedProtocols.crsf.push() ~= nil then
+        return supportedProtocols.crsf
+    end
+end
+
+protocol = assert(getProtocol(), "Telemetry protocol not supported!")
 
 assert(loadScript(protocol.transport))()
 assert(loadScript(SCRIPT_HOME.."/MSP/common.lua"))()
 
-local MSP_ADD_LAP = 229
+local MSP_ADD_LAP = 11
 
 local current_screen = 1
 local current_item = 0
@@ -26,7 +63,9 @@ local lap_sent = false
 local laps_int = {{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}
 
 local wifi_status = 0
+local wifi_rssi = 0
 local connection_status = 0
+local wifi_ip = 0
 
 local CHORUS_CMD_NUM_RX = 1
 local CHORUS_CMD_ADC_TYPE = 2
@@ -57,7 +96,7 @@ chorus_cmds[CHORUS_CMD_RACE_MODE] =  { cmd="R*R", bits=4, last_val=nil }
 chorus_cmds[CHORUS_CMD_BAND] =  { cmd="R*B", bits=4, last_val=nil, individual=true}
 chorus_cmds[CHORUS_CMD_CHANNEL] =  { cmd="R*C", bits=4, last_val=nil, individual=true}
 chorus_cmds[CHORUS_CMD_ACTIVE] =  { cmd="R*A", bits=4, last_val=nil, individual=true }
-chorus_cmds[CHORUS_CMD_THRESHOLD] =  { cmd="R*T", bits=4, last_val={2000}, individual=true }
+chorus_cmds[CHORUS_CMD_THRESHOLD] =  { cmd="R*T", bits=16, last_val=nil, individual=true }
 
 
 local settings_labels = {}
@@ -121,7 +160,7 @@ for i=1,6 do
 	rx_fields[#rx_fields + 1] = {x= x, y=inc_y(linespacing), min = 0, max = 7, cmd_id=CHORUS_CMD_BAND, labels={"R", "A", "B", "E", "F", "D", "Connex", "Connex2"}, node=i-1}
 	rx_fields[#rx_fields + 1] = {x= inc_x(15), y=y, min = 0, max = 7, labels={"1", "2", "3", "4", "5", "6", "7", "8"}, cmd_id=CHORUS_CMD_CHANNEL, node = i-1}
 	rx_fields[#rx_fields + 1] = {x= inc_x(20), y=y, min = 0, max = 1, labels={"OFF","ON"}, cmd_id=CHORUS_CMD_ACTIVE, node=i-1}
-	rx_fields[#rx_fields + 1] = {x= inc_x(20), y=y, min = 1500, max = 3000, cmd_id=CHORUS_CMD_THRESHOLD, node=i-1, scaling=1/12}
+	rx_fields[#rx_fields + 1] = {x= inc_x(20), y=y, min = 0, max = 300, cmd_id=CHORUS_CMD_THRESHOLD, node=i-1}
 	-- TODO: add RSSI bar
 	-- Add enter/leave command for pages
 	-- add custom function call for labels, to add a gauge lcd.drawGauge(x, y, w, h, fill, maxfill [, flags])
@@ -169,7 +208,7 @@ local function draw_header(title)
 
 	local conn_status = "disconnected"
 	if tonumber(connection_status) == 1 then
-		conn_status = "conencted"
+		conn_status = "connected"
 	end
 	lcd.drawScreenTitle(title, current_screen, #pages)
 	lcd.drawText(120, 0, conn_status, INVERS)
@@ -180,6 +219,10 @@ local function draw_debug_screen()
 	lcd.drawText(0, 11, "WiFi status:", 0)
 	lcd.drawText(lcd.getLastPos()+2, 11, wifi_status,0)
 	lcd.drawText(lcd.getLastPos()+2, 11, ms_to_string(last_lap_int),0)
+	lcd.drawText(lcd.getLastPos()+2, 11, "RSSI:",0)
+	lcd.drawText(lcd.getLastPos()+2, 11, wifi_rssi,0)
+	lcd.drawText(lcd.getLastPos()+2, 11, "IP:",0)
+	lcd.drawText(lcd.getLastPos()+2, 11, wifi_ip,0)
 	lcd.drawText(0, 21, "Connection status:", 0)
 	lcd.drawText(lcd.getLastPos()+2, 21, connection_status,0)
 	lcd.drawText(0, 31, "Last rx: ",0)
@@ -222,9 +265,72 @@ local function draw_race_screen()
 	end
 end
 
+local function getMinutesSecondsHundrethsAsString(miliseconds)
+  -- Returns MM:SS.hh as a string
+ -- miliseconds = miliseconds or 0
+   --local seconds = miliseconds/1000
+   local seconds = miliseconds/1000
+  local minutes = math.floor(seconds/60) -- seconds/60 gives minutes
+  seconds = seconds % 60 -- seconds % 60 gives seconds
+  return  (string.format("%02d:%05.2f", minutes, seconds))
+end
+
+
+-- Time Tracking
+local StartTimeMiliseconds = -1
+local ElapsedTimeMiliseconds = 0
+local PreviousElapsedTimeMiliseconds = 0
+local LapTime = 0
+local LapTimeList = {ElapsedTimeMiliseconds}
+local LapTimeRecorded = false
+
+
+local function draw_lap_screen()
+  local TextSize = 0
+  TextSize = MIDSIZE
+  local TextHeight = 12 
+  -- lcd.drawText( lcd.getLastPos(), 15, "s", SMLSIZE)
+  local x = lcd.getLastPos() + 4
+  
+  --lcd.drawText( x, 0, "Running..", TextSize)
+  --lcd.drawText( x, 0, freq, TextSize)
+  --x = lcd.getLastPos() + 4
+  --lcd.drawText( x, 0, threshold, TextSize)
+  --x = lcd.getLastPos() + 4
+  --lcd.drawText( x, 0, "Lap", TextSize + INVERS)
+  --x = lcd.getLastPos() + 4
+  --lcd.drawText( x, 0, #LapTimeList-1, TextSize)
+  --x = lcd.getLastPos() + 4
+  --lcd.drawText( x, 0, getMinutesSecondsHundrethsAsString(ElapsedTimeMiliseconds), TextSize)
+  draw_header("LapList:")
+  local rowHeight = math.floor(TextHeight + 2) --12
+  local rows = math.floor(LCD_H/rowHeight) 
+  local rowsMod=rows*rowHeight 
+
+  x = 0
+  local y = rowHeight
+  local c = 1
+  lcd.drawText(x,rowHeight," ")
+  -- i = 2 first entry is always 0:00.00 so skippind it
+  for i = #LapTimeList, 2, -1 do
+    if y %  (rowsMod or 60) == 0 then
+      c = c + 1-- next column
+      x = lcd.getLastPos() 
+      y = rowHeight
+    end
+    if (c > 1) and x > LCD_W - x/(c-1) then
+    else
+      lcd.drawText( x, y, LapTimeList[i],TextSize)
+    end
+    y = y + rowHeight
+  end
+end
+
+
 local race_page = {custom_draw_func=draw_race_screen}
+local lap_page = {custom_draw_func=draw_lap_screen}
 local debug_page = { custom_draw_func=draw_debug_screen }
-pages = {race_page, debug_page, settings_page, rx_page}
+pages = {race_page, debug_page, settings_page, rx_page,lap_page}
 
 local last_chorus_update = 0
 
@@ -239,6 +345,8 @@ end
 local function get_connection_status()
 	serialWrite("PR*w\n")
 	serialWrite("PR*c\n")
+	serialWrite("PR*t\n")
+	serialWrite("PR*i\n")
 end
 
 local busy_count = 0
@@ -250,18 +358,33 @@ local function send_msp(values)
 	end
 	mspProcessTxQ()
 	--process_msp_reply(mspPollReply())
+
+
 end
 
 local function convert_lap(pilot, lap, laptime)
 	msp_string = "Last lap " .. pilot .. "L" .. lap .. "T" .. laptime
-	local values = {}
-	values[1] = pilot
-	values[2] = lap
-	for i = 3, 6 do
-		values[i] = bit32.band(laptime, 0xFF)
-		laptime = bit32.rshift(laptime, 8)
-	end
-	return values
+	--local values = {}
+	--values[1] = pilot
+	--values[2] = lap
+	--for i = 3, 6 do
+		--values[i] = bit32.band(laptime, 0xFF)
+		--laptime = bit32.rshift(laptime, 8)
+	--end
+	--return values
+    local valsTemp = {}
+	local time1=laptime
+
+
+	
+	if string.byte(time1,1) == nil then valsTemp[1]=32 else valsTemp[1]=string.byte(time1,1) end
+    if string.byte(time1,2) == nil then valsTemp[2]=32 else valsTemp[2]=string.byte(time1,2) end
+	if string.byte(time1,3) == nil then valsTemp[3]=32 else valsTemp[3]=string.byte(time1,3) end
+	if string.byte(time1,4) == nil then valsTemp[4]=32 else valsTemp[4]=string.byte(time1,4) end
+	if string.byte(time1,5) == nil then valsTemp[5]=32 else valsTemp[5]=string.byte(time1,5) end
+	if string.byte(time1,6) == nil then valsTemp[6]=32 else valsTemp[6]=string.byte(time1,6) end
+
+	return valsTemp
 end
 
 
@@ -281,6 +404,10 @@ local function process_proxy_cmd(cmd)
 		wifi_status = tonumber(string.sub(cmd, 4), 16)
 	elseif (chorus_cmd == 'c') then
 		connection_status = tonumber(string.sub(cmd, 4), 16)
+	elseif (chorus_cmd == 't') then
+		wifi_rssi = tonumber(string.sub(cmd, 4), 16)
+	elseif (chorus_cmd == 'i') then
+		wifi_ip = tonumber(string.sub(cmd, 4), 16)
 	end
 
 end
@@ -298,7 +425,9 @@ local function process_cmd(cmd)
 		if (chorus_cmd == "L") then -- laptime. for now only for pilot 1
 			local new_time = tonumber(string.sub(cmd, 6), 16)
 			local lap = tonumber(string.sub(cmd, 4, 5), 16)
-
+            -- ADD NEW LAP FOR OTHER SCREEN
+			LapTimeList[#LapTimeList+1] = getMinutesSecondsHundrethsAsString(new_time)
+			
 			if lap < 5 and lap > 0 then -- just limit the number of laps for now
 				laps_int[node + 1][lap] = new_time
 			end
@@ -409,13 +538,13 @@ local function handle_input_edit(event)
 			if field.node ~= nil then
 				chorus_set_value_node(field.cmd_id, current_val + 1*scaling, field.node)
 			else
-				chorus_set_value(field.cmd_id, current_val + 1)
+				chorus_set_value(field.cmd_id, current_val + 1*scaling)
 			end
 		end
 	elseif event == EVT_MINUS_BREAK then
 		if current_val > field.min then
 			if field.node ~= nil then
-				chorus_set_value_node(field.cmd_id, current_val - 1, field.node)
+				chorus_set_value_node(field.cmd_id, current_val - 1*scaling, field.node)
 			else
 				chorus_set_value(field.cmd_id, current_val - 1*scaling)
 			end
@@ -466,10 +595,13 @@ end
 local run = function (event)
 	handle_input(event)
 	draw_ui()
-	if type(serialReadLine) ~= "nil" then
-		local rx = serialReadLine()
-	end
-	if(rx ~= nil) then
+--	if type(serialReadLine) ~= "nil" then
+--		local rx = serialReadLine()
+--	end
+	local rx = serialRead()
+	if(rx ~= nil and string.len(rx) > 0) then
+	
+	--if(rx ~= nil) then
 		last_cmd = rx
 		process_cmd(last_cmd)
 	end
