@@ -28,8 +28,8 @@ WebServer server(80);
 
 #define WIFI_AP_NAME "Chorus32 LapTimer"
 
-#define UART_TX 15
-#define UART_RX 14    //4 normal esp32         14 esp32-cam
+#define UART_TX 14
+#define UART_RX 15    //4 normal esp32         14 esp32-cam
 
 #define PROXY_PREFIX 'P' // used to configure any proxy (i.e. this device ;))
 #define PROXY_CONNECTION_STATUS 'c'
@@ -236,7 +236,7 @@ void callback(char* topic, byte* message, unsigned int length) {             //M
     
 
      String stringlap = String(lap, DEC); 
-     Serial1.println("S1L0"+stringlap+"""000"+stringtwo);
+     Serial.println("S1L0"+stringlap+"""000"+stringtwo);
      global=global+"S1L0"+stringlap+"""000"+stringtwo+"<br>";
      }
      }
@@ -275,7 +275,7 @@ void callback(char* topic, byte* message, unsigned int length) {             //M
   if(line.charAt(0) == 'P') {
   String stringOne;
   stringOne=line.substring(2,line.length()); 
-  Serial1.println(stringOne);
+  Serial.println(stringOne);
   global=global+"Forwarding Taranis"+stringOne+"<br>";
   }
 
@@ -438,7 +438,7 @@ StaticJsonBuffer<300> JSONbuffer;
 void handleLED() {
 
  String t_state = server.arg("LEDstate"); //Refer  xhttp.open("GET", "setLED?LEDstate="+led, true);
- Serial1.println(t_state);
+ Serial.println(t_state);
  //Serial.println(t_state);
 
  global=global+t_state+"<br>";
@@ -455,7 +455,7 @@ void handleTime() {
 
  String stringOne =  String(timems, HEX); 
  
- Serial1.println("S1L01000"+stringOne);
+ Serial.println("S1L01000"+stringOne);
 
 
  //server.send(200, "text/plane", t_state); //Send web page
@@ -491,8 +491,8 @@ void setup() {
   EEPROM.begin(EEPROM_SIZE);
   mqttid=EEPROM.read(0);
 	//Serial.begin(115200);
-  Serial.begin(115200);
-	Serial1.begin(115200, SERIAL_8N1, UART_RX, UART_TX, true);
+Serial.begin(115200, SERIAL_8N1, 3, 1, true);
+	//Serial.begin(115200, SERIAL_8N1, UART_RX, UART_TX, true);
 	//WiFi.begin(WIFI_AP_NAME);
 	 
   
@@ -558,31 +558,31 @@ void loop() {
 
 		// Only forward specific messages for now
 		//if(line[2] == 'L') {
-			Serial1.println(line);
+			Serial.println(line);
      
 			//Serial.printf("Forwarding to taranis: %s\n", line.c_str());
 		//}
 	}
     IPAddress myip = WiFi.localIP();
-	while(Serial1.available()) {
+	while(Serial.available()) {
 		if(buf_pos >= MAX_BUF -1 ) {
 			buf_pos = 0; // clear buffer when full
 			break;
 		}
-		buf[buf_pos++] = Serial1.read();
+		buf[buf_pos++] = Serial.read();
 		if(buf[buf_pos - 1] == '\n') {
 			// catch proxy command
 			if(buf[0] == 'P') {
 				switch(buf[3]) {
 					case PROXY_WIFI_STATUS:
-						Serial1.printf("%cS*%c%1x\n", PROXY_PREFIX, PROXY_WIFI_STATUS, WiFi.status());
+						Serial.printf("%cS*%c%1x\n", PROXY_PREFIX, PROXY_WIFI_STATUS, WiFi.status());
 						break;
                     case PROXY_WIFI_RSSI:
-						Serial1.printf("%cS*%c%2x\n", PROXY_PREFIX, PROXY_WIFI_RSSI, abs(real_rssi*-1));
+						Serial.printf("%cS*%c%2x\n", PROXY_PREFIX, PROXY_WIFI_RSSI, abs(real_rssi*-1));
 						//Serial.println(real_rssi);
 						break;
 					case PROXY_CONNECTION_STATUS:
-						Serial1.printf("%cS*%c%1x\n", PROXY_PREFIX, PROXY_CONNECTION_STATUS, client.connected());
+						Serial.printf("%cS*%c%1x\n", PROXY_PREFIX, PROXY_CONNECTION_STATUS, client.connected());
 						break;
 				}
 			}
